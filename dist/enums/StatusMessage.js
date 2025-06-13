@@ -1,0 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.StatusMessage = void 0;
+var StatusMessage;
+(function (StatusMessage) {
+    StatusMessage["SUCCESS"] = "Operation Successful";
+    StatusMessage["CREATED"] = "Resource created Successfully";
+    StatusMessage["BAD_REQUEST"] = "Bad Request, Check URL !";
+    StatusMessage["UNAUTHORIZED"] = "Unauhorized Access";
+    StatusMessage["FORBIDDEN"] = "Access forbidden";
+    StatusMessage["NOT_FOUND"] = "Resource not Found";
+    StatusMessage["INTERNAL_SERVER_ERROR"] = "An Internal server Error";
+    StatusMessage["INVALID_CREDENTIALS"] = " Invalid credentials";
+    StatusMessage["ERROR"] = " Error Occured !";
+    StatusMessage["INVALID"] = "Incorrect Password !!";
+    StatusMessage["BLOCKED"] = "User is Blocked !!";
+    StatusMessage["CONFLICT"] = "Already Exist !";
+    StatusMessage["DELETED"] = "REsource deleted !";
+    StatusMessage["PASSWORD_RESET_SUCCESS"] = "Password reset succesful !";
+    StatusMessage["OLD_PASSWORD_INCORRECT"] = "Old Password Incorrect";
+    StatusMessage["PASSWORD_MISMATCH"] = "New Password and Confirm Password do not match !";
+    StatusMessage["USER_NOT_FOUND"] = "User not found !";
+    StatusMessage["PASSWORD_RESET_FAILED"] = "Password reset failed !";
+    StatusMessage["UPDATE_SUCCESS"] = "Update Successful";
+    StatusMessage["UPDATE_FAILED"] = "Update Failed";
+    StatusMessage["CANCEL_BOOKING"] = "Booking cannot be cancelled !";
+})(StatusMessage || (exports.StatusMessage = StatusMessage = {}));

@@ -1,0 +1,27 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const protected_1 = __importDefault(require("../middlewares/protected"));
+const roleAuth_1 = require("../middlewares/roleAuth");
+const container_1 = require("../config/container");
+const router = express_1.default.Router();
+const roleAuth = new roleAuth_1.RoleAuth();
+const agentController = container_1.container.get('AgentController');
+const packageController = container_1.container.get('PackageController');
+const bookingController = container_1.container.get('BookingController');
+router.post("/getPresignedUrl", protected_1.default, roleAuth.checkRole(['Agent']), agentController.getPresignedUrl);
+router.patch('/upload-certificate/:id', protected_1.default, roleAuth.checkRole(['Agent']), agentController.uploadCertificate);
+router.post('/packages', protected_1.default, roleAuth.checkRole(['Agent']), packageController.addPackage);
+router.get('/categories', protected_1.default, roleAuth.checkRole(['Agent']), agentController.getCategories);
+router.post('/getPresignedUrls', protected_1.default, roleAuth.checkRole(['Agent']), agentController.getSignedUrls);
+router.patch('/edit-package/:packageId', protected_1.default, roleAuth.checkRole(['Agent']), packageController.editPackage);
+router.patch('/delete-image', protected_1.default, roleAuth.checkRole(['Agent']), agentController.deleteImages);
+router.patch('/delete-package/:packageId', protected_1.default, roleAuth.checkRole(['Agent']), packageController.deletePackage);
+router.get('/packages/:id', protected_1.default, roleAuth.checkRole(['Agent']), packageController.getAgentPackages);
+router.get('/booking/:id', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.getAgentBookingData);
+router.patch('/booking/:bookingId', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.updateBookingStatusByAgent);
+router.get('/bookings/package/:packageId', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.getPackageBooking);
+exports.default = router;

@@ -132,6 +132,26 @@ let PackageService = class PackageService {
             }
         });
     }
+    verifyPackage(packageId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('Admin Verify Package :', packageId);
+                if (!packageId) {
+                    throw new Error(`Package with ID ${packageId} not found`);
+                }
+                const result = yield this._packageRepository.updateOneById(packageId, {
+                    isVerified: "approved"
+                });
+                if (result) {
+                    return true;
+                }
+                return false;
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
 };
 exports.PackageService = PackageService;
 exports.PackageService = PackageService = __decorate([

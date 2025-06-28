@@ -12,6 +12,7 @@ const roleAuth = new roleAuth_1.RoleAuth();
 const agentController = container_1.container.get('AgentController');
 const packageController = container_1.container.get('PackageController');
 const bookingController = container_1.container.get('BookingController');
+const chatController = container_1.container.get('ChatController');
 router.post("/getPresignedUrl", protected_1.default, roleAuth.checkRole(['Agent']), agentController.getPresignedUrl);
 router.patch('/upload-certificate/:id', protected_1.default, roleAuth.checkRole(['Agent']), agentController.uploadCertificate);
 router.post('/packages', protected_1.default, roleAuth.checkRole(['Agent']), packageController.addPackage);
@@ -24,4 +25,7 @@ router.get('/packages/:id', protected_1.default, roleAuth.checkRole(['Agent']), 
 router.get('/booking/:id', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.getAgentBookingData);
 router.patch('/booking/:bookingId', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.updateBookingStatusByAgent);
 router.get('/bookings/package/:packageId', protected_1.default, roleAuth.checkRole(['Agent']), bookingController.getPackageBooking);
+router.get('/chats/users/:userId', protected_1.default, roleAuth.checkRole(['Agent']), chatController.getAllUsers);
+router.get('/chats/messages', protected_1.default, roleAuth.checkRole(['Agent']), chatController.getMessages);
+//router.get('/dashboard',protect,roleAuth.checkRole(['Agent']),agentController.getDashboardData);
 exports.default = router;

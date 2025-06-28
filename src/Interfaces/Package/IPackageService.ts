@@ -9,4 +9,5 @@ export interface IPackageService {
    getCategoryPackages(): Promise<TPackage[]>
    advanceSearch(query : Object) : Promise<TPackageResult>
    findPackages(filterParams : FilterParams) : Promise<TPackageResult>
+   verifyPackage(packageId: string): Promise<boolean>
 }

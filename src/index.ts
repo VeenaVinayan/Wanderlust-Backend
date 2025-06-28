@@ -13,11 +13,18 @@ import adminRoute from './routes/adminRoute';
 import agentRoute from './routes/agentRoute';
 import morgan from 'morgan';
 import { Request } from "express";
+import { initializeSocket} from './socket/socket';
+import http from 'http';
+import ErrorHandler from './middlewares/error';
 
 dotenv.config();
 connectDB();
 const app = express();
 app.use(helmet());
+
+const server = http.createServer(app);
+initializeSocket(server);
+
 const corsOptions = {
   origin: 'http://localhost:3000',
   credentials:true,
@@ -35,7 +42,7 @@ app.use(express.json());
 
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
-
+app.use(ErrorHandler);
 const PORT: number = parseInt(process.env.PORT || '8001', 10);
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body) || "No Body");
@@ -58,7 +65,7 @@ app.use('/auth',authRoute);
 app.use('/user',userRoute);
 app.use('/agent',agentRoute);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
 

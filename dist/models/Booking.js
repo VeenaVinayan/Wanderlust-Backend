@@ -73,7 +73,7 @@ const BookingSchema = new mongoose_1.default.Schema({
     },
     tripStatus: {
         type: String,
-        enum: ['Pending', 'Completed', 'Cancelled'],
+        enum: ['Pending', 'Completed', 'Cancelled', 'Confirmed', 'In-Progress'],
         default: 'Pending',
         required: true,
     },

@@ -20,4 +20,5 @@ export enum StatusMessage{
     UPDATE_SUCCESS="Update Successful",
     UPDATE_FAILED="Update Failed",
     CANCEL_BOOKING="Booking cannot be cancelled !",
+    MISSING_REQUIRED_FIELD="Values not found !",
 }

@@ -27,6 +27,9 @@ const notificationRepository_1 = require("../repositories/Notification/notificat
 const wishlistRepository_1 = require("../repositories/Wishlist/wishlistRepository");
 const wishlistService_1 = require("../services/Wishlist/wishlistService");
 const wishlistController_1 = require("../controllers/Wishlist/wishlistController");
+const chatRepository_1 = require("../repositories/Chat/chatRepository");
+const chatService_1 = require("../services/Chat/chatService");
+const chatController_1 = require("../controllers/Chat/chatController");
 const container = new inversify_1.Container();
 exports.container = container;
 //admin
@@ -74,3 +77,9 @@ container.bind('IWishlistRepository').toDynamicValue(() => {
 }).inSingletonScope();
 container.bind('IWishlistService').to(wishlistService_1.WishlistService).inSingletonScope();
 container.bind('WishlistController').to(wishlistController_1.WishlistController).inSingletonScope();
+//Chat
+container.bind('IChatRepository').toDynamicValue(() => {
+    return new chatRepository_1.ChatRepository();
+}).inSingletonScope();
+container.bind('IChatService').to(chatService_1.ChatService).inSingletonScope();
+container.bind('ChatController').to(chatController_1.ChatController).inSingletonScope();

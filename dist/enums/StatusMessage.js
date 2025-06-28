@@ -24,4 +24,5 @@ var StatusMessage;
     StatusMessage["UPDATE_SUCCESS"] = "Update Successful";
     StatusMessage["UPDATE_FAILED"] = "Update Failed";
     StatusMessage["CANCEL_BOOKING"] = "Booking cannot be cancelled !";
+    StatusMessage["MISSING_REQUIRED_FIELD"] = "Values not found !";
 })(StatusMessage || (exports.StatusMessage = StatusMessage = {}));

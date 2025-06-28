@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgentRepository = void 0;
 const Agent_1 = __importDefault(require("../../models/Agent"));
 const BaseRepository_1 = require("../Base/BaseRepository");
+const mongoose_1 = __importDefault(require("mongoose"));
 const Category_1 = __importDefault(require("../../models/Category"));
 class AgentRepository extends BaseRepository_1.BaseRepository {
     constructor() {
@@ -44,6 +45,166 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
             catch (err) {
                 console.log(' Error in Fetch Category !!');
                 throw err;
+            }
+        });
+    }
+    getDashboardData(agentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const objectId = new mongoose_1.default.Types.ObjectId(agentId);
+                const data = yield this._agentModel.aggregate([
+                    {
+                        $match: { userId: objectId },
+                    },
+                    {
+                        $lookup: {
+                            from: 'packages',
+                            localField: 'userId', // Assuming 'userId' is used in packages to refer to agent
+                            foreignField: 'userId',
+                            as: 'packageDetails',
+                        },
+                    },
+                    {
+                        $unwind: {
+                            path: '$packageDetails',
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: 'bookings',
+                            localField: 'packageDetails._id',
+                            foreignField: 'packageId',
+                            as: 'bookings',
+                        },
+                    },
+                    {
+                        $unwind: {
+                            path: '$bookings',
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
+                    {
+                        $addFields: {
+                            bookingMonth: {
+                                $dateToString: {
+                                    format: '%Y-%m',
+                                    date: '$bookings.bookingDate',
+                                },
+                            },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalBookings: { $sum: { $cond: [{ $ifNull: ['$bookings._id', false] }, 1, 0] } },
+                            totalAmount: { $sum: { $ifNull: ['$bookings.totalAmount', 0] } },
+                            bookingsPerMonth: {
+                                $push: {
+                                    month: '$bookingMonth',
+                                },
+                            },
+                            totalPackages: { $addToSet: '$packageDetails._id' },
+                            bookingCountsPerPackage: {
+                                $push: '$bookings.packageId',
+                            },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            bookingsPerMonth: {
+                                $map: {
+                                    input: { $setUnion: '$bookingsPerMonth' },
+                                    as: 'month',
+                                    in: {
+                                        month: '$$month',
+                                        count: {
+                                            $size: {
+                                                $filter: {
+                                                    input: '$bookingsPerMonth',
+                                                    as: 'm',
+                                                    cond: { $eq: ['$$m', '$$month'] },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            totalPackages: { $size: '$totalPackages' },
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            totalBookings: 1,
+                            totalAmount: 1,
+                            totalPackages: 1,
+                            bookingsPerMonth: 1,
+                            bookingCountsPerPackage: 1,
+                        },
+                    },
+                    {
+                        $addFields: {
+                            mostBookedPackage: {
+                                $arrayElemAt: [
+                                    {
+                                        $slice: [
+                                            {
+                                                $map: {
+                                                    input: {
+                                                        $slice: [
+                                                            {
+                                                                $sortArray: {
+                                                                    input: {
+                                                                        $map: {
+                                                                            input: {
+                                                                                $setUnion: '$bookingCountsPerPackage',
+                                                                            },
+                                                                            as: 'pkgId',
+                                                                            in: {
+                                                                                packageId: '$$pkgId',
+                                                                                count: {
+                                                                                    $size: {
+                                                                                        $filter: {
+                                                                                            input: '$bookingCountsPerPackage',
+                                                                                            as: 'b',
+                                                                                            cond: { $eq: ['$$b', '$$pkgId'] },
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                    },
+                                                                    sortBy: { count: -1 },
+                                                                },
+                                                            },
+                                                            1,
+                                                        ],
+                                                    },
+                                                    as: 'top',
+                                                    in: '$$top',
+                                                },
+                                            },
+                                            1,
+                                        ],
+                                    },
+                                    0,
+                                ],
+                            },
+                        },
+                    },
+                ]).exec();
+                return data[0] || {
+                    totalBookings: 0,
+                    totalAmount: 0,
+                    totalPackages: 0,
+                    bookingsPerMonth: [],
+                    mostBookedPackage: null,
+                };
+            }
+            catch (err) {
+                console.error('Dashboard Data Error:', err);
+                throw new Error('Failed to fetch dashboard data');
             }
         });
     }

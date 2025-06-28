@@ -13,5 +13,6 @@ export interface IBookingRepository extends IBaseRepository<IBooking>{
    updateWallet(userId : string, amount: number,description : string):Promise<Object>;
    getPackageBookingData(filterParams : FilterParams): Promise<Object>;
    getPackageDetails(packageId: string): Promise<Object | null> ;
-   getDashboard():Promise<number>;
+   getDashboard():Promise<Object | null>;
+   getBookingCompleteData(bookingId : string) :Promise<Object>
 }

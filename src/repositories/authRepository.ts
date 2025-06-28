@@ -78,7 +78,6 @@ const authRepository = {
            user = await User.findOne({email:email},
                {_id:1,name:1,email:1,password:1,phone:1,role:1,status:1}
            );  
-           console.log(`User :: ${user}`);
            return user;
      }catch(err){
          throw err;

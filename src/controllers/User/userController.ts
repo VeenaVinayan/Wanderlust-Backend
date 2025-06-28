@@ -22,7 +22,6 @@ export class UserController{
       const  userId  = req.params.id;
       console.log("User id is ",userId);
       const data  = await this._userService.updateUser(userId,name,phone);
-      console.log(' Result == ',data);
       if(data){
          res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data})
       }else{
@@ -74,7 +73,6 @@ export class UserController{
       try{
           console.log('Packages in User Controller !!!'); 
           const data = await this._userService.getPackages();
-          console.log("Packages ::",data);
           if(data){
             res.status(HttpStatusCode.OK).json({message: StatusMessage.SUCCESS,data});
           }else{
@@ -203,5 +201,13 @@ export class UserController{
    }
  }
 );
-
+getUserDetails = asyncHandler(async (req: Request, res: Response) =>{
+    try{
+        const { userId } = req.params;
+        const data = await this._userService.userDetails(userId);
+        res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data});
+    }catch(err){
+        throw err;
+    }
+})
 }

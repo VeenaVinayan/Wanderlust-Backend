@@ -22,6 +22,7 @@ export interface IPackage extends Document {
          stay:string;
          transfer:string;
     }[],
+    isVerified: string;
 }
 
 const PackageSchema : Schema = new mongoose.Schema({
@@ -100,7 +101,12 @@ const PackageSchema : Schema = new mongoose.Schema({
          transfer:{
             type:String,
             required:true,
-         }
+         },
+         isVerified:{
+             type:String,
+             enum:['pending','approved','rejected'],
+             default:'pending',
+         },
      }]
 },{timestamps:true});
 

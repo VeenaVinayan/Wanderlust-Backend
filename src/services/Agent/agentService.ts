@@ -3,8 +3,8 @@ import { IAgentRepository } from '../../Interfaces/Agent/IAgentRepository';
 import {IAgentService} from '../../Interfaces/Agent/IAgentService';
 import { TCategoryValue } from '../../Types/Package.types';
 import { TPackage } from '../../Types/Package.types'; 
-@injectable()
 
+@injectable()
 export class AgentService implements IAgentService{
      constructor(
         @inject("IAgentRepository") private _agentRepository : IAgentRepository,
@@ -44,6 +44,5 @@ export class AgentService implements IAgentService{
           console.log("Error in create Package !!");
           throw err;
        }
-     
-   }
+  }
 }

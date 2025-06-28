@@ -10,6 +10,7 @@ const auth = async (req: AuthenticatedRequest, res:Response, next: NextFunction)
      try{
         const token = req.headers.authorization?.split(' ')[1];
         if(!token){
+             console.log('No token provided !!');
              res.status(403).json({message:'Access denied. No token provided !'});
              return;
         }
@@ -17,6 +18,7 @@ const auth = async (req: AuthenticatedRequest, res:Response, next: NextFunction)
              let payload = verifyToken(token) as TokenPayload;
              const user = await User.findById(payload.id);
              if(!user){ 
+                console.log('No token provided -- by payload!!');
                 res.status(403).json({message:'Access denied. No User provided !'});
                 return
              }

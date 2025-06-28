@@ -108,7 +108,12 @@ let BookingController = class BookingController {
             try {
                 console.log('Update Booking Status by Agent !!');
                 const { bookingId } = req.params;
-                const response = yield this._bookingService.updateBookingStatusByAgent(bookingId);
+                const { status } = req.body;
+                if (!bookingId || !status) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                    return;
+                }
+                const response = yield this._bookingService.updateBookingStatusByAgent(bookingId, status);
                 if (response) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: 'Successfully updated status' });
                 }
@@ -184,9 +189,12 @@ let BookingController = class BookingController {
         }));
         this.getDashboard = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const profit = yield this._bookingService.getDashboard();
-                if (profit) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ data: profit });
+                const data = yield this._bookingService.getDashboard();
+                if (data) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ data });
+                }
+                else {
+                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ data });
                 }
             }
             catch (err) {

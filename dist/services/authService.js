@@ -121,7 +121,6 @@ const authService = {
             if (!response.status)
                 return "Blocked";
             let isVerified = yield bcryptjs_1.default.compare(userData.password, response.password);
-            console.log('Verified : ', isVerified);
             if (isVerified) {
                 const userData = {
                     id: response.id.toString(),
@@ -147,7 +146,6 @@ const authService = {
                     console.log("Agent Data :::", agent);
                     if (agent) {
                         res = Object.assign(Object.assign({}, res), agent);
-                        console.log("Agent is ::", res);
                     }
                 }
                 return res;

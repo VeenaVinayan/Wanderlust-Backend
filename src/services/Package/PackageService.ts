@@ -73,4 +73,20 @@ export class PackageService implements IPackageService{
              throw err;
          }
     }
+    async verifyPackage(packageId : string): Promise<boolean>{
+        try{
+              console.log('Admin Verify Package :',packageId);
+              if (!packageId) {
+                  throw new Error(`Package with ID ${packageId} not found`);
+              }
+              const result = await this._packageRepository.updateOneById(packageId,{
+                  isVerified: "approved"
+               });
+               if(result) {
+                   return true;
+               } return false;
+        }catch(err){
+            throw err; 
+        }
+    }
 }

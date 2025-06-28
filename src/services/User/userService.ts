@@ -16,7 +16,6 @@ export class UserService implements IUserService {
     constructor(
        @inject("IUserRepository") private _userRepository: IUserRepository
     ){}
-    
     async updateUser(userId: string, name: string, phone: string): Promise<Iuser | null> {
          try{
                console.log(" User  service !!");
@@ -133,5 +132,19 @@ export class UserService implements IUserService {
         }catch(err){
             throw err;
         }
+    }
+    async userDetails(userId : string): Promise<Object | null>{
+         try{
+                console.log("User Id :::",userId);
+                const data = await this._userRepository.findOneById(userId);
+                const user = {
+                     _id:data?._id?.toString(),
+                     name:data?.name,
+                }
+                console.log(" User DAta ==", user);
+                return user;
+         }catch(err){
+              throw err;
+         }
     }
 }

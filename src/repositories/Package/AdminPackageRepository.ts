@@ -23,4 +23,5 @@ export class AdminPackageRepository extends BaseRepository<IPackage> implements 
              throw err;
         }
     }
+    
 }

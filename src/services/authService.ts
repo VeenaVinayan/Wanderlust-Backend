@@ -107,8 +107,7 @@ const authService = {
       if(!response) return "User";
       if(!response.status) return "Blocked"
       let isVerified  = await bcryptjs.compare(userData.password,response.password);
-          console.log('Verified : ',isVerified)
-          if(isVerified){
+            if(isVerified){
               const userData : TokenPayload ={
                 id: response.id.toString(),
                 role:response.role,
@@ -134,8 +133,7 @@ const authService = {
                   console.log("Agent Data :::",agent)
                   if(agent){
                       res ={...res , ...agent};
-                      console.log("Agent is ::",res);
-                  }
+                   }
               }
               return res;
           }else{

@@ -90,8 +90,6 @@ const authController = {
                 }
             }
             if (typeof response === "object") {
-                console.log("Access | Refresh Token:", response);
-                // Set the refresh token as a cookie
                 res.cookie("token", response.refreshToken, {
                     httpOnly: true,
                     sameSite: "none",

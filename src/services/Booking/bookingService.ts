@@ -1,7 +1,7 @@
 import { inject , injectable } from 'inversify';
 import { IBookingService } from '../../Interfaces/Booking/IBookingService';
 import { IBookingRepository } from '../../Interfaces/Booking/IBookingRepository';   
-import { IBookingData } from '../../Types/Booking.types';
+import { IBookingData, IDashBoardData } from '../../Types/Booking.types';
 import { IBooking } from '../../models/Booking';
 import  { FilterParams, IWalletData } from '../../Types/Booking.types';
 import mailSender from '../../utils/mailSender';
@@ -22,7 +22,7 @@ export class BookingService implements IBookingService {
         @inject('INotificationRepository') private readonly _notificationRepository : INotificationRepository,
         @inject('IBookingRepository') private readonly _bookingRepository: IBookingRepository
     ){}
-   
+
     async bookPackage (bookingData: IBookingData) : Promise<IBooking>{
         try {
             console.log("Inside Booking Service - bookPackage", bookingData);
@@ -44,15 +44,23 @@ export class BookingService implements IBookingService {
    async sendConfirmationEmail(bookingData: IBooking): Promise<void> {
         try{ 
             console.log("Inside Booking Service - sendConformationEmail", bookingData);
-            const packageData : IPackage = await this._bookingRepository.getPackageData(bookingData.packageId,bookingData._id);
-            if(!packageData) {
+            const bookingValue  = await this._bookingRepository.getBookingCompleteData(bookingData._id);
+            if(!bookingValue) {
                 throw new Error("Package not found");   
             }
            //  const outputPath = path.join(__dirname, '../../', 'itinerary.pdf');
            // const itineraryPdf = generateItineraryPDF(packageData,outputPath);
-            const { email,body, title } = EmailHelper.generateBookingEmailBody(bookingData);
-            const result = await mailSender(email,title,body);
-            console.log("Email sent successfully", result);
+           { 
+            const { email,body, title } = EmailHelper.generateBookingEmailBody(bookingValue);
+            await mailSender(email,title,body);
+            console.log("Email sent successfully");
+           } 
+           {
+            const { email, body, title } = EmailHelper.generateBookingNotificationToAgent(bookingValue);
+            console.log('Email to agent ::',email);
+            await mailSender(email, title,body);
+            console.log("Agent Email sent successfully");
+           }
         }catch(err){
              console.log("Error in sending email", err);    
              throw err;
@@ -67,16 +75,70 @@ export class BookingService implements IBookingService {
           throw err;
        }
    }
-   async updateBookingStatusByAgent(bookingId : string) : Promise<IBooking | null>{
-      try{
-         console.log('Update Booking Status by Agent !!');
-         const data :IBooking | null= await this._bookingRepository.updateOneById(bookingId,{tripStatus:'Completed'});
-         return data;
-      }catch(err){
-         throw err;
+async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBooking | null> {
+  try {
+    console.log('Attempting to update booking status by agent:', status);
+
+    const bookingData: IBooking | null = await this._bookingRepository.findOneById(bookingId);
+
+    if (!bookingData) {
+      console.log(' No booking data found.');
+      throw new Error('Booking not found');
+    }
+    
+    if (bookingData.tripStatus === status) {
+      throw new Error(`Booking is already marked as ${status}`);
+    }
+
+    const now = new Date();
+    const tripDate = new Date(bookingData.tripDate);
+
+    if (status === 'Completed' && tripDate > now) {
+      throw new Error('Trip has not yet occurred. Cannot mark as Completed.');
+    }
+
+   if (status === 'Cancelled' && bookingData.tripStatus === 'Completed') {
+      throw new Error('Completed trips cannot be cancelled.');
+    }
+
+    // Perform the status update
+    const updatedBooking: IBooking | null = await this._bookingRepository.updateOneById(bookingId, {
+      tripStatus: status,
+      paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
+    
+    });
+
+    console.log('✅ Booking updated:', updatedBooking);
+    if (updatedBooking && status === 'Cancelled') {
+      const walletData: IWalletData = {
+        userId: bookingData.userId,
+        amount: bookingData.totalAmount,
+        transaction: {
+          amount: bookingData.totalAmount,
+          description: 'Booking cancelled by agent — amount refunded',
+        }
+      };
+
+      const refundResult = await this.addToWallet(walletData);
+
+      if (!refundResult) {
+        console.error('⚠️ Wallet refund failed');
+        throw new Error('Booking was cancelled, but refund failed');
       }
-   }
-   async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
+        console.log(' Wallet refund successful');
+       {  
+        const bookingData = await this._bookingRepository.getBookingCompleteData(bookingId); 
+        const { email,body, title } = EmailHelper.generateBookingEmailBody(bookingData);
+        await mailSender(email,title,body);
+       }  
+    }
+    return updatedBooking;
+ } catch (error) {
+    console.error('  Error updating booking status:');
+    throw error;
+  }
+}
+async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
       try{
           console.log('Get Booking Data !!');
           const data = await this._bookingRepository.getBookingDataToAdmin(filterParams);
@@ -129,7 +191,6 @@ export class BookingService implements IBookingService {
                 //     message: "Your booking has been canceled and refund is processed.",
                 //     type: "booking"
                 // });
-              
             }else{
                 return false;
             }              
@@ -159,11 +220,70 @@ export class BookingService implements IBookingService {
         throw err;
     }
    }
-   async getDashboard():Promise<number>{
+   async getDashboard():Promise<IDashBoardData | null>{
      try{
-         return await this._bookingRepository.getDashboard();
+         // Explicitly type the data to match the expected structure
+         const data = await this._bookingRepository.getDashboard() as {
+           summary: any[];
+           bookingsPerMonth: Array<{
+             _id: { month: number; year: number };
+             totalBookings: number;
+             totalRevenue: number;
+           }>;
+         } | null;
+         if(!data) return null;
+    
+
+          const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December' ];
+        data.bookingsPerMonth?.forEach(item => {
+             console.log("Month:", item._id.month, "=>", MONTHS[item._id.month - 1]);
+      });
+         console.log('Data in Booking Service ::',JSON.stringify(data));
+         const chartData = data.bookingsPerMonth?.map((item) => ({
+          month: MONTHS[item._id.month - 1],
+          totalBookings: item.totalBookings,
+       }));
+       
+       const dashboardData : IDashBoardData ={
+          summary: data?.summary[0],
+          bookingsPerMonth: chartData && chartData.length > 0
+            ? [chartData[0]]
+            : [{ totalBookings: 0, month: '' }],
+       } 
+       console.log('Dashboard Data ::',dashboardData);
+       return dashboardData;
      }catch(err){
         throw err;
      }
    }
+   async addToWallet(walletData: IWalletData): Promise<boolean> {
+       try {
+           console.log("Adding to wallet:", walletData);
+           const wallet = await this._bookingRepository.getWallet(walletData.userId);
+           console.log("Wallet found ::",wallet);
+           if (!wallet) {
+               const result = await this._bookingRepository.creditToWallet(walletData);
+               console.log("Result ::",wallet);
+               return !!result
+           } else {
+               const result = await this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.description);
+               console.log("Result ::-else",wallet);
+               return !!result;
+           }
+       } catch (error) {
+           console.error('Error adding to wallet:', error);
+           throw new Error('Internal server error');
+       }
+   }
 }  
+
+async function sendConfirmationToAgent(bookingData: IBooking): Promise<void> {
+    try {
+        console.log("Inside Booking Service - sendConfirmationToAgent", bookingData); 
+        const bookingDetails = 
+        EmailHelper.generateBookingNotificationToAgent(bookingData._id);
+    }catch(err){
+       throw err;
+    } 
+  }

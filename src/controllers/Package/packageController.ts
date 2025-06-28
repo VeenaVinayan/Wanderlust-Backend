@@ -71,7 +71,6 @@ export class PackageController{
             throw err;
          }
     });
-    
     getAgentPackages = asyncHandler(async (req: Request, res: Response) =>{
       try{
          const { id } = req.params;
@@ -108,5 +107,18 @@ export class PackageController{
          }catch(err){
             throw err;
          }
-    })
+    });
+    verifyPackage = asyncHandler(async (req: Request, res: Response) => {
+         try{
+            const { packageId } = req.params;
+            const response = await this._packageService.verifyPackage(packageId);
+            if(response){
+               res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS});
+            }else{
+               res.status(HttpStatusCode.NOT_FOUND).json({message:StatusMessage.ERROR});
+            }
+         }catch(err){
+            throw err;
+         }
+   });
 }

@@ -18,4 +18,5 @@ export interface IUserService{
      getReviews(packageId : string) :Promise<Object []>
      getWallet(userId: string, filterParams : FilterParams) : Promise<Object | null>
      editReview(data : TReviewEdit, reviewId : string): Promise<boolean>;
+     userDetails(userId : string) : Promise<Object | null>;
 }

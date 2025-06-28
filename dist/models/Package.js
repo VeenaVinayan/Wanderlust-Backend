@@ -80,7 +80,12 @@ const PackageSchema = new mongoose_1.default.Schema({
             transfer: {
                 type: String,
                 required: true,
-            }
+            },
+            isVerified: {
+                type: String,
+                enum: ['pending', 'approved', 'rejected'],
+                default: 'pending',
+            },
         }]
 }, { timestamps: true });
 const Package = mongoose_1.default.model('Package', PackageSchema);

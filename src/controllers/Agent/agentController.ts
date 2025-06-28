@@ -77,6 +77,5 @@ export class AgentController{
      }catch(err){
        throw err;
      }
-  })
-  
+  });
 }

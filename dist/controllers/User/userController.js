@@ -40,7 +40,6 @@ let UserController = class UserController {
                 const userId = req.params.id;
                 console.log("User id is ", userId);
                 const data = yield this._userService.updateUser(userId, name, phone);
-                console.log(' Result == ', data);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
@@ -96,7 +95,6 @@ let UserController = class UserController {
             try {
                 console.log('Packages in User Controller !!!');
                 const data = yield this._userService.getPackages();
-                console.log("Packages ::", data);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
@@ -233,6 +231,16 @@ let UserController = class UserController {
                 else {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.UPDATE_FAILED });
                 }
+            }
+            catch (err) {
+                throw err;
+            }
+        }));
+        this.getUserDetails = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId } = req.params;
+                const data = yield this._userService.userDetails(userId);
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 throw err;

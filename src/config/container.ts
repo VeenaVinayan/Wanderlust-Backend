@@ -45,6 +45,13 @@ import { IWishlistService } from '../Interfaces/Wishlist/IWishlistService';
 import { WishlistRepository } from '../repositories/Wishlist/wishlistRepository';
 import { WishlistService } from '../services/Wishlist/wishlistService';
 import { WishlistController } from '../controllers/Wishlist/wishlistController';
+// chat
+import { IChatRepository } from '../Interfaces/Chat/IChatRepository';
+import { IChatService } from '../Interfaces/Chat/IChatService';
+import { ChatRepository } from '../repositories/Chat/chatRepository';
+import { ChatService } from '../services/Chat/chatService';
+import { ChatController } from '../controllers/Chat/chatController';
+
 
 const container = new Container();
 //admin
@@ -97,4 +104,11 @@ container.bind<IWishlistRepository>('IWishlistRepository').toDynamicValue(() =>{
 container.bind<IWishlistService>('IWishlistService').to(WishlistService).inSingletonScope();
 container.bind<WishlistController>('WishlistController').to(WishlistController).inSingletonScope();
 
-export { container};
+//Chat
+container.bind<IChatRepository>('IChatRepository').toDynamicValue(() =>{
+       return new ChatRepository();
+}).inSingletonScope();
+container.bind<IChatService>('IChatService').to(ChatService).inSingletonScope();
+container.bind<ChatController>('ChatController').to(ChatController).inSingletonScope();
+
+export { container };

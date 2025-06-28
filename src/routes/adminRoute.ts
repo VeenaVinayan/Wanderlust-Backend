@@ -29,5 +29,6 @@ router.patch('/block-package/:packageId',protect,roleAuth.checkRole(['Admin']),a
 router.get('/packages',protect,roleAuth.checkRole(['Admin']),packageController.getPackages);
 router.get('/booking',protect,roleAuth.checkRole(['Admin']),bookingController.getBookingDataToAdmin);
 router.get('/dashboard',protect,roleAuth.checkRole(['Admin']),bookingController.getDashboard);
+router.patch('/packages/verify/:packageId',protect,roleAuth.checkRole(['Admin']),packageController.verifyPackage);
 
 export default router;

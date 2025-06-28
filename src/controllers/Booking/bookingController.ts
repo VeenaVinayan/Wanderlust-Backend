@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { IBookingService } from '../../Interfaces/Booking/IBookingService';
-import { FilterParams } from '../../Types/Booking.types'
+import { FilterParams, IDashBoardData } from '../../Types/Booking.types'
 import asyncHandler from 'express-async-handler';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
-import { FilterRuleName } from '@aws-sdk/client-s3';
 
 @injectable()
 export class BookingController {
@@ -82,7 +81,12 @@ export class BookingController {
         try{
             console.log('Update Booking Status by Agent !!');
             const { bookingId } = req.params;
-            const response = await this._bookingService.updateBookingStatusByAgent(bookingId);
+            const { status } = req.body;
+            if(!bookingId || ! status){
+                res.status(HttpStatusCode.BAD_REQUEST).json({success:false,message:StatusMessage.MISSING_REQUIRED_FIELD});
+                return;
+            }
+            const response = await this._bookingService.updateBookingStatusByAgent(bookingId,status);
             if(response){
                  res.status(HttpStatusCode.OK).json({success:true,message:'Successfully updated status'})
             }else{
@@ -152,10 +156,12 @@ export class BookingController {
 });
  getDashboard = asyncHandler(async(req: Request, res: Response) => {
      try{
-          const profit = await this._bookingService.getDashboard();
-          if(profit){
-             res.status(HttpStatusCode.OK).json({data:profit});
-          }
+          const data : IDashBoardData | null = await this._bookingService.getDashboard();
+          if(data){
+             res.status(HttpStatusCode.OK).json({data});
+          }else{
+             res.status(HttpStatusCode.NOT_FOUND).json({data});     
+          } 
      }catch(err){
         throw err;
      }

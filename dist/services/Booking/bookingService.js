@@ -62,15 +62,23 @@ let BookingService = class BookingService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("Inside Booking Service - sendConformationEmail", bookingData);
-                const packageData = yield this._bookingRepository.getPackageData(bookingData.packageId, bookingData._id);
-                if (!packageData) {
+                const bookingValue = yield this._bookingRepository.getBookingCompleteData(bookingData._id);
+                if (!bookingValue) {
                     throw new Error("Package not found");
                 }
                 //  const outputPath = path.join(__dirname, '../../', 'itinerary.pdf');
                 // const itineraryPdf = generateItineraryPDF(packageData,outputPath);
-                const { email, body, title } = emailHelper_1.default.generateBookingEmailBody(bookingData);
-                const result = yield (0, mailSender_1.default)(email, title, body);
-                console.log("Email sent successfully", result);
+                {
+                    const { email, body, title } = emailHelper_1.default.generateBookingEmailBody(bookingValue);
+                    yield (0, mailSender_1.default)(email, title, body);
+                    console.log("Email sent successfully");
+                }
+                {
+                    const { email, body, title } = emailHelper_1.default.generateBookingNotificationToAgent(bookingValue);
+                    console.log('Email to agent ::', email);
+                    yield (0, mailSender_1.default)(email, title, body);
+                    console.log("Agent Email sent successfully");
+                }
             }
             catch (err) {
                 console.log("Error in sending email", err);
@@ -90,15 +98,58 @@ let BookingService = class BookingService {
             }
         });
     }
-    updateBookingStatusByAgent(bookingId) {
+    updateBookingStatusByAgent(bookingId, status) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Update Booking Status by Agent !!');
-                const data = yield this._bookingRepository.updateOneById(bookingId, { tripStatus: 'Completed' });
-                return data;
+                console.log('Attempting to update booking status by agent:', status);
+                const bookingData = yield this._bookingRepository.findOneById(bookingId);
+                if (!bookingData) {
+                    console.log(' No booking data found.');
+                    throw new Error('Booking not found');
+                }
+                if (bookingData.tripStatus === status) {
+                    throw new Error(`Booking is already marked as ${status}`);
+                }
+                const now = new Date();
+                const tripDate = new Date(bookingData.tripDate);
+                if (status === 'Completed' && tripDate > now) {
+                    throw new Error('Trip has not yet occurred. Cannot mark as Completed.');
+                }
+                if (status === 'Cancelled' && bookingData.tripStatus === 'Completed') {
+                    throw new Error('Completed trips cannot be cancelled.');
+                }
+                // Perform the status update
+                const updatedBooking = yield this._bookingRepository.updateOneById(bookingId, {
+                    tripStatus: status,
+                    paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
+                });
+                console.log('✅ Booking updated:', updatedBooking);
+                if (updatedBooking && status === 'Cancelled') {
+                    const walletData = {
+                        userId: bookingData.userId,
+                        amount: bookingData.totalAmount,
+                        transaction: {
+                            amount: bookingData.totalAmount,
+                            description: 'Booking cancelled by agent — amount refunded',
+                        }
+                    };
+                    const refundResult = yield this.addToWallet(walletData);
+                    if (!refundResult) {
+                        console.error('⚠️ Wallet refund failed');
+                        throw new Error('Booking was cancelled, but refund failed');
+                    }
+                    console.log(' Wallet refund successful');
+                    {
+                        const bookingData = yield this._bookingRepository.getBookingCompleteData(bookingId);
+                        const { email, body, title } = emailHelper_1.default.generateBookingEmailBody(bookingData);
+                        yield (0, mailSender_1.default)(email, title, body);
+                    }
+                }
+                return updatedBooking;
             }
-            catch (err) {
-                throw err;
+            catch (error) {
+                console.error('  Error updating booking status:');
+                throw error;
             }
         });
     }
@@ -203,11 +254,56 @@ let BookingService = class BookingService {
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
-                return yield this._bookingRepository.getDashboard();
+                // Explicitly type the data to match the expected structure
+                const data = yield this._bookingRepository.getDashboard();
+                if (!data)
+                    return null;
+                const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.forEach(item => {
+                    console.log("Month:", item._id.month, "=>", MONTHS[item._id.month - 1]);
+                });
+                console.log('Data in Booking Service ::', JSON.stringify(data));
+                const chartData = (_b = data.bookingsPerMonth) === null || _b === void 0 ? void 0 : _b.map((item) => ({
+                    month: MONTHS[item._id.month - 1],
+                    totalBookings: item.totalBookings,
+                }));
+                const dashboardData = {
+                    summary: data === null || data === void 0 ? void 0 : data.summary[0],
+                    bookingsPerMonth: chartData && chartData.length > 0
+                        ? [chartData[0]]
+                        : [{ totalBookings: 0, month: '' }],
+                };
+                console.log('Dashboard Data ::', dashboardData);
+                return dashboardData;
             }
             catch (err) {
                 throw err;
+            }
+        });
+    }
+    addToWallet(walletData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("Adding to wallet:", walletData);
+                const wallet = yield this._bookingRepository.getWallet(walletData.userId);
+                console.log("Wallet found ::", wallet);
+                if (!wallet) {
+                    const result = yield this._bookingRepository.creditToWallet(walletData);
+                    console.log("Result ::", wallet);
+                    return !!result;
+                }
+                else {
+                    const result = yield this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.description);
+                    console.log("Result ::-else", wallet);
+                    return !!result;
+                }
+            }
+            catch (error) {
+                console.error('Error adding to wallet:', error);
+                throw new Error('Internal server error');
             }
         });
     }
@@ -219,3 +315,14 @@ exports.BookingService = BookingService = __decorate([
     __param(1, (0, inversify_1.inject)('IBookingRepository')),
     __metadata("design:paramtypes", [Object, Object])
 ], BookingService);
+function sendConfirmationToAgent(bookingData) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            console.log("Inside Booking Service - sendConfirmationToAgent", bookingData);
+            const bookingDetails = emailHelper_1.default.generateBookingNotificationToAgent(bookingData._id);
+        }
+        catch (err) {
+            throw err;
+        }
+    });
+}

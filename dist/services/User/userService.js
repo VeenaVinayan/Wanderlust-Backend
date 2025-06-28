@@ -170,6 +170,24 @@ let UserService = class UserService {
             }
         });
     }
+    userDetails(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                console.log("User Id :::", userId);
+                const data = yield this._userRepository.findOneById(userId);
+                const user = {
+                    _id: (_a = data === null || data === void 0 ? void 0 : data._id) === null || _a === void 0 ? void 0 : _a.toString(),
+                    name: data === null || data === void 0 ? void 0 : data.name,
+                };
+                console.log(" User DAta ==", user);
+                return user;
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

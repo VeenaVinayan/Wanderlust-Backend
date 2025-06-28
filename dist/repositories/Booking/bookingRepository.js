@@ -42,7 +42,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                         .populate({ path: 'packageId', select: 'name images price description day night itinerary' })
                         .skip((page - 1) * perPage)
                         .limit(perPage)
-                        .sort({ [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 })
+                        .sort({ bookingDate: -1 })
                         .exec(),
                     this._bookingModel.countDocuments(query).exec()
                 ]);
@@ -280,17 +280,125 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            try {
+                // const data = await this._bookingModel.aggregate([
+                //         { $match : {tripStatus: 'Completed'}},
+                //         { $group : 
+                //             {_id: null , total :{$sum: '$totalAmount'},totalBooking:{$sum:1}} },
+                //         { $set: { profit: { $multiply: [ "$total", .1 ] }  } },
+                //         {$project: {_id:0,profit:1,total:1,totalBooking:1}}
+                // ]);
+                const data = yield this._bookingModel.aggregate([
+                    {
+                        $match: { tripStatus: "Completed" }
+                    },
+                    {
+                        $facet: {
+                            summary: [
+                                {
+                                    $group: {
+                                        _id: null,
+                                        total: { $sum: "$totalAmount" },
+                                        totalBooking: { $sum: 1 }
+                                    }
+                                },
+                                {
+                                    $set: {
+                                        profit: { $multiply: ["$total", 0.1] }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        total: 1,
+                                        totalBooking: 1,
+                                        profit: 1
+                                    }
+                                }
+                            ],
+                            bookingsPerMonth: [
+                                {
+                                    $group: {
+                                        _id: {
+                                            year: { $year: "$createdAt" },
+                                            month: { $month: "$createdAt" }
+                                        },
+                                        totalBookings: { $sum: 1 },
+                                    }
+                                },
+                                {
+                                    $sort: {
+                                        "_id.year": 1,
+                                        "_id.month": 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]);
+                console.log('DAta  dashboard = ', data[0]);
+                return data.length > 0 ? data[0] : null;
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
+    getBookingCompleteData(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._bookingModel.aggregate([
-                    { $match: { tripStatus: 'Completed' } },
-                    { $group: { _id: null, total: { $sum: '$totalAmount' } } },
-                    { $set: { profit: { $multiply: ["$total", .1] } } },
-                    { $project: { _id: 0, profit: 1 } }
+                    { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
+                    {
+                        $lookup: {
+                            from: 'packages',
+                            localField: 'packageId',
+                            foreignField: '_id',
+                            as: 'packageDetails'
+                        }
+                    },
+                    { $unwind: '$packageDetails' },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            let: { agentId: '$packageDetails.agent' },
+                            pipeline: [
+                                { $match: { $expr: { $eq: ['$_id', '$$agentId'] } } }
+                            ],
+                            as: 'agentDetails'
+                        }
+                    },
+                    { $unwind: '$agentDetails' },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'userId',
+                            foreignField: '_id',
+                            as: 'userDetails'
+                        }
+                    },
+                    { $unwind: '$userDetails' },
+                    {
+                        $project: {
+                            _id: 0,
+                            bookingId: 1,
+                            bookingDate: 1,
+                            tripDate: 1,
+                            totalGuest: 1,
+                            totalAmount: 1,
+                            email: 1,
+                            phone: 1,
+                            'packageDetails.name': 1,
+                            'agentDetails.name': 1,
+                            'agentDetails.email': 1,
+                            'agentDetails.phone': 1,
+                            'userDetails.name': 1,
+                            tripStatus: 1
+                        }
+                    }
                 ]);
-                console.log('DAta = ', data);
-                const profit = data.length > 0 ? (_a = data[0]) === null || _a === void 0 ? void 0 : _a.profit : 0;
-                return profit;
+                console.log('Booking Data ::', data[0]);
+                return data[0] || {};
             }
             catch (err) {
                 throw err;

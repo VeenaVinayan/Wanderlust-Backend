@@ -30,3 +30,14 @@ export interface IWalletData{
         description:string;
      }
 }
+export interface IDashBoardData{
+    summary:{
+        total:number;
+        totalBooking:number;
+        profit:number;
+    },
+    bookingsPerMonth:[{
+         totalBookings:number;
+         month:string;
+    }]
+}

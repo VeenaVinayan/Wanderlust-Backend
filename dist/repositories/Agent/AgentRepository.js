@@ -51,149 +51,138 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
     getDashboardData(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const objectId = new mongoose_1.default.Types.ObjectId(agentId);
                 const data = yield this._agentModel.aggregate([
                     {
-                        $match: { userId: objectId },
+                        $match: { userId: new mongoose_1.default.Types.ObjectId(agentId) },
                     },
                     {
                         $lookup: {
                             from: 'packages',
-                            localField: 'userId', // Assuming 'userId' is used in packages to refer to agent
-                            foreignField: 'userId',
-                            as: 'packageDetails',
+                            localField: 'userId',
+                            foreignField: 'agent',
+                            as: 'packages',
                         },
                     },
                     {
                         $unwind: {
-                            path: '$packageDetails',
-                            preserveNullAndEmptyArrays: true,
+                            path: '$packages',
+                            preserveNullAndEmptyArrays: false,
                         },
                     },
                     {
                         $lookup: {
                             from: 'bookings',
-                            localField: 'packageDetails._id',
-                            foreignField: 'packageId',
-                            as: 'bookings',
-                        },
-                    },
-                    {
-                        $unwind: {
-                            path: '$bookings',
-                            preserveNullAndEmptyArrays: true,
-                        },
-                    },
-                    {
-                        $addFields: {
-                            bookingMonth: {
-                                $dateToString: {
-                                    format: '%Y-%m',
-                                    date: '$bookings.bookingDate',
-                                },
-                            },
-                        },
-                    },
-                    {
-                        $group: {
-                            _id: null,
-                            totalBookings: { $sum: { $cond: [{ $ifNull: ['$bookings._id', false] }, 1, 0] } },
-                            totalAmount: { $sum: { $ifNull: ['$bookings.totalAmount', 0] } },
-                            bookingsPerMonth: {
-                                $push: {
-                                    month: '$bookingMonth',
-                                },
-                            },
-                            totalPackages: { $addToSet: '$packageDetails._id' },
-                            bookingCountsPerPackage: {
-                                $push: '$bookings.packageId',
-                            },
-                        },
-                    },
-                    {
-                        $addFields: {
-                            bookingsPerMonth: {
-                                $map: {
-                                    input: { $setUnion: '$bookingsPerMonth' },
-                                    as: 'month',
-                                    in: {
-                                        month: '$$month',
-                                        count: {
-                                            $size: {
-                                                $filter: {
-                                                    input: '$bookingsPerMonth',
-                                                    as: 'm',
-                                                    cond: { $eq: ['$$m', '$$month'] },
-                                                },
-                                            },
+                            let: { packageId: '$packages._id' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $and: [
+                                                { $eq: ['$packageId', '$$packageId'] },
+                                                { $eq: ['$tripStatus', 'Completed'] },
+                                            ],
                                         },
                                     },
                                 },
-                            },
-                            totalPackages: { $size: '$totalPackages' },
+                            ],
+                            as: 'completedBookings',
+                        },
+                    },
+                    {
+                        $facet: {
+                            totalPackages: [
+                                {
+                                    $group: {
+                                        _id: null,
+                                        packageIds: { $addToSet: '$packages._id' },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        totalPackages: { $size: '$packageIds' },
+                                    },
+                                },
+                            ],
+                            totalClients: [
+                                {
+                                    $unwind: '$completedBookings',
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        clients: { $addToSet: '$completedBookings.userId' },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        totalClients: { $size: '$clients' },
+                                    },
+                                },
+                            ],
+                            totalBookingStats: [
+                                {
+                                    $unwind: '$completedBookings',
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalCompletedBookings: { $sum: 1 },
+                                        totalAmount: { $sum: '$completedBookings.totalAmount' },
+                                    },
+                                },
+                            ],
+                            bookingsPerMonth: [
+                                {
+                                    $unwind: '$completedBookings',
+                                },
+                                {
+                                    $group: {
+                                        _id: { month: { $month: '$completedBookings.bookingDate' } },
+                                        totalBookings: { $sum: 1 },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        month: '$_id.month',
+                                        totalBookings: 1,
+                                    },
+                                },
+                                { $sort: { month: 1 } },
+                            ],
+                            packageBookingCounts: [
+                                {
+                                    $unwind: '$completedBookings',
+                                },
+                                {
+                                    $group: {
+                                        _id: '$packages._id',
+                                        packageName: { $first: '$packages.name' },
+                                        value: { $sum: 1 },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        packageName: 1,
+                                        value: 1,
+                                    },
+                                },
+                            ],
                         },
                     },
                     {
                         $project: {
-                            _id: 0,
-                            totalBookings: 1,
-                            totalAmount: 1,
-                            totalPackages: 1,
+                            totalPackages: { $arrayElemAt: ['$totalPackages.totalPackages', 0] },
+                            totalClients: { $arrayElemAt: ['$totalClients.totalClients', 0] },
+                            totalBookings: { $arrayElemAt: ['$totalBookingStats.totalCompletedBookings', 0] },
+                            totalAmount: { $arrayElemAt: ['$totalBookingStats.totalAmount', 0] },
                             bookingsPerMonth: 1,
-                            bookingCountsPerPackage: 1,
+                            packageBookingCounts: 1,
                         },
                     },
-                    {
-                        $addFields: {
-                            mostBookedPackage: {
-                                $arrayElemAt: [
-                                    {
-                                        $slice: [
-                                            {
-                                                $map: {
-                                                    input: {
-                                                        $slice: [
-                                                            {
-                                                                $sortArray: {
-                                                                    input: {
-                                                                        $map: {
-                                                                            input: {
-                                                                                $setUnion: '$bookingCountsPerPackage',
-                                                                            },
-                                                                            as: 'pkgId',
-                                                                            in: {
-                                                                                packageId: '$$pkgId',
-                                                                                count: {
-                                                                                    $size: {
-                                                                                        $filter: {
-                                                                                            input: '$bookingCountsPerPackage',
-                                                                                            as: 'b',
-                                                                                            cond: { $eq: ['$$b', '$$pkgId'] },
-                                                                                        },
-                                                                                    },
-                                                                                },
-                                                                            },
-                                                                        },
-                                                                    },
-                                                                    sortBy: { count: -1 },
-                                                                },
-                                                            },
-                                                            1,
-                                                        ],
-                                                    },
-                                                    as: 'top',
-                                                    in: '$$top',
-                                                },
-                                            },
-                                            1,
-                                        ],
-                                    },
-                                    0,
-                                ],
-                            },
-                        },
-                    },
-                ]).exec();
+                ]);
+                console.log("Dashboard Data ::", data[0]);
                 return data[0] || {
                     totalBookings: 0,
                     totalAmount: 0,

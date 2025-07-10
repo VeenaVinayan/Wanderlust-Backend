@@ -30,15 +30,28 @@ const mailSender_1 = __importDefault(require("../../utils/mailSender"));
 const emailHelper_1 = __importDefault(require("../../helper/emailHelper"));
 const date_fns_1 = require("date-fns");
 let BookingService = class BookingService {
-    constructor(_notificationRepository, _bookingRepository) {
+    constructor(_notificationRepository, _bookingRepository, _notificationService) {
         this._notificationRepository = _notificationRepository;
         this._bookingRepository = _bookingRepository;
+        this._notificationService = _notificationService;
     }
     bookPackage(bookingData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("Inside Booking Service - bookPackage", bookingData);
-                return yield this._bookingRepository.createNewData(bookingData);
+                const result = yield this._bookingRepository.createNewData(bookingData);
+                const data = yield this._bookingRepository.getAgentData(result._id);
+                console.log("Booking Value == ", data);
+                if (result && data) {
+                    const notification = {
+                        userId: data.agentId,
+                        title: 'New Booking',
+                        message: `${data.userName} is created new booking of package ${data.packageName}`,
+                    };
+                    const res = yield this._notificationService.createNewNotification(notification);
+                    console.log("Notification sent successfully ::", res);
+                }
+                return result;
             }
             catch (error) {
                 console.error('Error retrieving booking data:', error);
@@ -118,7 +131,6 @@ let BookingService = class BookingService {
                 if (status === 'Cancelled' && bookingData.tripStatus === 'Completed') {
                     throw new Error('Completed trips cannot be cancelled.');
                 }
-                // Perform the status update
                 const updatedBooking = yield this._bookingRepository.updateOneById(bookingId, {
                     tripStatus: status,
                     paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
@@ -171,7 +183,7 @@ let BookingService = class BookingService {
                 console.log('Cancel Booking in service !!', id);
                 const bookingData = yield this._bookingRepository.findOneById(id);
                 if (!bookingData) {
-                    console.log('Not booking Data !!');
+                    console.log('No booking Data !!');
                     return false;
                 }
                 if (bookingData.tripStatus !== 'Cancelled') {
@@ -200,26 +212,26 @@ let BookingService = class BookingService {
                             const updateResult = yield this._bookingRepository.updateWallet(bookingData.userId, amount, 'Cancellation Balance payment credited !');
                             console.log('Values in Wallet ::', updateResult);
                         }
-                        // const notification = {
-                        //      userId :new mongoose.Schema.Types.ObjectId(bookingData.userId),
-                        //      message:`$id is cancelled by User`,
-                        //      type:'Booking'
-                        // }
-                        // const res = await this._notificationRepository.createNewData(notification);
-                        // if(res){
-                        //     emitNotification(bookingData.userId.toString(), {
-                        //     message: "Your booking has been canceled and refund is processed.",
-                        //     type: "booking"
-                        // });
+                        const data = yield this._bookingRepository.getAgentData(id);
+                        if (data) {
+                            const notification = {
+                                userId: data.agentId,
+                                title: 'Booking',
+                                message: `The booking of ${data.packageName} is cancelled by ${data.userName}`,
+                            };
+                            const res = yield this._notificationService.createNewNotification(notification);
+                            const userNotification = {
+                                userId: bookingData.userId,
+                                title: 'Refuned amount',
+                                message: `The amount ${amount} refunded after cancellation of ${data.packageName} !`,
+                            };
+                            console.log("Notification ::", userNotification);
+                            const res1 = yield this._notificationService.createNewNotification(userNotification);
+                            console.log("Notification sent successfully ::", res1);
+                        }
                     }
-                    else {
-                        return false;
-                    }
-                    return true;
                 }
-                else {
-                    return false;
-                }
+                return true;
             }
             catch (err) {
                 throw err;
@@ -236,16 +248,12 @@ let BookingService = class BookingService {
             }
         });
     }
-    validateBooking(bookingData) {
+    validateBooking(packageId, day) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._bookingRepository.getPackageDetails(bookingData.packageId);
-                if (data) {
-                    console.log('DAta is ...', data);
-                    return true;
-                }
-                else
-                    return false;
+                const data = yield this._bookingRepository.validateBooking(packageId, day);
+                console.log(`Data value is ${data}`);
+                return data;
             }
             catch (err) {
                 throw err;
@@ -254,27 +262,21 @@ let BookingService = class BookingService {
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             try {
-                // Explicitly type the data to match the expected structure
                 const data = yield this._bookingRepository.getDashboard();
                 if (!data)
                     return null;
                 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
                     'July', 'August', 'September', 'October', 'November', 'December'];
-                (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.forEach(item => {
-                    console.log("Month:", item._id.month, "=>", MONTHS[item._id.month - 1]);
-                });
-                console.log('Data in Booking Service ::', JSON.stringify(data));
-                const chartData = (_b = data.bookingsPerMonth) === null || _b === void 0 ? void 0 : _b.map((item) => ({
-                    month: MONTHS[item._id.month - 1],
+                const chartData = (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.map((item) => ({
                     totalBookings: item.totalBookings,
+                    month: MONTHS[item._id.month - 1],
                 }));
+                console.log("chart Data ::", chartData);
                 const dashboardData = {
                     summary: data === null || data === void 0 ? void 0 : data.summary[0],
-                    bookingsPerMonth: chartData && chartData.length > 0
-                        ? [chartData[0]]
-                        : [{ totalBookings: 0, month: '' }],
+                    bookingsPerMonth: chartData,
                 };
                 console.log('Dashboard Data ::', dashboardData);
                 return dashboardData;
@@ -292,12 +294,10 @@ let BookingService = class BookingService {
                 console.log("Wallet found ::", wallet);
                 if (!wallet) {
                     const result = yield this._bookingRepository.creditToWallet(walletData);
-                    console.log("Result ::", wallet);
                     return !!result;
                 }
                 else {
                     const result = yield this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.description);
-                    console.log("Result ::-else", wallet);
                     return !!result;
                 }
             }
@@ -313,7 +313,8 @@ exports.BookingService = BookingService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)('INotificationRepository')),
     __param(1, (0, inversify_1.inject)('IBookingRepository')),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(2, (0, inversify_1.inject)('INotificationService')),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], BookingService);
 function sendConfirmationToAgent(bookingData) {
     return __awaiter(this, void 0, void 0, function* () {

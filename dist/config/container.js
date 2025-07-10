@@ -22,14 +22,15 @@ const AdminPackageRepository_1 = require("../repositories/Package/AdminPackageRe
 const bookingRepository_1 = require("../repositories/Booking/bookingRepository");
 const bookingService_1 = require("../services/Booking/bookingService");
 const bookingController_1 = require("../controllers/Booking/bookingController");
-//Notification
-const notificationRepository_1 = require("../repositories/Notification/notificationRepository");
 const wishlistRepository_1 = require("../repositories/Wishlist/wishlistRepository");
 const wishlistService_1 = require("../services/Wishlist/wishlistService");
 const wishlistController_1 = require("../controllers/Wishlist/wishlistController");
 const chatRepository_1 = require("../repositories/Chat/chatRepository");
 const chatService_1 = require("../services/Chat/chatService");
 const chatController_1 = require("../controllers/Chat/chatController");
+const notificationRepository_1 = require("../repositories/Notification/notificationRepository");
+const notificationService_1 = require("../services/Notification/notificationService");
+const notificationController_1 = require("../controllers/Notification/notificationController");
 const container = new inversify_1.Container();
 exports.container = container;
 //admin
@@ -66,9 +67,6 @@ container.bind('PackageController').to(packageController_1.PackageController).in
 container.bind('IBookingRepository').toDynamicValue(() => {
     return new bookingRepository_1.BookingRepository();
 }).inSingletonScope();
-container.bind('INotificationRepository').toDynamicValue(() => {
-    return new notificationRepository_1.NotificationRepository();
-});
 container.bind('IBookingService').to(bookingService_1.BookingService).inSingletonScope();
 container.bind('BookingController').to(bookingController_1.BookingController).inSingletonScope();
 // Wishlist 
@@ -83,3 +81,9 @@ container.bind('IChatRepository').toDynamicValue(() => {
 }).inSingletonScope();
 container.bind('IChatService').to(chatService_1.ChatService).inSingletonScope();
 container.bind('ChatController').to(chatController_1.ChatController).inSingletonScope();
+//Notification
+container.bind('INotificationRepository').toDynamicValue(() => {
+    return new notificationRepository_1.NotificationRepository();
+}).inSingletonScope();
+container.bind('INotificationService').to(notificationService_1.NotificationService).inSingletonScope();
+container.bind('NotificationController').to(notificationController_1.NotificationController).inSingletonScope();

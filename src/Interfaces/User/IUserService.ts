@@ -1,7 +1,7 @@
 import { Iuser } from "../../interface/User";
 import { IUpdateUser } from "../../interface/User";
 import {  ICategoryValue, IReviewData, IReviewResponse, TReviewEdit } from '../../Types/user.types';
-import { TPackage } from "../../Types/Package.types";
+import { TPackageData } from "../../Types/Package.types";
 import { Request }  from 'express';
 import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
@@ -11,7 +11,7 @@ export interface IUserService{
      updateUser(userId:string,name:string,phone:string):Promise<Iuser | null>;
      resetPassword(req : Request) :Promise<ResetPasswordResult>;
      getCategories():Promise<ICategoryValue[]>;
-     getPackages():Promise<TPackage[]>;
+     getPackages():Promise<TPackageData[]>;
      addReview(reviewData : IReviewData): Promise<boolean>
      getReview(userId: string,packageId: string) : Promise<IReviewResponse | null>
      deleteReview(reviewId : string): Promise<boolean>;

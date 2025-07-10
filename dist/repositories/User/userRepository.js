@@ -58,8 +58,10 @@ class UserRepository extends BaseRepository_1.BaseRepository {
             try {
                 console.log('Fetch Packages !');
                 return yield this._packageModel.find({ status: true })
+                    .populate({ path: 'agent', select: '_id name email phone' })
                     .sort({ price: -1 })
-                    .limit(6);
+                    .limit(6)
+                    .lean();
             }
             catch (err) {
                 console.log('Error in get Packages !!!');

@@ -12,6 +12,7 @@ const roleAuth = new roleAuth_1.RoleAuth();
 const adminController = container_1.container.get('AdminController');
 const packageController = container_1.container.get('PackageController');
 const bookingController = container_1.container.get('BookingController');
+const notificationController = container_1.container.get('NotificationController');
 router.get('/getData/:user/:perPage/:page', protected_1.default, roleAuth.checkRole(['Admin']), adminController.getAllData);
 router.patch('/blockOrUnblock', protected_1.default, roleAuth.checkRole(['Admin']), adminController.blockOrUnblock);
 router.post("/getPresignedUrl", protected_1.default, roleAuth.checkRole(['Admin']), adminController.getPresignedUrl);
@@ -28,4 +29,6 @@ router.get('/packages', protected_1.default, roleAuth.checkRole(['Admin']), pack
 router.get('/booking', protected_1.default, roleAuth.checkRole(['Admin']), bookingController.getBookingDataToAdmin);
 router.get('/dashboard', protected_1.default, roleAuth.checkRole(['Admin']), bookingController.getDashboard);
 router.patch('/packages/verify/:packageId', protected_1.default, roleAuth.checkRole(['Admin']), packageController.verifyPackage);
+router.get('/notifications/:userId', protected_1.default, roleAuth.checkRole(['Admin']), notificationController.getAllNotification);
+router.patch('/notifications/:notificationId', protected_1.default, roleAuth.checkRole(['Admin']), notificationController.changeNotificationStatus);
 exports.default = router;

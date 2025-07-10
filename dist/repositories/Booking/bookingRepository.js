@@ -39,10 +39,10 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 console.log("Query ::", searchParams);
                 const [data, totalCount] = yield Promise.all([
                     this._bookingModel.find(query)
+                        .sort({ bookingDate: -1 })
                         .populate({ path: 'packageId', select: 'name images price description day night itinerary' })
                         .skip((page - 1) * perPage)
                         .limit(perPage)
-                        .sort({ bookingDate: -1 })
                         .exec(),
                     this._bookingModel.countDocuments(query).exec()
                 ]);
@@ -168,6 +168,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                     },
                     { $unwind: '$packages' },
                     { $match: query },
+                    { $sort: { bookingDate: -1 } },
                     {
                         $facet: {
                             metadata: [
@@ -281,13 +282,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const data = await this._bookingModel.aggregate([
-                //         { $match : {tripStatus: 'Completed'}},
-                //         { $group : 
-                //             {_id: null , total :{$sum: '$totalAmount'},totalBooking:{$sum:1}} },
-                //         { $set: { profit: { $multiply: [ "$total", .1 ] }  } },
-                //         {$project: {_id:0,profit:1,total:1,totalBooking:1}}
-                // ]);
                 const data = yield this._bookingModel.aggregate([
                     {
                         $match: { tripStatus: "Completed" }
@@ -399,6 +393,88 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 ]);
                 console.log('Booking Data ::', data[0]);
                 return data[0] || {};
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
+    getAgentData(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield this._bookingModel.aggregate([
+                    { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
+                    {
+                        $lookup: {
+                            from: 'packages',
+                            localField: 'packageId',
+                            foreignField: '_id',
+                            as: 'packageDetails',
+                        }
+                    },
+                    { $unwind: '$packageDetails' },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'userId',
+                            foreignField: '_id',
+                            as: 'userDetails',
+                        }
+                    },
+                    { $unwind: '$userDetails' },
+                    {
+                        $project: {
+                            packageName: '$packageDetails.name',
+                            userName: '$userDetails.name',
+                            agentId: '$packageDetails.agent',
+                        }
+                    }
+                ]).exec();
+                console.log("Data value = ", data[0]);
+                return data.length > 0 ? { packageName: data[0].packageName, userName: data[0].userName, agentId: data[0].agentId } : null;
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
+    validateBooking(packageId, tripDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const startDate = new Date(tripDate);
+                startDate.setDate(startDate.getDate() - 5);
+                const endDate = new Date(tripDate);
+                endDate.setDate(endDate.getDate() + 30);
+                const packageValue = yield this._packageModel.findOne({ _id: packageId }, { totalCapacity: 1 }).lean();
+                const data = yield this._bookingModel.aggregate([
+                    {
+                        $match: {
+                            packageId: packageId,
+                            tripDate: { $gte: startDate, $lt: endDate },
+                            status: { $in: ["Pending", "Confirmed", "In-Progress"] }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$tripDate",
+                            bookingCount: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            date: "$_id",
+                            bookingCount: 1
+                        }
+                    }
+                ]);
+                const targetDateString = new Date(tripDate).toDateString();
+                const matchedDay = data.find((d) => new Date(d.date).toDateString() === targetDateString);
+                const resultData = {
+                    tripDate: matchedDay || { date: tripDate, bookingCount: 0 },
+                    totalCapacity: (packageValue === null || packageValue === void 0 ? void 0 : packageValue.totalCapacity) || 0
+                };
+                return resultData;
             }
             catch (err) {
                 throw err;

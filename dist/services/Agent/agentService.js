@@ -30,7 +30,7 @@ let AgentService = class AgentService {
     uploadCertificate(id, publicUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' Upload certificate agent sevice !!! ');
+                console.log(' Upload certificate agent service !!! ');
                 const result = yield this._agentRepository.uploadCertificate(id, publicUrl);
                 if (result.acknowledged && result.matchedCount === 1 && result.modifiedCount === 1) {
                     return true;
@@ -67,6 +67,22 @@ let AgentService = class AgentService {
             }
             catch (err) {
                 console.log("Error in create Package !!");
+                throw err;
+            }
+        });
+    }
+    getDashboardData(agentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield this._agentRepository.getDashboardData(agentId);
+                if (data) {
+                    return data;
+                }
+                else {
+                    return {};
+                }
+            }
+            catch (err) {
                 throw err;
             }
         });

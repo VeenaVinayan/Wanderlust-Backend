@@ -7,4 +7,5 @@ export interface IAdminRepository{
     findPendingAgent(perPage: number, page: number):Promise<IPendingAgent[]>;
     agentApproval(agentId : string) : Promise<boolean>;
     rejectAgentRequest(agentId: string) : Promise<boolean>;
+    findAdminId():Promise<string | null>;
 }

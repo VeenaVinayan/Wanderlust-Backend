@@ -140,7 +140,8 @@ let PackageController = class PackageController {
         this.verifyPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId } = req.params;
-                const response = yield this._packageService.verifyPackage(packageId);
+                const { value } = req.body;
+                const response = yield this._packageService.verifyPackage(packageId, value);
                 if (response) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }

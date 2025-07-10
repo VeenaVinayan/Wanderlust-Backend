@@ -36,9 +36,7 @@ import { BookingRepository } from '../repositories/Booking/bookingRepository';
 import { IBookingService } from '../Interfaces/Booking/IBookingService';
 import { BookingService } from '../services/Booking/bookingService';
 import { BookingController } from '../controllers/Booking/bookingController';
-//Notification
-import { NotificationRepository } from '../repositories/Notification/notificationRepository';
-import { INotificationRepository } from '../Interfaces/Notification/INotificationRepository';
+
 // Wishlist
 import { IWishlistRepository } from '../Interfaces/Wishlist/IWishlistReposiory';
 import { IWishlistService } from '../Interfaces/Wishlist/IWishlistService';
@@ -51,7 +49,12 @@ import { IChatService } from '../Interfaces/Chat/IChatService';
 import { ChatRepository } from '../repositories/Chat/chatRepository';
 import { ChatService } from '../services/Chat/chatService';
 import { ChatController } from '../controllers/Chat/chatController';
-
+//Notification
+import { INotificationRepository } from '../Interfaces/Notification/INotificationRepository';
+import { INotificationService } from '../Interfaces/Notification/INotificationService';
+import { NotificationRepository } from '../repositories/Notification/notificationRepository';
+import { NotificationService } from '../services/Notification/notificationService' ;
+import { NotificationController } from '../controllers/Notification/notificationController';
 
 const container = new Container();
 //admin
@@ -91,9 +94,6 @@ container.bind<PackageController>('PackageController').to(PackageController).inS
 container.bind<IBookingRepository>('IBookingRepository').toDynamicValue(() => {
      return new BookingRepository();
 }).inSingletonScope();
-container.bind<INotificationRepository>('INotificationRepository').toDynamicValue(() =>{
-      return new NotificationRepository();
-})
 container.bind<IBookingService>('IBookingService').to(BookingService).inSingletonScope();
 container.bind<BookingController>('BookingController').to(BookingController).inSingletonScope();
 
@@ -110,5 +110,12 @@ container.bind<IChatRepository>('IChatRepository').toDynamicValue(() =>{
 }).inSingletonScope();
 container.bind<IChatService>('IChatService').to(ChatService).inSingletonScope();
 container.bind<ChatController>('ChatController').to(ChatController).inSingletonScope();
+
+//Notification
+container.bind<INotificationRepository>('INotificationRepository').toDynamicValue(() =>{
+       return new NotificationRepository();
+}).inSingletonScope();
+container.bind<INotificationService>('INotificationService').to(NotificationService).inSingletonScope();
+container.bind<NotificationController>('NotificationController').to(NotificationController).inSingletonScope();
 
 export { container };

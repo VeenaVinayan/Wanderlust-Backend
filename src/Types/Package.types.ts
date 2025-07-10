@@ -30,7 +30,7 @@ export type TPackage = {
 export type TPackageUpdate = Omit<TPackage, '_id' | 'status'>;
 
 export type TPackageResult = {
-      packages: TPackage[],
+      packages: TPackageData[]//TPackage[],
       totalCount: number;
 }
 
@@ -53,4 +53,13 @@ export type TAgentPackage = {
            totalPackages : number;
      }[],
      totalCount: number;
+}
+
+export type TPackageData = Omit<TPackage, 'agent'> & {
+     agent:{
+           _id:string;
+           name:string;
+           email:string;
+           phone:string;
+      }
 }

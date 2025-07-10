@@ -28,12 +28,17 @@ exports.ChatController = void 0;
 const inversify_1 = require("inversify");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
+const StatusMessage_1 = require("../../enums/StatusMessage");
 let ChatController = class ChatController {
     constructor(_chatService) {
         this._chatService = _chatService;
         this.getAllUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.params;
+                if (!userId) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    return;
+                }
                 console.log("Get alll users :", userId);
                 const users = yield this._chatService.getAllUsers(userId);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ users });
@@ -45,7 +50,11 @@ let ChatController = class ChatController {
         this.getMessages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sender, receiver } = req.query;
-                console.log(' Get messages ::', sender, receiver);
+                if (!sender || !receiver) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    return;
+                }
+                console.log(` Get messages controller : : sender :: ${sender} |Receiver :: ${receiver}`);
                 const messages = yield this._chatService.getMessages(String(sender), String(receiver));
                 console.log('Messsges sent to client !');
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ messages });

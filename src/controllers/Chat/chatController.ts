@@ -2,6 +2,8 @@ import { inject, injectable } from 'inversify';
 import asyncHandler from 'express-async-handler';
 import { IChatService } from '../../Interfaces/Chat/IChatService';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
+import { StatusMessage } from '../../enums/StatusMessage';
+
 import { Request, Response } from 'express';
 
 @injectable()
@@ -12,6 +14,10 @@ export class ChatController{
     getAllUsers = asyncHandler(async (req: Request, res: Response) =>{
         try{
               const { userId } = req.params;
+               if(!userId){
+                  res.status(HttpStatusCode.BAD_REQUEST).json({message:StatusMessage.BAD_REQUEST});
+                  return;
+              }
               console.log("Get alll users :",userId);
               const users = await  this._chatService.getAllUsers(userId);
               res.status(HttpStatusCode.OK).json({users});
@@ -22,7 +28,11 @@ export class ChatController{
     getMessages = asyncHandler(async (req: Request, res: Response) =>{
          try{
               const { sender, receiver } = req.query;
-              console.log(' Get messages ::',sender,receiver);
+              if(!sender || ! receiver){
+                  res.status(HttpStatusCode.BAD_REQUEST).json({message:StatusMessage.BAD_REQUEST});
+                  return;
+              }
+              console.log(` Get messages controller : : sender :: ${sender} |Receiver :: ${receiver}`);
               const messages = await this._chatService.getMessages(String(sender),String(receiver));
               console.log('Messsges sent to client !');
               res.status(HttpStatusCode.OK).json({messages});

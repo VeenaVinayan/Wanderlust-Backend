@@ -3,16 +3,32 @@ import { IPackageRepository } from "../../Interfaces/Package/IPackageRepository"
 import { IPackageService } from "../../Interfaces/Package/IPackageService";
 import { TPackage, TPackageResult, TPackageUpdate, QueryString } from '../../Types/Package.types';
 import { FilterParams } from '../../Types/Booking.types';
-
+import { IAdminRepository } from '../../Interfaces/Admin/IAdminRepository';
+import { TNotification } from "../../Types/notification";
+import { INotificationService } from '../../Interfaces/Notification/INotificationService';
 injectable()
 export class PackageService implements IPackageService{
-     constructor(
-         @inject("IPackageRepository") private _packageRepository: IPackageRepository
+    constructor(
+         @inject('IAdminRepository') private _adminRepository : IAdminRepository,
+         @inject("IPackageRepository") private _packageRepository: IPackageRepository,
+         @inject('INotificationService') private _notificationService : INotificationService,
      ){}
     async addPackage(packageData: TPackage ):Promise<boolean>{
          try{
            const data = await this._packageRepository.createNewData(packageData);
-           if(data) return true;
+           if(data) {
+           const adminId : string | null =await this._adminRepository.findAdminId();
+           if(adminId){
+                const notification : TNotification = {
+                    userId :adminId,
+                    title:'Package',
+                    message:`${data.name} is created !`,
+                }
+                 const res = await this._notificationService.createNewNotification(notification);
+                 console.log('Notification created succesfully ::',res);
+            }
+            return true;
+           }
            else return false;
          }catch(err){
              console.log('Error in Package Service !!');
@@ -73,16 +89,17 @@ export class PackageService implements IPackageService{
              throw err;
          }
     }
-    async verifyPackage(packageId : string): Promise<boolean>{
+    async verifyPackage(packageId : string,value : string): Promise<boolean>{
         try{
               console.log('Admin Verify Package :',packageId);
               if (!packageId) {
                   throw new Error(`Package with ID ${packageId} not found`);
               }
               const result = await this._packageRepository.updateOneById(packageId,{
-                  isVerified: "approved"
+                  isVerified: value
                });
                if(result) {
+                   console.log("Result is ::",result);
                    return true;
                } return false;
         }catch(err){

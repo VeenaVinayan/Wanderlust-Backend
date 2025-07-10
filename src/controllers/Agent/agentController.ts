@@ -78,4 +78,17 @@ export class AgentController{
        throw err;
      }
   });
+  getDashboardData = asyncHandler(async (req: Request, res: Response) => {
+     try{
+         const { agentId } = req.params;
+         console.log("Agent ID :",agentId);
+         const data = await this._agentService.getDashboardData(agentId);
+         console.log('Dashboard Data ::',data);
+         res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data});
+     }catch(err){
+        console.error('Error fetching dashboard data:', err);
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+           .json({message:StatusMessage.INTERNAL_SERVER_ERROR});
+     }
+  });    
 }

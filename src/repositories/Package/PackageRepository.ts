@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { BaseRepository } from "../Base/BaseRepository";
 import Package ,{ IPackage } from '../../models/Package';
 import { IPackageRepository } from '../../Interfaces/Package/IPackageRepository';
-import { TPackageUpdate , TPackageResult , TPackage, QueryString, TAgentPackage } from '../../Types/Package.types';
+import { TPackageUpdate , TPackageResult , TPackage, QueryString, TAgentPackage, TPackageData } from '../../Types/Package.types';
 import { FilterParams } from '../../Types/Booking.types';
 import { Types } from 'mongoose';
 
@@ -55,6 +55,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
                   sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1
                }
         const [data , totalCount ]  = await Promise.all([ this._packageModel.find(query)
+                          .populate('agent', '_id name email phone')
                           .skip((page-1)*perPage)
                           .limit(perPage)
                           .sort(sortOptions)
@@ -62,7 +63,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
                        this._packageModel.countDocuments(query).exec()
             ]); 
         const packageData : TPackageResult ={
-            packages : data,
+            packages : data as unknown as TPackageData[],
             totalCount
         }  
         console.log('Packages ::',packageData);  
@@ -71,8 +72,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
        throw err;
    }
 }
-  
-  async findAgentPackages(filterParams : FilterParams) : Promise<TPackageResult>{
+async findAgentPackages(filterParams : FilterParams) : Promise<TPackageResult>{
     try {
               const { id,page,perPage, searchParams } = filterParams;
                const query : any = {};
@@ -98,7 +98,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
                 this._packageModel.countDocuments(query)
         ])
         const packageData : TPackageResult={
-            packages: data,
+            packages: data as unknown as TPackageData[],
             totalCount,
         }
        return packageData;
@@ -160,26 +160,38 @@ async advanceSearch(queryString: QueryString): Promise<TPackageResult> {
       sortStage.price = 1;
     }
     console.log("Aggregation Params:", matchStage, sortStage);
-    const pipeline = [
-      { $match: matchStage },
-      {
-        $facet: {
-          data: [
-            { $sort: sortStage },
-            { $skip: (page - 1) * perPage },
-            { $limit: perPage }
-          ],
-          totalCount: [
-            { $count: "count" }
-          ]
-        }
-      }
-    ];
-    const response = await this._packageModel.aggregate(pipeline);
-    const result = response[0];
+    // const pipeline = [
+    //   { $match: matchStage },
+    //   {
+    //     $facet: {
+    //       data: [
+    //         { $sort: sortStage },
+    //         { $skip: (page - 1) * perPage },
+    //         { $limit: perPage }
+    //       ],
+    //       totalCount: [
+    //         { $count: "count" }
+    //       ]
+    //     }
+    //   }
+    // ];
+
+const [data, totalCount] = await Promise.all([
+  this._packageModel.find(matchStage)
+    .populate('agent', '_id name email phone')
+    .sort(sortStage)
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .lean(),
+
+  this._packageModel.countDocuments(matchStage)
+]);
+
+   // const response = await this._packageModel.aggregate(pipeline);
+    //const result = response[0];
     const formattedResult: TPackageResult = {
-      packages: result.data,
-      totalCount: result.totalCount[0]?.count || 0
+      packages: data as unknown as TPackageData[],
+      totalCount: totalCount,
     };
     return formattedResult;
   } catch (err) {

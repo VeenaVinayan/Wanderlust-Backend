@@ -10,6 +10,7 @@ import { WishlistController } from '../controllers/Wishlist/wishlistController';
 import { validation } from '../middlewares/validation';
 import { ChatController } from '../controllers/Chat/chatController';
 import { AgentController } from '../controllers/Agent/agentController';
+import { NotificationController } from '../controllers/Notification/notificationController';
 
 const router: Router = express.Router();
 const roleAuth = new RoleAuth();
@@ -20,6 +21,7 @@ const bookingController = container.get<BookingController>('BookingController');
 const wishlistController = container.get<WishlistController>('WishlistController');
 const chatController = container.get<ChatController>('ChatController');
 const agentController = container.get<AgentController>('AgentController');
+const notificationController = container.get<NotificationController>('NotificationController');
 
 router.patch('/user/update/:id',auth,roleAuth.checkRole(['User']),isBlocked,userController.updateProfile);
 router.patch('/user/update-password/:id',auth,roleAuth.checkRole(['User']),isBlocked,userController.resetPassword);
@@ -43,9 +45,11 @@ router.patch('/reviews/:reviewId',auth,roleAuth.checkRole(['User']),isBlocked,us
 router.get('/reviews/:packageId',userController.getReviews);    
 router.post('/booking/cancel',auth,roleAuth.checkRole(['User']),isBlocked,bookingController.cancelBooking);
 router.get('/wallets/:userId',auth,roleAuth.checkRole(['User']),isBlocked,userController.getWallet);
-//router.get('/bookings/validate',auth,roleAuth.checkRole(['User']),isBlocked,bookingController.validateBooking);
+router.get('/bookings/validate',auth,roleAuth.checkRole(['User']),isBlocked,bookingController.validateBooking);
 router.get('/chats/users/:userId',auth,roleAuth.checkRole(['User']),isBlocked,chatController.getAllUsers);
 router.get('/chats/messages',auth,roleAuth.checkRole(['User']),isBlocked,chatController.getMessages);
 router.get('/users/details/:userId',auth,roleAuth.checkRole(['User']),userController.getUserDetails);     
+router.get('/notifications/:userId',auth,roleAuth.checkRole(['User']),notificationController.getAllNotification);
+router.patch('/notifications/:notificationId',auth,roleAuth.checkRole(['User']),notificationController.changeNotificationStatus)
 
 export default router;

@@ -4,7 +4,6 @@ import Notification from '../models/Notification';
 import { chatHandlers } from './chatSocket';
 
 const userSocketMap: Record<string, string> = {}; 
-
 let io: Server;
 
 export const initializeSocket = (server: http.Server): void => {
@@ -24,11 +23,11 @@ export const initializeSocket = (server: http.Server): void => {
       userSocketMap[userId] = socket.id;
     }
     chatHandlers(socket,io, userSocketMap);
-
+    console.log("User socker Map ::",userSocketMap);
     socket.on("disconnect", () => {
       console.log("User disconnected", socket.id);
-      for (const [userId, socketId] of Object.entries(userSocketMap)) {
-        if (socketId === socket.id) {
+      for(const [userId, socketId] of Object.entries(userSocketMap)) {
+        if(socketId === socket.id) {
           delete userSocketMap[userId];
           break;
         }

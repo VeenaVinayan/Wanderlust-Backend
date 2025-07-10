@@ -157,5 +157,16 @@ class AdminRepository {
             }
         });
     }
+    findAdminId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const adminId = yield this.userModel.findOne({ role: 'Admin' }, { _id: 1 });
+                return adminId;
+            }
+            catch (err) {
+                throw err;
+            }
+        });
+    }
 }
 exports.AdminRepository = AdminRepository;

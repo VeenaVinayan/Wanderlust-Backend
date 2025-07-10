@@ -1,21 +1,22 @@
 import mongoose, { Schema , Document } from 'mongoose';
-import User from './User';
 
 export interface INotification extends Document{
-     userId: mongoose.Schema.Types.ObjectId;
-     type : string;
+     userId: string;
+     title : string;
      message : string;
      isRead:boolean;
-     createdAt: Date;
+     createdAt?:Date;
+     updatedAt?:Date;
+
 }
 
-const NotificationSchema : Schema <INotification> = new mongoose.Schema({
+const NotificationSchema : Schema = new mongoose.Schema({
      userId: {
          type: mongoose.Schema.Types.ObjectId,
-         ref:User,
+         ref:'User',
          required: true,
      },
-     type:{
+     title:{
          type:String,
          required:true,
      },

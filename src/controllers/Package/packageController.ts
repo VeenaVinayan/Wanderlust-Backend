@@ -90,7 +90,6 @@ export class PackageController{
          throw err;
       }
     });
-
     getCategoryPackages = asyncHandler( async (req: Request, res: Response) =>{
         try{
               const packages = await this._packageService.getCategoryPackages();
@@ -111,7 +110,8 @@ export class PackageController{
     verifyPackage = asyncHandler(async (req: Request, res: Response) => {
          try{
             const { packageId } = req.params;
-            const response = await this._packageService.verifyPackage(packageId);
+            const { value } = req.body;
+            const response = await this._packageService.verifyPackage(packageId,value);
             if(response){
                res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS});
             }else{

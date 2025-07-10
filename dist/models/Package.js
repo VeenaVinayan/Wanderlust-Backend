@@ -16,7 +16,7 @@ const PackageSchema = new mongoose_1.default.Schema({
     },
     agent: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Agent',
+        ref: 'User',
         required: true,
     },
     category: {
@@ -81,12 +81,12 @@ const PackageSchema = new mongoose_1.default.Schema({
                 type: String,
                 required: true,
             },
-            isVerified: {
-                type: String,
-                enum: ['pending', 'approved', 'rejected'],
-                default: 'pending',
-            },
-        }]
+        }],
+    isVerified: {
+        type: String,
+        enum: ['Eending', 'Approved', 'Rejected'],
+        default: 'Pending',
+    },
 }, { timestamps: true });
 const Package = mongoose_1.default.model('Package', PackageSchema);
 exports.default = Package;

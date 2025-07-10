@@ -2,6 +2,8 @@ import { IBaseRepository } from "../Base/IBaseRepository";
 import { IBooking } from "../../models/Booking";
 import { FilterParams , IWalletData} from "../../Types/Booking.types";
 import { IWallet } from '../../models/Wallet';
+import { IBookingValue } from '../../Types/Booking.types';
+import { IBookingValidationResult } from '../../Types/Booking.types';
 
 export interface IBookingRepository extends IBaseRepository<IBooking>{
    getBookingData(filterParams: FilterParams): Promise<Object>;
@@ -14,5 +16,7 @@ export interface IBookingRepository extends IBaseRepository<IBooking>{
    getPackageBookingData(filterParams : FilterParams): Promise<Object>;
    getPackageDetails(packageId: string): Promise<Object | null> ;
    getDashboard():Promise<Object | null>;
-   getBookingCompleteData(bookingId : string) :Promise<Object>
+   getBookingCompleteData(bookingId : string) :Promise<Object>;
+   getAgentData(bookingId : string) : Promise<IBookingValue | null>;
+   validateBooking(packageId : string,tripDate :Date):Promise<IBookingValidationResult>;
 }

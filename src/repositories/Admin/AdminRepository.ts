@@ -126,4 +126,12 @@ export class AdminRepository implements IAdminRepository {
            throw err;
         }
    }
+   async findAdminId(): Promise<string | null> {
+      try{
+           const adminId : string | null= await this.userModel.findOne({role:'Admin'},{_id:1});
+           return adminId;
+      }catch(err){
+          throw err;
+      }
+   }
 } 

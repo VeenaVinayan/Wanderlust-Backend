@@ -1,6 +1,7 @@
 import { IBookingData , FilterParams} from "../../Types/Booking.types";
 import { IBooking } from "../../models/Booking";
 import { IDashBoardData } from "../../Types/Booking.types";
+import { IBookingValidationResult } from "../../Types/Booking.types";
 
 export interface IBookingService {
     bookPackage(bookingData: IBookingData): Promise<IBooking>;
@@ -11,6 +12,6 @@ export interface IBookingService {
     getBookingDataToAdmin(filterParams : FilterParams): Promise<Object>;
     cancelBooking(id : string): Promise<boolean>
     getPackageBookingData(filterParams : FilterParams): Promise<Object>;
-    validateBooking(bookingData :IBookingData) :Promise<boolean>;
+    validateBooking(packageId : string, day : Date) :Promise<IBookingValidationResult | null>;
     getDashboard():Promise<IDashBoardData | null>;
 }

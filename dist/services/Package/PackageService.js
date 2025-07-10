@@ -36,15 +36,28 @@ exports.PackageService = void 0;
 const inversify_1 = require("inversify");
 (0, inversify_1.injectable)();
 let PackageService = class PackageService {
-    constructor(_packageRepository) {
+    constructor(_adminRepository, _packageRepository, _notificationService) {
+        this._adminRepository = _adminRepository;
         this._packageRepository = _packageRepository;
+        this._notificationService = _notificationService;
     }
     addPackage(packageData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._packageRepository.createNewData(packageData);
-                if (data)
+                if (data) {
+                    const adminId = yield this._adminRepository.findAdminId();
+                    if (adminId) {
+                        const notification = {
+                            userId: adminId,
+                            title: 'Package',
+                            message: `${data.name} is created !`,
+                        };
+                        const res = yield this._notificationService.createNewNotification(notification);
+                        console.log('Notification created succesfully ::', res);
+                    }
                     return true;
+                }
                 else
                     return false;
             }
@@ -132,7 +145,7 @@ let PackageService = class PackageService {
             }
         });
     }
-    verifyPackage(packageId) {
+    verifyPackage(packageId, value) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('Admin Verify Package :', packageId);
@@ -140,9 +153,10 @@ let PackageService = class PackageService {
                     throw new Error(`Package with ID ${packageId} not found`);
                 }
                 const result = yield this._packageRepository.updateOneById(packageId, {
-                    isVerified: "approved"
+                    isVerified: value
                 });
                 if (result) {
+                    console.log("Result is ::", result);
                     return true;
                 }
                 return false;
@@ -155,6 +169,8 @@ let PackageService = class PackageService {
 };
 exports.PackageService = PackageService;
 exports.PackageService = PackageService = __decorate([
-    __param(0, (0, inversify_1.inject)("IPackageRepository")),
-    __metadata("design:paramtypes", [Object])
+    __param(0, (0, inversify_1.inject)('IAdminRepository')),
+    __param(1, (0, inversify_1.inject)("IPackageRepository")),
+    __param(2, (0, inversify_1.inject)('INotificationService')),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], PackageService);

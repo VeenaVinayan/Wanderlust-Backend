@@ -5,7 +5,7 @@ import { LoginResult  } from "../../interface/Interface";
 import Category from '../../models/Category';
 import { ICategoryValue , IReviewData , IReviewResponse , IReviews, TReviewEdit} from '../../Types/user.types'
 import Package from "../../models/Package";
-import { TPackage } from  '../../Types/Package.types';
+import { TPackage, TPackageData } from  '../../Types/Package.types';
 import Review from '../../models/Review';
 import Wallet , { IWallet } from '../../models/Wallet';
 import  mongoose ,{ FilterQuery}  from 'mongoose';
@@ -20,7 +20,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
      constructor(){
          super(User);
      }
-     async updateProfile( userId: string, name:string,phone:string) :Promise<LoginResult | null> {
+    async updateProfile( userId: string, name:string,phone:string) :Promise<LoginResult | null> {
            try{
                 console.log('In user Repository !',userId,name,phone);
                 return await this._userModel.findByIdAndUpdate(userId,
@@ -31,7 +31,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                throw err;
            }
      }
-     async getCategories(): Promise<ICategoryValue[]>{
+    async getCategories(): Promise<ICategoryValue[]>{
       try{
             console.log('Inside Repository !!');
             return await this._categoryModel.find({status:true},{_id:1,name:1,image:1})
@@ -40,12 +40,14 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
            throw err;
       }
      }
-     async getPackages(): Promise<TPackage[]>{
+     async getPackages(): Promise<TPackageData[]>{
        try{
             console.log('Fetch Packages !');
             return await this._packageModel.find({status:true})
-                                           .sort({price:-1}) 
-                                           .limit(6); 
+                                            .populate({ path: 'agent', select: '_id name email phone' })
+                                            .sort({price:-1}) 
+                                            .limit(6)
+                                            .lean() as unknown as TPackageData[]; 
        }catch(err){
             console.log('Error in get Packages !!!');
             throw err;

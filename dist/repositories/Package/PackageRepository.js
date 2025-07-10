@@ -79,6 +79,7 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                     sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([this._packageModel.find(query)
+                        .populate('agent', '_id name email phone')
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .sort(sortOptions)
@@ -148,7 +149,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
     }
     advanceSearch(queryString) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 console.log("Advance search with aggregation !!");
                 const searchQuery = queryString;
@@ -193,26 +193,35 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                     sortStage.price = 1;
                 }
                 console.log("Aggregation Params:", matchStage, sortStage);
-                const pipeline = [
-                    { $match: matchStage },
-                    {
-                        $facet: {
-                            data: [
-                                { $sort: sortStage },
-                                { $skip: (page - 1) * perPage },
-                                { $limit: perPage }
-                            ],
-                            totalCount: [
-                                { $count: "count" }
-                            ]
-                        }
-                    }
-                ];
-                const response = yield this._packageModel.aggregate(pipeline);
-                const result = response[0];
+                // const pipeline = [
+                //   { $match: matchStage },
+                //   {
+                //     $facet: {
+                //       data: [
+                //         { $sort: sortStage },
+                //         { $skip: (page - 1) * perPage },
+                //         { $limit: perPage }
+                //       ],
+                //       totalCount: [
+                //         { $count: "count" }
+                //       ]
+                //     }
+                //   }
+                // ];
+                const [data, totalCount] = yield Promise.all([
+                    this._packageModel.find(matchStage)
+                        .populate('agent', '_id name email phone')
+                        .sort(sortStage)
+                        .skip((page - 1) * perPage)
+                        .limit(perPage)
+                        .lean(),
+                    this._packageModel.countDocuments(matchStage)
+                ]);
+                // const response = await this._packageModel.aggregate(pipeline);
+                //const result = response[0];
                 const formattedResult = {
-                    packages: result.data,
-                    totalCount: ((_a = result.totalCount[0]) === null || _a === void 0 ? void 0 : _a.count) || 0
+                    packages: data,
+                    totalCount: totalCount,
                 };
                 return formattedResult;
             }

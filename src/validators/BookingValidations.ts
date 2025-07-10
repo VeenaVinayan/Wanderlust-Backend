@@ -32,7 +32,6 @@ export const bookingValidation = (bookingData: BookingInput): string[] => {
       errors.push("Traveller counts must be valid integers!");
     }
   }
-
   return errors;
 };
 

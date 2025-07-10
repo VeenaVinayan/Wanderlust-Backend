@@ -5,6 +5,7 @@ import { FilterParams, IDashBoardData } from '../../Types/Booking.types'
 import asyncHandler from 'express-async-handler';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
+import { IBookingValidationResult } from '../../Types/Booking.types';
 
 @injectable()
 export class BookingController {
@@ -13,6 +14,7 @@ export class BookingController {
      ){}
      bookPackage = asyncHandler(async(req: Request, res: Response) => {
             try {
+                //const resultValue = await this._bookingService.validateBooking(req.body);
                 console.log("Booking Data ::",req.body);
                 const result = await this._bookingService.bookPackage(req.body);
                 if(result) {
@@ -37,8 +39,8 @@ export class BookingController {
                 perPage: Number(perPage),
                 searchParams: {
                      search:( search as string) || '',
-                     sortBy:(sortBy as string) || 'tripDate', 
-                     sortOrder:(sortOrder as string) || 'asc',
+                     sortBy:(sortBy as string) || 'bookingDate', 
+                     sortOrder:(sortOrder as string) || 'dec',
                 }
             }
             const data = await this._bookingService.getBookingData(filterParams);
@@ -166,6 +168,23 @@ export class BookingController {
         throw err;
      }
  } );
-
+ validateBooking = asyncHandler(async(req:Request,res:Response) =>{
+     try{
+            const { packageId, day} = req.query;
+            if(!packageId || !day){
+                 res.status(HttpStatusCode.BAD_REQUEST).json({success:false});
+                 return;
+            }
+            const data : IBookingValidationResult | null = await this._bookingService.validateBooking(
+                String(packageId),
+                new Date(String(day))
+            );
+            console.log("Validation Data ::",JSON.stringify(data?.tripDate));
+            res.status(HttpStatusCode.OK).json({success:true,data});
+            console.log('Validate Booking ',req.body);
+     }catch(err){
+         throw err;
+     }
+ })
 }
 

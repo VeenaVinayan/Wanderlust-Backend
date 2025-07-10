@@ -71,8 +71,9 @@ export class UserController{
   })
   getPackages = asyncHandler(async (req:Request, res: Response) =>{
       try{
-          console.log('Packages in User Controller !!!'); 
+           
           const data = await this._userService.getPackages();
+          console.log('Packages in User Controller !!!',data);
           if(data){
             res.status(HttpStatusCode.OK).json({message: StatusMessage.SUCCESS,data});
           }else{

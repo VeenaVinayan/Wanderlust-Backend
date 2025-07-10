@@ -12,7 +12,7 @@ export class AgentService implements IAgentService{
 
      async uploadCertificate(id: string, publicUrl: string): Promise<boolean>{
           try{
-              console.log(' Upload certificate agent sevice !!! ');
+              console.log(' Upload certificate agent service !!! ');
               const result =await this._agentRepository.uploadCertificate(id,publicUrl);
               if(result.acknowledged && result.matchedCount===1 && result.modifiedCount ===1){
                  return true;
@@ -44,5 +44,18 @@ export class AgentService implements IAgentService{
           console.log("Error in create Package !!");
           throw err;
        }
+  }
+  async getDashboardData(agentId : string): Promise<Object>{
+    try{
+        
+         const data = await this._agentRepository.getDashboardData(agentId);
+         if(data){
+               return data;
+         }else{
+               return {};
+         }  
+    }catch(err){
+       throw err;
+    }
   }
 }

@@ -22,6 +22,7 @@ const initializeSocket = (server) => {
             userSocketMap[userId] = socket.id;
         }
         (0, chatSocket_1.chatHandlers)(socket, io, userSocketMap);
+        console.log("User socker Map ::", userSocketMap);
         socket.on("disconnect", () => {
             console.log("User disconnected", socket.id);
             for (const [userId, socketId] of Object.entries(userSocketMap)) {

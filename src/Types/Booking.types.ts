@@ -4,6 +4,7 @@ export interface IBookingData{
     userId: string;
     packageId: string;
     bookingDate: Date;
+    tripDate:Date;
     totalGuest:number;
     totalAmount:number;
     paymentStatus: string;
@@ -36,8 +37,20 @@ export interface IDashBoardData{
         totalBooking:number;
         profit:number;
     },
-    bookingsPerMonth:[{
+    bookingsPerMonth:{
          totalBookings:number;
          month:string;
-    }]
+    }[]
+}
+export interface IBookingValue{
+    packageName:string;
+    userName:string;
+    agentId:string;
+}
+export interface IBookingValidationResult{
+    tripDate:{
+         date:Date;
+         bookingCount:number;
+    }[],
+    totalCapacity:number;
 }

@@ -34,6 +34,7 @@ let BookingController = class BookingController {
         this._bookingService = _bookingService;
         this.bookPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
+                //const resultValue = await this._bookingService.validateBooking(req.body);
                 console.log("Booking Data ::", req.body);
                 const result = yield this._bookingService.bookPackage(req.body);
                 if (result) {
@@ -60,8 +61,8 @@ let BookingController = class BookingController {
                     perPage: Number(perPage),
                     searchParams: {
                         search: search || '',
-                        sortBy: sortBy || 'tripDate',
-                        sortOrder: sortOrder || 'asc',
+                        sortBy: sortBy || 'bookingDate',
+                        sortOrder: sortOrder || 'dec',
                     }
                 };
                 const data = yield this._bookingService.getBookingData(filterParams);
@@ -196,6 +197,22 @@ let BookingController = class BookingController {
                 else {
                     res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ data });
                 }
+            }
+            catch (err) {
+                throw err;
+            }
+        }));
+        this.validateBooking = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { packageId, day } = req.query;
+                if (!packageId || !day) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false });
+                    return;
+                }
+                const data = yield this._bookingService.validateBooking(String(packageId), new Date(String(day)));
+                console.log("Validation Data ::", JSON.stringify(data === null || data === void 0 ? void 0 : data.tripDate));
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
+                console.log('Validate Booking ', req.body);
             }
             catch (err) {
                 throw err;

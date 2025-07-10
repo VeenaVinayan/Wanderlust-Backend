@@ -37,7 +37,7 @@ const PackageSchema : Schema = new mongoose.Schema({
      },
      agent:{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'Agent',
+        ref:'User',
         required:true,
      },
      category:{
@@ -101,13 +101,13 @@ const PackageSchema : Schema = new mongoose.Schema({
          transfer:{
             type:String,
             required:true,
-         },
-         isVerified:{
+        },
+     }],
+     isVerified:{
              type:String,
-             enum:['pending','approved','rejected'],
-             default:'pending',
-         },
-     }]
+             enum:['Eending','Approved','Rejected'],
+             default:'Pending',
+     },
 },{timestamps:true});
 
 const Package = mongoose.model<IPackage>('Package',PackageSchema);

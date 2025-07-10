@@ -5,6 +5,7 @@ import { AdminController } from '../controllers/Admin/adminController';
 import { PackageController } from '../controllers/Package/packageController';
 import { container } from '../config/container';
 import { BookingController } from '../controllers/Booking/bookingController';
+import { NotificationController } from '../controllers/Notification/notificationController';
 
 const router : Router = express.Router();
 
@@ -13,6 +14,7 @@ const roleAuth = new RoleAuth();
 const adminController = container.get<AdminController>('AdminController');
 const packageController = container.get<PackageController>('PackageController');
 const bookingController = container.get<BookingController>('BookingController');
+const notificationController = container.get<NotificationController>('NotificationController');
 
 router.get('/getData/:user/:perPage/:page',protect,roleAuth.checkRole(['Admin']),adminController.getAllData);
 router.patch('/blockOrUnblock',protect,roleAuth.checkRole(['Admin']),adminController.blockOrUnblock);
@@ -30,5 +32,7 @@ router.get('/packages',protect,roleAuth.checkRole(['Admin']),packageController.g
 router.get('/booking',protect,roleAuth.checkRole(['Admin']),bookingController.getBookingDataToAdmin);
 router.get('/dashboard',protect,roleAuth.checkRole(['Admin']),bookingController.getDashboard);
 router.patch('/packages/verify/:packageId',protect,roleAuth.checkRole(['Admin']),packageController.verifyPackage);
+router.get('/notifications/:userId',protect,roleAuth.checkRole(['Admin']),notificationController.getAllNotification);
+router.patch('/notifications/:notificationId',protect,roleAuth.checkRole(['Admin']),notificationController.changeNotificationStatus)
 
 export default router;

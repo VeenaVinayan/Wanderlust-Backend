@@ -5,7 +5,7 @@ import { Iuser } from "../../interface/User";
 import { Request } from "express";
 import  bcryptjs  from 'bcryptjs' ;
 import {IUser } from '../../models/User';
-import { TPackage } from '../../Types/Package.types';
+import { TPackageData } from '../../Types/Package.types';
 import { ICategoryValue, IReviewData, IReviewResponse, TReviewEdit } from '../../Types/user.types';
 import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
@@ -82,7 +82,7 @@ export class UserService implements IUserService {
             throw err;
         }
     }
-    async  getPackages() : Promise<TPackage[]>{
+    async  getPackages() : Promise<TPackageData[]>{
          try{
             console.log(' Get Catgory service !!');
             return await this._userRepository.getPackages();

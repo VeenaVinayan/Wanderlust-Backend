@@ -62,10 +62,9 @@ export class AdminController{
    });
    addCategory = asyncHandler( async(req: Request, res: Response) =>{
         try{
-            console.log(' Add category !!',req.body);
             const response = await this._adminService.addCategory(req.body);
             if(response){
-                res.status(HttpStatusCode.ACCEPTED).json({message:StatusMessage.CREATED})
+                res.status(HttpStatusCode.OK).json({message:StatusMessage.CREATED})
             }else{
                 res.status(HttpStatusCode.NO_CONTENT).json({message:StatusMessage.ERROR}) 
             }

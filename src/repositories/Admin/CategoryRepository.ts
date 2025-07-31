@@ -13,8 +13,7 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
          super(Category);
      }
      async isExistCategory(categoryName: string) : Promise<null| ICategoryResponse>{
-         console.log("----------Inside Category Exist -------------") 
-         return await this._categoryModel.findOne({name:categoryName});
+        return await this._categoryModel.findOne({name:categoryName});
      }
      async deleteCategory(categoryId : string) : Promise<boolean> {
         try{

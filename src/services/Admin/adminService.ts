@@ -35,7 +35,6 @@ export class AdminService implements IAdminService{
   }
   async addCategory(data : ICategory) :Promise<boolean>{
     try{
-        console.info('Add Category !',data);
         data.name = data.name.toUpperCase();
         await this._categoryRepository.createNewData(data);
         return true;

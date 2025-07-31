@@ -3,6 +3,8 @@ import Category , { ICategory }from '../../models/Category';
 import { BaseRepository } from "../Base/BaseRepository";
 import { ICategoryResponse } from "../../interface/Category.interface";
 import { ICategoryRepository } from '../../Interfaces/Admin/ICategoryRepository';
+import { FilterQuery } from 'mongoose';
+import { FilterParams } from '../../Types/Booking.types';
 
 @injectable()
 export class CategoryRepository extends BaseRepository<ICategory> implements ICategoryRepository{
@@ -31,27 +33,28 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
           throw err;
        }
      }
-     async findAllCategory(perPage: number, page: number, search : string, sortBy: string, sortOrder : string) : Promise<Object> {
+     async findAllCategory(filterParams : FilterParams) : Promise<Object> {
         try{
            console.info('Inside get Categories !!');
-           const query : any= {};
-           if(search){
+           const query : FilterQuery<ICategory> ={};
+           const { page, perPage, searchParams} = filterParams;
+           if(searchParams.search){
                query.$or = [
-                   { name: { $regex: search, $options:'i'}},
-                   { description: {$regex: search, $options: 'i'}},
+                   { name: { $regex: searchParams.search, $options:'i'}},
+                   { description: {$regex: searchParams.search, $options: 'i'}},
+                   {status:true},
                ];
            }
-           const sortOptions : any = {};
-           if(sortBy){
-              sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+           const sortOptions : Record<string, 1|-1> = {};
+           if(searchParams.sortBy){
+              sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
            }
            const [ data, totalCount] = await Promise.all([ 
                  this._categoryModel
                       .find(query)
                       .sort(sortOptions)
-                      .skip((page-1)*perPage)
-                      .limit(perPage),
-                this._categoryModel.countDocuments(),      
+                      .skip((page-1)*perPage),
+                 this._categoryModel.countDocuments(query),      
            ]);
            return { data,totalCount}
         }catch(err){

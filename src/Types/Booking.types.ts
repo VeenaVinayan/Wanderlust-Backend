@@ -29,6 +29,7 @@ export interface IWalletData{
         trnasactionDate?:Date; 
         amount:number;
         description:string;
+        bookingId:string;
      }
 }
 export interface IDashBoardData{
@@ -53,4 +54,9 @@ export interface IBookingValidationResult{
          bookingCount:number;
     }[],
     totalCapacity:number;
+}
+export interface ISummary{
+     total:number,
+     profit:number,
+     totalBooking:number,
 }

@@ -44,6 +44,7 @@ let PackageService = class PackageService {
     addPackage(packageData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('Package Data ::', packageData);
                 const data = yield this._packageRepository.createNewData(packageData);
                 if (data) {
                     const adminId = yield this._adminRepository.findAdminId();

@@ -43,7 +43,7 @@ export const verifyToken = (token : string) =>{
        return null;
     }
 }
-export const verifyRefreshToken = (token : string) : any =>{
+export const verifyRefreshToken = (token : string) : null|string =>{
     try {
         console.log('Verifying Refresh Token:', token);
         
@@ -64,7 +64,7 @@ export const verifyRefreshToken = (token : string) : any =>{
             console.log("Access Token ::", accessToken);
             return accessToken;
         } else {
-            console.error("Invalid Token: Missing payload data.");
+            console.error("Invalid Token: Missing payload data");
             return null;
         }
     } catch (err: unknown) {

@@ -21,7 +21,6 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     }
     catch (err) {
-        // Handle errors
         if (err instanceof Error) {
             console.error(`Error in MongoDB: ${err.message}`);
         }

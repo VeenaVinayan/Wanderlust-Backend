@@ -5,6 +5,8 @@ import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
 
 import { Request, Response } from 'express';
+import { IChatUserDTO } from '../../DTO/chatDTO';
+import { TMessage } from '../../Types/chat.types';
 
 @injectable()
 export class ChatController{
@@ -19,7 +21,7 @@ export class ChatController{
                   return;
               }
               console.log("Get alll users :",userId);
-              const users = await  this._chatService.getAllUsers(userId);
+              const users : IChatUserDTO [] | null = await  this._chatService.getAllUsers(userId);
               res.status(HttpStatusCode.OK).json({users});
         }catch(err){
              throw err;
@@ -32,8 +34,7 @@ export class ChatController{
                   res.status(HttpStatusCode.BAD_REQUEST).json({message:StatusMessage.BAD_REQUEST});
                   return;
               }
-              console.log(` Get messages controller : : sender :: ${sender} |Receiver :: ${receiver}`);
-              const messages = await this._chatService.getMessages(String(sender),String(receiver));
+              const messages : TMessage[] = await this._chatService.getMessages(String(sender),String(receiver));
               console.log('Messsges sent to client !');
               res.status(HttpStatusCode.OK).json({messages});
          }catch(err){

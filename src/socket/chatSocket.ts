@@ -2,7 +2,6 @@ import { Socket, Server } from 'socket.io';
 import Message from '../models/Message';
 
 export const chatHandlers = (socket: Socket, io: Server, userSocketMap: Record<string, string>) => {
- 
     socket.on("send-message", async (message) => {
       try {
         const { sender, receiver, content} =message;

@@ -10,6 +10,8 @@ import { ICategoryValue, IReviewData, IReviewResponse, TReviewEdit } from '../..
 import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
 import { FilterParams } from '../../Types/Booking.types';
+import  AgentMapper  from '../../mapper/userMapper';
+import { IAgentChatDataDTO } from '../../DTO/userDTO';
 
 @injectable()
 export class UserService implements IUserService {
@@ -29,12 +31,9 @@ export class UserService implements IUserService {
                         status:data.status,
                         role:data.role,
                   }
-                  console.log(" The  user result :: ",user )
-                  return user;
-
-               }else return null;
-                             
-         }catch(err){
+                 return user;
+             }else return null;
+        }catch(err){
                throw err;
          }
     }
@@ -43,9 +42,6 @@ export class UserService implements IUserService {
   try {
     const { id } = req.params;
     const { oldPassword, newPassword, confirmPassword } = req.body;
-
-    console.log("Values are:", id, oldPassword, newPassword, confirmPassword);
-
     const user = await this._userRepository.findOneById(id);
     if (!user) {
       return ResetPasswordResult.USER_NOT_FOUND;
@@ -75,7 +71,6 @@ export class UserService implements IUserService {
 
     async getCategories():Promise<ICategoryValue[]>{
         try{
-            console.log(' Get Catgory service !!');
             return await this._userRepository.getCategories();
         }catch(err){
             console.log(' Error in Get Category service !!');
@@ -84,11 +79,9 @@ export class UserService implements IUserService {
     }
     async  getPackages() : Promise<TPackageData[]>{
          try{
-            console.log(' Get Catgory service !!');
             return await this._userRepository.getPackages();
          }catch(err){
-             console.error('Error in Fetch package in SERvices ',err);
-             throw err;
+            throw err;
          }
     }
     async addReview( reviewData : IReviewData) : Promise<boolean>{
@@ -133,16 +126,12 @@ export class UserService implements IUserService {
             throw err;
         }
     }
-    async userDetails(userId : string): Promise<Object | null>{
+    async userDetails(userId : string): Promise<IAgentChatDataDTO | null>{
          try{
                 console.log("User Id :::",userId);
-                const data = await this._userRepository.findOneById(userId);
-                const user = {
-                     _id:data?._id?.toString(),
-                     name:data?.name,
-                }
-                console.log(" User DAta ==", user);
-                return user;
+                const data :IUser | null= await this._userRepository.findOneById(userId);
+                if(!data) return null;
+                return AgentMapper.agentDataMapper(data);
          }catch(err){
               throw err;
          }

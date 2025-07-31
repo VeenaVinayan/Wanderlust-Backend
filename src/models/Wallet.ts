@@ -7,6 +7,7 @@ export interface IWallet extends Document{
           transactionData : Date;
           amount:number;
           description:string;
+          bookingId:string;
     }[]
 }
 const WalletSchema : Schema<IWallet> = new mongoose.Schema({
@@ -30,6 +31,10 @@ const WalletSchema : Schema<IWallet> = new mongoose.Schema({
              required:true,
          },
          description:{
+             type:String,
+             required:true,
+         },
+         bookingId:{
              type:String,
              required:true,
          }         

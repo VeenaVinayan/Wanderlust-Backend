@@ -28,6 +28,7 @@ exports.UserService = void 0;
 const inversify_1 = require("inversify");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const PasswordReset_1 = require("../../enums/PasswordReset");
+const userMapper_1 = __importDefault(require("../../mapper/userMapper"));
 let UserService = class UserService {
     constructor(_userRepository) {
         this._userRepository = _userRepository;
@@ -46,7 +47,6 @@ let UserService = class UserService {
                         status: data.status,
                         role: data.role,
                     };
-                    console.log(" The  user result :: ", user);
                     return user;
                 }
                 else
@@ -62,7 +62,6 @@ let UserService = class UserService {
             try {
                 const { id } = req.params;
                 const { oldPassword, newPassword, confirmPassword } = req.body;
-                console.log("Values are:", id, oldPassword, newPassword, confirmPassword);
                 const user = yield this._userRepository.findOneById(id);
                 if (!user) {
                     return PasswordReset_1.ResetPasswordResult.USER_NOT_FOUND;
@@ -89,7 +88,6 @@ let UserService = class UserService {
     getCategories() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' Get Catgory service !!');
                 return yield this._userRepository.getCategories();
             }
             catch (err) {
@@ -101,11 +99,9 @@ let UserService = class UserService {
     getPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' Get Catgory service !!');
                 return yield this._userRepository.getPackages();
             }
             catch (err) {
-                console.error('Error in Fetch package in SERvices ', err);
                 throw err;
             }
         });
@@ -172,16 +168,12 @@ let UserService = class UserService {
     }
     userDetails(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 console.log("User Id :::", userId);
                 const data = yield this._userRepository.findOneById(userId);
-                const user = {
-                    _id: (_a = data === null || data === void 0 ? void 0 : data._id) === null || _a === void 0 ? void 0 : _a.toString(),
-                    name: data === null || data === void 0 ? void 0 : data.name,
-                };
-                console.log(" User DAta ==", user);
-                return user;
+                if (!data)
+                    return null;
+                return userMapper_1.default.agentDataMapper(data);
             }
             catch (err) {
                 throw err;

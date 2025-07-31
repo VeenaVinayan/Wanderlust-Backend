@@ -119,11 +119,11 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                {
                  $facet: {
                     paginatedTransactions: [
-                        { $sort: { [`transaction.${searchParams.sortBy}`]: searchParams.sortOrder === 'asc' ? 1 : -1 } },
+                        { $sort: { 'transaction.transactionDate':  -1 } },
                         { $skip: (page - 1) * perPage },
                         { $limit: perPage },
                         {
-                           $project: {
+                          $project: {
                                _id: '$transaction._id',
                                amount: '$transaction.amount',
                                description: '$transaction.description',

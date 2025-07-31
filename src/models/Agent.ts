@@ -1,7 +1,8 @@
-import mongoose , { Schema , Document, Types } from 'mongoose';
+import mongoose , { Schema , Document } from 'mongoose';
 
 export interface IAgent extends Document{
-     userId: Schema.Types.ObjectId;
+     _id:string;
+     userId: mongoose.Types.ObjectId;
      address:{
           home:string;
           street:string;
@@ -13,6 +14,7 @@ export interface IAgent extends Document{
      license: string;
      isVerified:string;
 }
+
 const AgentSchema: Schema <IAgent> = new mongoose.Schema({
      userId: {
             type:  mongoose.Schema.Types.ObjectId,

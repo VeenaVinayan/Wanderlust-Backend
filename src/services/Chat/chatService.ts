@@ -1,8 +1,10 @@
 import { inject, injectable } from 'inversify';
 import { IChatRepository } from '../../Interfaces/Chat/IChatRepository';
 import { IChatService } from '../../Interfaces/Chat/IChatService';
-import { IChatUsers } from '../../Types/chat.types';
+import { IChatUsers , TMessage} from '../../Types/chat.types';
 import { IMessage } from '../../models/Message';
+import chatMapper  from '../../mapper/chatMapper';
+import { IChatUserDTO } from '../../DTO/chatDTO';
 
 @injectable()
 export class ChatService implements IChatService{
@@ -10,15 +12,18 @@ export class ChatService implements IChatService{
          @inject('IChatRepository') private _chatRepository : IChatRepository
      ){}
      
-      async getAllUsers(userId : string) : Promise<IChatUsers [] | null>{
+      async getAllUsers(userId : string) : Promise<IChatUserDTO [] | null>{
          try{
-                return await this._chatRepository.getAllUsers(userId);
+                
+                const data : IChatUsers [] | null= await this._chatRepository.getAllUsers(userId);
+                if(!data) return null;
+                return data.map(user =>chatMapper.chatUserMapper(user) )
          }catch(err){
              throw err;
          }
       }
 
-      async getMessages(sender: string, receiver: string): Promise<IMessage[]> {
+      async getMessages(sender: string, receiver: string): Promise<TMessage[]> {
           try{
                return await this._chatRepository.getMessages(sender,receiver);
           }catch(err){

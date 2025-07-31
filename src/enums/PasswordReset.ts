@@ -5,3 +5,11 @@ export enum ResetPasswordResult {
   USER_NOT_FOUND = 4,
 }
 
+export enum CancellBookingResult{
+    SUCCESS =1,
+    CONFLICT = 2,
+    ID_NOT_FOUND = 3,
+    EXCEEDED_CANCELLATION_LIMIT =4,
+    ALREADY_CANCELLED = 5,
+}
+

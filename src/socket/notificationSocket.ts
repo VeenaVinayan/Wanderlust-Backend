@@ -3,15 +3,15 @@ import {  TNotification } from '../Types/notification';
 
 export const sendNotification = async (payload: TNotification) :Promise<boolean> => {
   const { userId } = payload;
-  console.log("User Id is ::::",userId , typeof userId);
-  console.log(`Socket Map ::${userSocketMap}`);
-  const socketId = userSocketMap[String(userId)];
+  const userid = userId.toString();
+  const socketId = userSocketMap[userid];
+
   console.log(`User connected  ${userId} with ${socketId}`);
-  if (socketId) {
+  if(socketId){
     io.to(socketId).emit("new-notification", payload);
     console.log(`Notification sent to ${userId} with ${payload}`);
     return true;
-  } else {
+  }else{
     console.log(`User ${userId} is not connected`);
     return false;
   }

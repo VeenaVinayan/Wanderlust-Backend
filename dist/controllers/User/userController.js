@@ -94,7 +94,6 @@ let UserController = class UserController {
         this.getPackages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._userService.getPackages();
-                console.log('Packages in User Controller !!!', data);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
@@ -200,7 +199,7 @@ let UserController = class UserController {
                     perPage: Number(perPage),
                     searchParams: {
                         search: search || '',
-                        sortBy: 'description',
+                        sortBy: 'createdAt',
                         sortOrder: sortOrder || '',
                     }
                 };

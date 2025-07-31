@@ -13,7 +13,6 @@ export class NotificationRepository extends BaseRepository<INotification> implem
             const data : INotification[] = await this._notificationModel.find({userId})
                                                                         .sort({createdAt:-1})
                                                                         .limit(10);   
-            console.log("Data value =",data);
             return data;
          }catch(err){
             throw err;

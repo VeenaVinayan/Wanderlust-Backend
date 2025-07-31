@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoogleService = void 0;
-const authRepository_1 = __importDefault(require("../repositories/authRepository"));
 const User_1 = __importDefault(require("../models/User"));
 const axios_1 = __importDefault(require("axios"));
 const googleAuth_1 = __importDefault(require("../utils/googleAuth"));
@@ -40,7 +39,7 @@ class GoogleService {
                 if (!payload.email) {
                     throw new Error('No Email found in Google payload!');
                 }
-                let user = yield authRepository_1.default.isUserExist(payload.email);
+                let user = yield User_1.default.findOne({ email: payload.email });
                 if (!user) {
                     user = yield User_1.default.create({
                         name: payload.name,

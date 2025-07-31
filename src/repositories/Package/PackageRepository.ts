@@ -43,14 +43,14 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
   async findPackages(filterParams : FilterParams) : Promise<TPackageResult>{
     try {
         const {page, perPage, searchParams } = filterParams;
-        const query : any = {};
+        const query :any = {};
          if (searchParams.search) {
           query["$or"] = [
             { description: { $regex: searchParams.search, $options: 'i' } },
             { name: { $regex: searchParams.search, $options:'i'}},
           ];
        }
-        const sortOptions : any = {}
+        const sortOptions : Record<string, 1|-1> = {}
                if(searchParams.sortBy){
                   sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1
                }
@@ -85,7 +85,7 @@ async findAgentPackages(filterParams : FilterParams) : Promise<TPackageResult>{
                     {description: {$regex: searchParams.search,$options:'i'}},
                  ]
                }
-               const sortOptions : any = {}
+               const sortOptions : Record<string, 1|-1> = {}
                if(searchParams.sortBy){
                   sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1
                }
@@ -159,24 +159,8 @@ async advanceSearch(queryString: QueryString): Promise<TPackageResult> {
     } else {
       sortStage.price = 1;
     }
-    console.log("Aggregation Params:", matchStage, sortStage);
-    // const pipeline = [
-    //   { $match: matchStage },
-    //   {
-    //     $facet: {
-    //       data: [
-    //         { $sort: sortStage },
-    //         { $skip: (page - 1) * perPage },
-    //         { $limit: perPage }
-    //       ],
-    //       totalCount: [
-    //         { $count: "count" }
-    //       ]
-    //     }
-    //   }
-    // ];
-
-const [data, totalCount] = await Promise.all([
+  
+ const [data, totalCount] = await Promise.all([
   this._packageModel.find(matchStage)
     .populate('agent', '_id name email phone')
     .sort(sortStage)
@@ -187,9 +171,7 @@ const [data, totalCount] = await Promise.all([
   this._packageModel.countDocuments(matchStage)
 ]);
 
-   // const response = await this._packageModel.aggregate(pipeline);
-    //const result = response[0];
-    const formattedResult: TPackageResult = {
+  const formattedResult: TPackageResult = {
       packages: data as unknown as TPackageData[],
       totalCount: totalCount,
     };

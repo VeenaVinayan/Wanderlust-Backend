@@ -1,7 +1,10 @@
-import express, {Request, Response, Router} from 'express';
-import authController from '../controllers/authController';
+import express, { Router } from 'express';
+import { AuthController } from '../controllers/Auth/authController';
+import { container } from '../config/container';
 
-const router: Router = express.Router();
+const router : Router = express.Router();
+
+const authController = container.get<AuthController>('AuthController');
 
 router.post('/register', authController.register);
 router.post('/otp', authController.otpSubmit);
@@ -12,6 +15,5 @@ router.post('/forgotPassword',authController.forgotPassword);
 router.post('/resetPassword',authController.resetPassword);
 router.post('/logout',authController.logout);
 router.get('/google',authController.googleAuth);
-
 
 export default router;

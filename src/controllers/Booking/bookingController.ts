@@ -6,6 +6,7 @@ import asyncHandler from 'express-async-handler';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
 import { IBookingValidationResult } from '../../Types/Booking.types';
+import { CancellBookingResult } from '../../enums/PasswordReset';
 
 @injectable()
 export class BookingController {
@@ -29,7 +30,7 @@ export class BookingController {
             }
     });
     getBookingData = asyncHandler(async(req: Request, res: Response) => {
-        try {
+       try {
             console.log("Get Booking Data ",req.query);
             const { id } = req.params;
             const { page , perPage , search, sortBy, sortOrder} = req.query;
@@ -123,18 +124,33 @@ export class BookingController {
     cancelBooking = asyncHandler(async(req: Request, res: Response) =>{
          try{
               const { bookingId } = req.body;
-              const result = await this._bookingService.cancelBooking(String(bookingId));
-              if(result){
-                 res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
-              }else{
-                 res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.CANCEL_BOOKING});
+              const result : CancellBookingResult = await this._bookingService.cancelBooking(String(bookingId));
+              switch(result){
+                 case CancellBookingResult.SUCCESS:
+                     res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
+                     return;
+                 case CancellBookingResult.CONFLICT:
+                     res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.MISSING_REQUIRED_FIELD});
+                      return;
+                case CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT:
+                     res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.EXCEEDED_CANCELLATION_LIMIT});
+                     return;
+                case CancellBookingResult.ALREADY_CANCELLED:
+                        res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.ALREADY_CANCELLED});
+                        return;
+                default:
+                        res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:StatusMessage.NOT_FOUND});        
               }
+            //   if(CancellBookingResult.SUCCESS){
+            //      res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
+            //   }else{
+            //      res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.CANCEL_BOOKING});
+            //   }
          }catch(err){
              throw err;
          }
     })
-    
-    getPackageBooking = asyncHandler(async ( req: Request, res: Response) => {
+ getPackageBooking = asyncHandler(async ( req: Request, res: Response) => {
     try{     
      const { packageId } = req.params;
      const { page, perPage, searchParams } = req.query;
@@ -146,7 +162,7 @@ export class BookingController {
         searchParams: { 
              search: (searchParams as string) || '',
              sortBy: 'tripDate',
-             sortOrder:(req.query.sortOrder as string) || 'asc',
+             sortOrder:(req.query.sortOrder as string) || 'dec',
       }  
     }
      const data = await this._bookingService.getPackageBookingData(filterParams);

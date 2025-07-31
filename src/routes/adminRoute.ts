@@ -16,11 +16,11 @@ const packageController = container.get<PackageController>('PackageController');
 const bookingController = container.get<BookingController>('BookingController');
 const notificationController = container.get<NotificationController>('NotificationController');
 
-router.get('/getData/:user/:perPage/:page',protect,roleAuth.checkRole(['Admin']),adminController.getAllData);
+router.get('/users/:user/:perPage/:page',protect,roleAuth.checkRole(['Admin']),adminController.getAllData);
 router.patch('/blockOrUnblock',protect,roleAuth.checkRole(['Admin']),adminController.blockOrUnblock);
 router.post("/getPresignedUrl",protect,roleAuth.checkRole(['Admin']),adminController.getPresignedUrl);
 router.post('/addCategory',protect,roleAuth.checkRole(['Admin']),adminController.addCategory);
-router.get('/categories/:perPage/:page',protect,roleAuth.checkRole(['Admin']),adminController.getCategories);
+router.get('/categories/',protect,roleAuth.checkRole(['Admin']),adminController.getCategories);
 router.patch('/category-delete/:categoryId',protect,roleAuth.checkRole(['Admin']),adminController.deleteCategory);
 router.get('/category-check/:categoryName',protect,roleAuth.checkRole(['Admin']),adminController.isCategoryExist);
 router.patch('/category-edit/:categoryId',protect,roleAuth.checkRole(['Admin']),adminController.editCategory);

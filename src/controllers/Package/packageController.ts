@@ -61,8 +61,8 @@ export class PackageController{
             perPage : Number(req.query.perPage),
             searchParams: {
                  search : (req.query.search as string) || '',
-                 sortBy : (req.query.sortBy as string) || 'name',
-                 sortOrder : (req.query.sortOrder as string) || 'asc',
+                 sortBy : (req.query.sortBy as string) || 'createdAt',
+                 sortOrder : (req.query.sortOrder as string) || 'des',
             }
          }
             const packages : TPackageResult= await this._packageService.findPackages(filterParams);

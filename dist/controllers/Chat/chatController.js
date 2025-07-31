@@ -54,7 +54,6 @@ let ChatController = class ChatController {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
-                console.log(` Get messages controller : : sender :: ${sender} |Receiver :: ${receiver}`);
                 const messages = yield this._chatService.getMessages(String(sender), String(receiver));
                 console.log('Messsges sent to client !');
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ messages });

@@ -20,9 +20,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
 const inversify_1 = require("inversify");
+const chatMapper_1 = __importDefault(require("../../mapper/chatMapper"));
 let ChatService = class ChatService {
     constructor(_chatRepository) {
         this._chatRepository = _chatRepository;
@@ -30,7 +34,10 @@ let ChatService = class ChatService {
     getAllUsers(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._chatRepository.getAllUsers(userId);
+                const data = yield this._chatRepository.getAllUsers(userId);
+                if (!data)
+                    return null;
+                return data.map(user => chatMapper_1.default.chatUserMapper(user));
             }
             catch (err) {
                 throw err;

@@ -1,50 +1,59 @@
+import { IAuthService } from '../../Interfaces/Auth/IAuthService';
+import { inject, injectable } from 'inversify';
+import { UserData , UserOtp, OtpData, UserLogin, LoginResult, LoginResponse, TokenPayload} from '../../interface/Interface';
+import { IAuthRepository } from '../../Interfaces/Auth/IAuthRepository';
+import OtpHelper from '../../helper/otpHelper';
+import EmailHelper from '../../helper/emailHelper';
 import bcryptjs from 'bcryptjs';
-import authRepository from '../repositories/authRepository';
-import sendMail from '../utils/mailSender';
-import { UserData , UserOtp, OtpData, UserLogin, LoginResult, LoginResponse, TokenPayload} from '../interface/Interface';
-import OtpHelper from '../helper/otpHelper';
-import EmailHelper from '../helper/emailHelper';
-import { generateAccessToken, generateRefreshToken, verifyToken, verifyRefreshToken} from '../utils/jwt';
-import { Types, Document } from 'mongoose';
-import { IAgent, IAgentResponse } from '../interface/Agent';
+import sendMail from '../../utils/mailSender';
+import { IUser } from '../../models/User';
+import { IAgent } from '../../interface/Agent';
+import  mongoose  from 'mongoose';
+import { generateAccessToken, generateRefreshToken, verifyToken, verifyRefreshToken } from '../../utils/jwt';
+import { IAgentResponse } from '../../interface/Agent';
 
-const authService = {
-  register: async (userData: UserData) => {
-    console.log("Service ... user Data ::", userData);
-    const {  email } = userData;
-    const isUserExist : LoginResult| null= await authRepository.isUserExist(email);
-    const res: { user: boolean | null; otp?: string; time?: Date } = { user: isUserExist? true:false };
-    
-    console.log("User Response :: ", res);
-    if (isUserExist === null) {
-      const otp:string = OtpHelper.generateOtp();
-      console.log("Otp is ::", otp);
-      res.otp = otp;
-      res.time = new Date();
-      const body = OtpHelper.generateEmailBody(otp);
-      sendMail(email, "OTP Verification", body);
-      authRepository.saveOtp(email, otp);
-      console.log(res);
-    }
+injectable()
+export class AuthService implements IAuthService{
+    constructor(
+        @inject("IAuthRepository") private _authRepository : IAuthRepository
+    ){}
+    async register(userData : UserData):Promise<boolean>{
+     try{     
+         console.log("Service ... user Data ::", userData);
+         const {  email } = userData;
+         const isUserExist : LoginResult| null= await this._authRepository.isUserExist(email);
+        // const res: { user: boolean ; otp?: string; time?: Date } = { user: isUserExist? true:false };
+        const res = isUserExist? true : false;
+         console.log("User Response :: ", res);
+         if (isUserExist === null) {
+            const otp:string = OtpHelper.generateOtp();
+            console.log("Otp is ::", otp);
+            // res.otp = otp;
+            // res.time = new Date();
+            const body = OtpHelper.generateEmailBody(otp);
+            await sendMail(email, "OTP Verification", body);
+            await this._authRepository.saveOtp(email, otp);
+            console.log(res);
+      }
     return res;
-  },
- otpSubmit: async (userData :any) : Promise<string> => {
-    try {
+   }catch(err){
+       throw err;
+   }
+  }
+  async otpSubmit(userData : any):Promise<string>{
+      try {
        console.log("Otp submit service !!");
-       const {otp, data, user} = userData; 
-       console.log("User data on otp :: ",JSON.stringify(userData));
+       const { data, user} = userData; 
        const { name, email, phone, password } = data || {name:"",email:"",phone:"",password:"",address:""};
        const otpUser :string = userData.otp || " ";
-   
-      const otpValue : UserOtp | null=  await authRepository.getOtp(email);  
-      if(!otpValue) return "error";
-    
-      const isOtpValid = otpValue.otp === otpUser;
-      let timeDiff : number = 0;
-      if(otpValue?.createdAt){
+       const otpValue : UserOtp | null=  await this._authRepository.getOtp(email);  
+       if(!otpValue) return "error";
+       const isOtpValid = otpValue.otp === otpUser;
+       let timeDiff : number = 0;
+       if(otpValue?.createdAt){
           timeDiff = new Date().getTime() - new Date(otpValue?.createdAt).getTime(); 
-      }
-      if (isOtpValid && timeDiff < 60000) {
+       }
+       if (isOtpValid && timeDiff < 60000) {
         if(password){
            const hashPassword = await bcryptjs.hash(password, 10);
            const User = {
@@ -54,11 +63,11 @@ const authService = {
               password: hashPassword,
               role:user,
            };
-          const res : Document= await authRepository.registerUser(User);
+          const res : IUser= await this._authRepository.createNewData(User);
           console.log("Agent Data ::",res);
            if(user === "Agent" && typeof res._id ){
               const Agent :IAgent= {
-                  userId: res._id as Types.ObjectId,
+                  userId: new mongoose.Types.ObjectId(res._id),
                   address:{
                        home: data.house,
                        street: data.street,
@@ -69,7 +78,7 @@ const authService = {
                   }, 
               }
               console.log(" Data agent ::",Agent);
-              await authRepository.registerAgent(Agent); 
+              await this._authRepository.registerAgent(Agent); 
            }
         return "success" ;
        }else return "error" ;
@@ -80,30 +89,29 @@ const authService = {
     } catch (err) {
         throw err;
     }
-  }, 
-
-  resendOtp: async (userEmail :string) : Promise<String> =>{
+  }
+  async resendOtp(userEmail : string): Promise<string>{
     try{
         console.log("Resend OTP ");
         const otpNew = OtpHelper.generateOtp();
         const body = OtpHelper.generateEmailBody(otpNew);
         sendMail(userEmail, "OTP Verification", body);
-        authRepository.saveOtp(userEmail, otpNew);
+        this._authRepository.saveOtp(userEmail, otpNew);
         const dataOtp : OtpData ={
             email:userEmail,
             otp:otpNew,
         }
-        const data = authRepository.updateOtp(dataOtp)
+        const data = this._authRepository.updateOtp(dataOtp)
         return data;
     }catch(err){
         throw err;
     }
-  },
-  login: async (userData: UserLogin) : Promise<LoginResponse | string >=> {
+  }
+  async login(userData: UserLogin) : Promise<LoginResponse | string >{
     try{
       console.log('Auth Services !!', userData);
       let res : LoginResponse;
-      let response : LoginResult | null = await authRepository.login(userData.email);
+      let response : LoginResult | null = await this._authRepository.login(userData.email);
       if(!response) return "User";
       if(!response.status) return "Blocked"
       let isVerified  = await bcryptjs.compare(userData.password,response.password);
@@ -129,7 +137,7 @@ const authService = {
                   user,
               }
               if(response.role === "Agent"){
-                  const agent : IAgentResponse | null = await authRepository.getAgentData(response.id.toString());
+                  const agent : IAgentResponse | null = await this._authRepository.getAgentData(response.id.toString());
                   console.log("Agent Data :::",agent)
                   if(agent){
                       res ={...res , ...agent};
@@ -144,18 +152,18 @@ const authService = {
           console.log(err);
            throw err;
         } 
-   },
-   getAccessToken: async (token : string) :Promise<string | null> =>{
+   }
+   async getAccessToken(token : string) :Promise<string | null>{
         const accessToken = verifyRefreshToken(token);
         if(accessToken){
             return accessToken
         }else{
            return null;
         }
-    },
-   forgotPassword: async (email: string) :Promise<boolean> =>{
+    }
+   async forgotPassword(email: string) :Promise<boolean>{
       console.log('Forgot password Service !');
-      const user = await authRepository.isUserExist(email);
+      const user = await this._authRepository.isUserExist(email);
       if(user){
         const userId : TokenPayload ={
            id: user.id,
@@ -168,16 +176,15 @@ const authService = {
       }else{
         return false;
       }
-   },
-   resetPassword: async (token : string , password : string) :Promise<boolean> =>{
+   }
+   async resetPassword(token : string ,password : string) :Promise<boolean>{
       try{
           console.log('Reset password SErvice !!')
           const user : TokenPayload | null = verifyToken(token);
-          console.log(`User = ${user}`);
+          console.log(`User after decode Token === ${user}`);
           if(user){
               const hashPassword = await bcryptjs.hash(password,10);
-              const res = await authRepository.resetPassword(user.id,hashPassword);
-              console.log(' Reset password ::',res);
+              await this._authRepository.resetPassword(user.id,hashPassword);
               return true;
           }else{
             return false;
@@ -186,11 +193,4 @@ const authService = {
           throw err;
       }
     }
- };
-export default authService;
-            
-             
-         
-
-        
-    
+}

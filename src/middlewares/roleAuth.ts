@@ -15,7 +15,7 @@ export class RoleAuth {
               const token = req.headers.authorization?.split(' ')[1];
               if(!token){
                 console.log(' No token provided !! --- in role auth');
-                res.status(401).json({message:'Unauthorized !'});
+                res.status(403).json({message:'Unauthorized !'});
                 return;
               } 
               const decoded = verifyToken(token);

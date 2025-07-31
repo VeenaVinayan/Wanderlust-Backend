@@ -87,8 +87,8 @@ let PackageController = class PackageController {
                     perPage: Number(req.query.perPage),
                     searchParams: {
                         search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'name',
-                        sortOrder: req.query.sortOrder || 'asc',
+                        sortBy: req.query.sortBy || 'createdAt',
+                        sortOrder: req.query.sortOrder || 'des',
                     }
                 };
                 const packages = yield this._packageService.findPackages(filterParams);

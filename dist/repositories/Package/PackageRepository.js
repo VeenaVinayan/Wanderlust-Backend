@@ -192,22 +192,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 else {
                     sortStage.price = 1;
                 }
-                console.log("Aggregation Params:", matchStage, sortStage);
-                // const pipeline = [
-                //   { $match: matchStage },
-                //   {
-                //     $facet: {
-                //       data: [
-                //         { $sort: sortStage },
-                //         { $skip: (page - 1) * perPage },
-                //         { $limit: perPage }
-                //       ],
-                //       totalCount: [
-                //         { $count: "count" }
-                //       ]
-                //     }
-                //   }
-                // ];
                 const [data, totalCount] = yield Promise.all([
                     this._packageModel.find(matchStage)
                         .populate('agent', '_id name email phone')
@@ -217,8 +201,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                         .lean(),
                     this._packageModel.countDocuments(matchStage)
                 ]);
-                // const response = await this._packageModel.aggregate(pipeline);
-                //const result = response[0];
                 const formattedResult = {
                     packages: data,
                     totalCount: totalCount,

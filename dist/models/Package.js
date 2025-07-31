@@ -84,7 +84,7 @@ const PackageSchema = new mongoose_1.default.Schema({
         }],
     isVerified: {
         type: String,
-        enum: ['Eending', 'Approved', 'Rejected'],
+        enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending',
     },
 }, { timestamps: true });

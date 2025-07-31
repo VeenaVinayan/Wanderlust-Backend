@@ -25,16 +25,16 @@ exports.AdminService = void 0;
 const inversify_1 = require("inversify");
 (0, inversify_1.injectable)();
 let AdminService = class AdminService {
-    constructor(adminRepository, categoryRepository, _adminPackageRepository) {
-        this.adminRepository = adminRepository;
-        this.categoryRepository = categoryRepository;
+    constructor(_adminRepository, _categoryRepository, _adminPackageRepository) {
+        this._adminRepository = _adminRepository;
+        this._categoryRepository = _categoryRepository;
         this._adminPackageRepository = _adminPackageRepository;
     }
     getAllData(user, perPage, page, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("Inside Service - getAllUser");
-                return yield this.adminRepository.findAllData(user, perPage, page, search, sortBy, sortOrder);
+                return yield this._adminRepository.findAllData(user, perPage, page, search, sortBy, sortOrder);
             }
             catch (error) {
                 console.log(error);
@@ -46,7 +46,7 @@ let AdminService = class AdminService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.info('Block / Unblock User in service!');
-                return yield this.adminRepository.blockOrUnblock(id);
+                return yield this._adminRepository.blockOrUnblock(id);
             }
             catch (err) {
                 throw new Error("Failed to Block/ Unblock !");
@@ -58,7 +58,7 @@ let AdminService = class AdminService {
             try {
                 console.info('Add Category !', data);
                 data.name = data.name.toUpperCase();
-                yield this.categoryRepository.createNewData(data);
+                yield this._categoryRepository.createNewData(data);
                 return true;
             }
             catch (err) {
@@ -67,11 +67,11 @@ let AdminService = class AdminService {
             }
         });
     }
-    getCategories(perPage, page, search, sortBy, sortOrder) {
+    getCategories(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('Get Categories !');
-                return yield this.categoryRepository.findAllCategory(perPage, page, search, sortBy, sortOrder);
+                return yield this._categoryRepository.findAllCategory(filterParams);
             }
             catch (err) {
                 console.log('Error in service get Categories !!');
@@ -83,7 +83,7 @@ let AdminService = class AdminService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(' Delete Category , service!!');
-                const res = yield this.categoryRepository.deleteCategory(categoryId);
+                const res = yield this._categoryRepository.deleteCategory(categoryId);
                 if (res)
                     return true;
                 else
@@ -99,7 +99,7 @@ let AdminService = class AdminService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('In Admin Service !!');
-                const res = yield this.categoryRepository.isExistCategory(categoryName.toUpperCase());
+                const res = yield this._categoryRepository.isExistCategory(categoryName.toUpperCase());
                 if (res)
                     return true;
                 else
@@ -115,7 +115,7 @@ let AdminService = class AdminService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('Admin service -- Edit category !');
-                const res = yield this.categoryRepository.updateOneById(categoryId, category);
+                const res = yield this._categoryRepository.updateOneById(categoryId, category);
                 if (res)
                     return true;
                 else
@@ -130,7 +130,7 @@ let AdminService = class AdminService {
     getPendingAgentData(perPage, page) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this.adminRepository.findPendingAgent(perPage, page);
+                const data = yield this._adminRepository.findPendingAgent(perPage, page);
                 return data;
             }
             catch (err) {
@@ -142,7 +142,7 @@ let AdminService = class AdminService {
     agentApproval(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.adminRepository.agentApproval(agentId);
+                return yield this._adminRepository.agentApproval(agentId);
             }
             catch (err) {
                 throw err;
@@ -152,7 +152,7 @@ let AdminService = class AdminService {
     rejectAgentRequest(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.adminRepository.agentApproval(agentId);
+                return yield this._adminRepository.agentApproval(agentId);
             }
             catch (err) {
                 throw err;

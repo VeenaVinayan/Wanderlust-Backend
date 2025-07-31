@@ -9,7 +9,6 @@ export class WishlistRepository extends BaseRepository<IWishlist> implements IWi
      }
      async isExistWishlist(userId: string, packageId: string) : Promise<boolean> {
          try{
-             console.log('Is exist in Repository !');
              const result = await this._wishlistModel.findOne({userId,packageId});
              if(result) return true;
              else return false;
@@ -19,9 +18,7 @@ export class WishlistRepository extends BaseRepository<IWishlist> implements IWi
      }
      async getWishlist(userId : string) : Promise<Object[]> {
         try{
-            console.log('Get Wishlist in Repository ', userId);
             const data = await this._wishlistModel.find({userId}).populate('packageId');
-            console.log('DAta :: ',data);
             return data;
         }catch(err){
             throw err;

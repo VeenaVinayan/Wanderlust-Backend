@@ -34,4 +34,5 @@ router.get('/chats/messages',protect,roleAuth.checkRole(['Agent']),chatControlle
 router.get('/dashboard/:agentId',protect,roleAuth.checkRole(['Agent']),agentController.getDashboardData);
 router.get('/notifications/:userId',protect,roleAuth.checkRole(['Agent']),notificationController.getAllNotification);
 router.patch('/notifications/:notificationId',protect,roleAuth.checkRole(['Agent']),notificationController.changeNotificationStatus)
+
 export default router;

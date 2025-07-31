@@ -55,8 +55,15 @@ import { INotificationService } from '../Interfaces/Notification/INotificationSe
 import { NotificationRepository } from '../repositories/Notification/notificationRepository';
 import { NotificationService } from '../services/Notification/notificationService' ;
 import { NotificationController } from '../controllers/Notification/notificationController';
+//Auth
+import { IAuthRepository } from '../Interfaces/Auth/IAuthRepository';
+import { IAuthService } from '../Interfaces/Auth/IAuthService';
+import { AuthRepository } from '../repositories/Auth/AuthRepository';
+import { AuthService } from '../services/Auth/authService';
+import { AuthController } from '../controllers/Auth/authController';
+import { containeranalysis } from 'googleapis/build/src/apis/containeranalysis';
 
-const container = new Container();
+const container = new Container()
 //admin
 container.bind<IAdminRepository>('IAdminRepository').toDynamicValue(()=>{
    return new AdminRepository();
@@ -117,5 +124,12 @@ container.bind<INotificationRepository>('INotificationRepository').toDynamicValu
 }).inSingletonScope();
 container.bind<INotificationService>('INotificationService').to(NotificationService).inSingletonScope();
 container.bind<NotificationController>('NotificationController').to(NotificationController).inSingletonScope();
+
+//Auth
+container.bind<IAuthRepository>('IAuthRepository').toDynamicValue(() =>{
+      return new AuthRepository();
+}).inSingletonScope();
+container.bind<IAuthService>('IAuthService').to(AuthService).inSingletonScope();
+container.bind<AuthController>('AuthController').to(AuthController).inSingletonScope();
 
 export { container };

@@ -2,12 +2,13 @@
 import { ICategoryResponse } from "../../interface/Category.interface";
 import {ICategory } from '../../interface/Interface';
 import { IPendingAgent} from '../../interface/Agent';
+import { FilterParams } from '../../Types/Booking.types';
 
-export interface IAdminService{
+ export interface IAdminService{
     getAllData(user :string,perPage:number,page:number,search: string,sortBy: string, sortOrder: string ):Promise<Object>;
     blockOrUnblock(id:string):Promise<boolean>;
     addCategory(data: ICategory):Promise<boolean>;
-    getCategories(perPage: number, page: number, search: string, sortBy: string, sortOrder: string): Promise<Object>;
+    getCategories(filterParams : FilterParams): Promise<Object>;
     deleteCategory(categoryId : string) : Promise<boolean>;
     isExistCategory(categoryName: string) : Promise<boolean>;
     editCategory(categoryId:string, category: ICategory) : Promise<boolean>

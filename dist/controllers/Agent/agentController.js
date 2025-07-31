@@ -36,7 +36,6 @@ let AgentController = class AgentController {
         this._agentService = _agentService;
         this.getPresignedUrl = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { fileType } = req.body;
-            console.log('Get presigned url ::', fileType);
             if (!fileType) {
                 res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
                     .json({ message: "File types are required !" });
@@ -44,7 +43,6 @@ let AgentController = class AgentController {
             }
             try {
                 const response = yield s3Service_1.s3Service.generateSignedUrl(fileType);
-                console.log('After presigned urls ::', response);
                 res.status(200).json({ response });
             }
             catch (error) {
@@ -56,7 +54,6 @@ let AgentController = class AgentController {
         this.uploadCertificate = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
             const { publicUrl } = req.body;
-            console.log('INside agent Controller !!!');
             const response = yield this._agentService.uploadCertificate(id, publicUrl);
             if (response) {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
@@ -66,9 +63,7 @@ let AgentController = class AgentController {
             }
         }));
         this.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('Get Categories !!');
             const data = yield this._agentService.getCategories();
-            console.log("Categories ::", data);
             if (data) {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, categories: data });
             }
@@ -85,7 +80,6 @@ let AgentController = class AgentController {
             }
             try {
                 const data = yield s3Service_1.s3Service.generateSignedUrls(fileTypes);
-                console.log('After generating PreSigned Urls ::', data);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST, data });
             }
             catch (err) {
@@ -94,9 +88,7 @@ let AgentController = class AgentController {
         }));
         this.deleteImages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' DElete Images ||');
                 const deleteImages = req.body;
-                console.log(" Images ::", deleteImages);
                 yield s3Service_1.s3Service.deleteImages(deleteImages);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
             }
@@ -107,9 +99,7 @@ let AgentController = class AgentController {
         this.getDashboardData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { agentId } = req.params;
-                console.log("Agent ID :", agentId);
                 const data = yield this._agentService.getDashboardData(agentId);
-                console.log('Dashboard Data ::', data);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {

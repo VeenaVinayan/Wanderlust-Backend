@@ -6,6 +6,7 @@ import { Request }  from 'express';
 import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
 import { FilterParams } from '../../Types/Booking.types';
+import { IAgentChatDataDTO } from '../../DTO/userDTO';
 
 export interface IUserService{
      updateUser(userId:string,name:string,phone:string):Promise<Iuser | null>;
@@ -18,5 +19,5 @@ export interface IUserService{
      getReviews(packageId : string) :Promise<Object []>
      getWallet(userId: string, filterParams : FilterParams) : Promise<Object | null>
      editReview(data : TReviewEdit, reviewId : string): Promise<boolean>;
-     userDetails(userId : string) : Promise<Object | null>;
+     userDetails(userId : string) : Promise<IAgentChatDataDTO | null>;
 }

@@ -1,37 +1,38 @@
-import User from '../../models/User';
+import User,{IUser} from '../../models/User';
 import { Iuser, IAgent} from '../../Types/user.types';
 import { BaseRepository } from "../Base/BaseRepository";
 import { IAdminRepository } from "../../Interfaces/Admin/IAdminRepository";
 import { IPendingAgent } from '../../interface/Agent';
 import Agent from '../../models/Agent';
+import { FilterQuery } from 'mongoose';
 
 export class AdminRepository implements IAdminRepository {
-     private readonly userModel = User;
-     private readonly agentModel = Agent;
+     private readonly _userModel = User;
+     private readonly _agentModel = Agent;
      async findAllData(user:string,perPage: number, page :number,search : string, sortBy : string, sortOrder: string) : Promise<Object>{
          try {
-               const query : any= {
-                  role: user,
-               };
+               const query : FilterQuery<IUser>= { role: user };
                if(search){
                   query.$or =[
                      { name: {$regex: search,$options:'i'}},
                      { email: {$regex: search, $options:'i'}},
+                     {role:user}
                   ];
                }
-               const sortOptions: any ={};
+               const sortOptions: Record<string, 1|-1> ={};
                if(sortBy){
                   sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
                }
                const [ data , totalCount] = await Promise.all([
-                    this.userModel
+                    this._userModel
                              .find(query)
                              .sort(sortOptions)
                              .skip((page-1)*perPage)
                              .limit(perPage)
                              .select("_id name email phone status"),
-                    this.userModel.countDocuments({role:user})
-             ])
+                    this._userModel.countDocuments(query).exec()
+             ]);
+             console.log("Total Count ::",totalCount);
             return { data,totalCount};
          }catch(error){
              console.error("Error fetching users:",error);
@@ -41,7 +42,7 @@ export class AdminRepository implements IAdminRepository {
      async blockOrUnblock (id:string): Promise<boolean> {
         try{
             console.log("Error in block/unblock User in repository !!",id);
-            const user = await this.userModel.findById(id);
+            const user = await this._userModel.findById(id);
             console.log('After search:',user);
             if(user){
                 user.status = !user.status
@@ -57,7 +58,7 @@ export class AdminRepository implements IAdminRepository {
      }
      async findPendingAgent(perPage: number, page: number): Promise<IPendingAgent[]> {
          try{
-            return await this.agentModel.aggregate([
+            return await this._agentModel.aggregate([
                 {
                   $match: { isVerified: "Uploaded" }
                 },
@@ -97,7 +98,7 @@ export class AdminRepository implements IAdminRepository {
      async agentApproval(agentId: string): Promise<boolean> {
           try{
               console.info('Agent approval');
-              const result = await this.agentModel.updateOne({_id:agentId},{
+              const result = await this._agentModel.updateOne({_id:agentId},{
                 $set: { isVerified: "Approved"}
               })
               if(result.matchedCount === 1 && result.modifiedCount===1){
@@ -113,7 +114,7 @@ export class AdminRepository implements IAdminRepository {
      async rejectAgentRequest(agentId: string): Promise<boolean> {
         try{
             console.info('Agent approval');
-            const result = await this.agentModel.updateOne({_id:agentId},{
+            const result = await this._agentModel.updateOne({_id:agentId},{
               $set: { isVerified: "Rejected"}
             })
             if(result.matchedCount === 1 && result.modifiedCount===1){
@@ -128,7 +129,7 @@ export class AdminRepository implements IAdminRepository {
    }
    async findAdminId(): Promise<string | null> {
       try{
-           const adminId : string | null= await this.userModel.findOne({role:'Admin'},{_id:1});
+           const adminId : string | null= await this._userModel.findOne({role:'Admin'},{_id:1});
            return adminId;
       }catch(err){
           throw err;

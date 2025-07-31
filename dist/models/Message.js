@@ -20,10 +20,9 @@ const MessageSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    status: {
-        type: String,
-        enum: ['sent', 'delivered', 'read'],
-        default: 'sent',
+    isRead: {
+        type: Boolean,
+        default: false,
     }
 }, { timestamps: true });
 const Message = mongoose_1.default.model('Message', MessageSchema);

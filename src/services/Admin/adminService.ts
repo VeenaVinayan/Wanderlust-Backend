@@ -6,19 +6,20 @@ import { ICategoryRepository } from "../../Interfaces/Admin/ICategoryRepository"
 import { ICategory } from "../../interface/Interface";
 import { IPendingAgent } from '../../interface/Agent';
 import { IAdminPackageRepository } from "../../Interfaces/Package/IAdminPackageRepository";
+import { FilterParams } from '../../Types/Booking.types';
 
 injectable()
 export class AdminService implements IAdminService{
     constructor(
-        @inject("IAdminRepository") private adminRepository: IAdminRepository,
-        @inject("ICategoryRepository") private categoryRepository: ICategoryRepository,
+        @inject("IAdminRepository") private _adminRepository: IAdminRepository,
+        @inject("ICategoryRepository") private _categoryRepository: ICategoryRepository,
         @inject("IAdminPackageRepository") private _adminPackageRepository: IAdminPackageRepository,
     ){}
 
   async getAllData(user:string, perPage:number,page:number,search:string,sortBy:string,sortOrder: string):Promise<object>{ 
       try{
          console.log("Inside Service - getAllUser");
-         return await this.adminRepository.findAllData(user,perPage,page,search,sortBy,sortOrder);
+         return await this._adminRepository.findAllData(user,perPage,page,search,sortBy,sortOrder);
       }catch(error){
         console.log(error);
         throw new Error("Failed to retrieve users ");
@@ -27,7 +28,7 @@ export class AdminService implements IAdminService{
   async blockOrUnblock(id:string):Promise<boolean>{
      try{
          console.info('Block / Unblock User in service!');
-         return await this.adminRepository.blockOrUnblock(id)
+         return await this._adminRepository.blockOrUnblock(id)
      }catch(err){
        throw new Error("Failed to Block/ Unblock !");
      }
@@ -36,17 +37,17 @@ export class AdminService implements IAdminService{
     try{
         console.info('Add Category !',data);
         data.name = data.name.toUpperCase();
-        await this.categoryRepository.createNewData(data);
+        await this._categoryRepository.createNewData(data);
         return true;
     }catch(err){
         console.log('Error in create Category |',err);
         throw err;
     }
   }
-  async getCategories(perPage: number, page:number, search : string, sortBy : string, sortOrder:string): Promise<object>{
+  async getCategories(filterParams : FilterParams): Promise<object>{
     try{
         console.log('Get Categories !');
-        return await this.categoryRepository.findAllCategory(perPage,page,search,sortBy,sortOrder);
+        return await this._categoryRepository.findAllCategory(filterParams);
     }catch(err){
         console.log('Error in service get Categories !!');
         throw err;
@@ -55,7 +56,7 @@ export class AdminService implements IAdminService{
   async deleteCategory(categoryId : string) : Promise<boolean> {
       try{
           console.log(' Delete Category , service!!');
-          const res = await this.categoryRepository.deleteCategory(categoryId);
+          const res = await this._categoryRepository.deleteCategory(categoryId);
           if(res) return true;
           else return false;
       }catch(err){
@@ -66,7 +67,7 @@ export class AdminService implements IAdminService{
   async isExistCategory(categoryName: string) : Promise<boolean> {
       try{
             console.log('In Admin Service !!');
-            const res = await this.categoryRepository.isExistCategory(categoryName.toUpperCase()); 
+            const res = await this._categoryRepository.isExistCategory(categoryName.toUpperCase()); 
             if(res) return true;
             else return false;
       }catch(err){
@@ -77,7 +78,7 @@ export class AdminService implements IAdminService{
   async editCategory(categoryId: string,category: ICategory) : Promise<boolean>{
       try{
         console.log('Admin service -- Edit category !');
-        const res= await this.categoryRepository.updateOneById(categoryId,category);
+        const res= await this._categoryRepository.updateOneById(categoryId,category);
         if(res) return true;
         else return false;
       }catch(err){
@@ -87,7 +88,7 @@ export class AdminService implements IAdminService{
   }
   async getPendingAgentData(perPage: number, page:number) : Promise<IPendingAgent[]> {
      try{
-         const data = await this.adminRepository.findPendingAgent(perPage, page);
+         const data = await this._adminRepository.findPendingAgent(perPage, page);
          return data;
      }catch(err){
       console.error("Error in get Pending Agent SErvice ::",err);
@@ -96,14 +97,14 @@ export class AdminService implements IAdminService{
   }
   async agentApproval(agentId: string): Promise<boolean> {
      try{
-         return await this.adminRepository.agentApproval(agentId);
+         return await this._adminRepository.agentApproval(agentId);
      }catch(err){
          throw err;
      }
   }
   async rejectAgentRequest(agentId: string): Promise<boolean> {
     try{
-        return await this.adminRepository.agentApproval(agentId);
+        return await this._adminRepository.agentApproval(agentId);
     }catch(err){
         throw err;
     }

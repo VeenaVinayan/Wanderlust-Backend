@@ -58,28 +58,29 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
             }
         });
     }
-    findAllCategory(perPage, page, search, sortBy, sortOrder) {
+    findAllCategory(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.info('Inside get Categories !!');
                 const query = {};
-                if (search) {
+                const { page, perPage, searchParams } = filterParams;
+                if (searchParams.search) {
                     query.$or = [
-                        { name: { $regex: search, $options: 'i' } },
-                        { description: { $regex: search, $options: 'i' } },
+                        { name: { $regex: searchParams.search, $options: 'i' } },
+                        { description: { $regex: searchParams.search, $options: 'i' } },
+                        { status: true },
                     ];
                 }
                 const sortOptions = {};
-                if (sortBy) {
-                    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+                if (searchParams.sortBy) {
+                    sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([
                     this._categoryModel
                         .find(query)
                         .sort(sortOptions)
-                        .skip((page - 1) * perPage)
-                        .limit(perPage),
-                    this._categoryModel.countDocuments(),
+                        .skip((page - 1) * perPage),
+                    this._categoryModel.countDocuments(query),
                 ]);
                 return { data, totalCount };
             }

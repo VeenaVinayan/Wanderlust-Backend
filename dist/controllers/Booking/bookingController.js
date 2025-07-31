@@ -29,6 +29,7 @@ const inversify_1 = require("inversify");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
 const StatusMessage_1 = require("../../enums/StatusMessage");
+const PasswordReset_1 = require("../../enums/PasswordReset");
 let BookingController = class BookingController {
     constructor(_bookingService) {
         this._bookingService = _bookingService;
@@ -154,12 +155,27 @@ let BookingController = class BookingController {
             try {
                 const { bookingId } = req.body;
                 const result = yield this._bookingService.cancelBooking(String(bookingId));
-                if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                switch (result) {
+                    case PasswordReset_1.CancellBookingResult.SUCCESS:
+                        res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                        return;
+                    case PasswordReset_1.CancellBookingResult.CONFLICT:
+                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                        return;
+                    case PasswordReset_1.CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT:
+                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.EXCEEDED_CANCELLATION_LIMIT });
+                        return;
+                    case PasswordReset_1.CancellBookingResult.ALREADY_CANCELLED:
+                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.ALREADY_CANCELLED });
+                        return;
+                    default:
+                        res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
-                else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.CANCEL_BOOKING });
-                }
+                //   if(CancellBookingResult.SUCCESS){
+                //      res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
+                //   }else{
+                //      res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.CANCEL_BOOKING});
+                //   }
             }
             catch (err) {
                 throw err;
@@ -177,7 +193,7 @@ let BookingController = class BookingController {
                     searchParams: {
                         search: searchParams || '',
                         sortBy: 'tripDate',
-                        sortOrder: req.query.sortOrder || 'asc',
+                        sortOrder: req.query.sortOrder || 'dec',
                     }
                 };
                 const data = yield this._bookingService.getPackageBookingData(filterParams);

@@ -6,8 +6,8 @@ export interface IMessage extends Document{
     receiver:string;
     content:string;
     status:string;
+    isRead:boolean;
 };
-
 const MessageSchema: Schema = new mongoose.Schema({
         sender:{
              type:mongoose.Schema.Types.ObjectId,
@@ -23,10 +23,9 @@ const MessageSchema: Schema = new mongoose.Schema({
              type:String,
              required:true,
         },
-        status:{
-             type:String,
-             enum: ['sent','delivered','read'],
-             default:'sent',
+        isRead:{
+             type:Boolean,
+             default:false,
         }    
 },{timestamps:true});
 

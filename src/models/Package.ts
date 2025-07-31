@@ -105,7 +105,7 @@ const PackageSchema : Schema = new mongoose.Schema({
      }],
      isVerified:{
              type:String,
-             enum:['Eending','Approved','Rejected'],
+             enum:['Pending','Approved','Rejected'],
              default:'Pending',
      },
 },{timestamps:true});

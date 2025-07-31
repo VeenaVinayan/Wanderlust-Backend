@@ -7,33 +7,31 @@ import { StatusMessage } from '../../enums/StatusMessage';
 import { s3Service } from '../../config/s3Service';
 import { ICategory } from '../../interface/Interface';
 import { ICategoryResponse } from '../../interface/Category.interface';
+import { FilterParams } from '../../Types/Booking.types';
 
 @injectable()
 export class AdminController{
    constructor(
-       @inject('IAdminService') private readonly _adminService: IAdminService // _add
+       @inject('IAdminService') private readonly _adminService: IAdminService 
    ){ }
      getAllData = asyncHandler(async(req:Request, res:Response) =>{
-       console.info('Get all users !');
-       try{
+      try{
             const {user,perPage ,page} = req.params;
-            //const { search, sortBy, sortOrder} = req.query;
             const search = (req.query.search as string) || '';
             const sortBy = (req.query.sortBy as string) || 'name';
             const sortOrder = (req.query.sortOrder as string) || 'asc';
             const users = await this._adminService.getAllData(user,parseInt(perPage),parseInt(page),search,sortBy,sortOrder);
-            console.log("Users:: ",users);
             res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS ,users});
        }catch(err){
          console.error(err);
-         res.status(500).json({message:"Internal Server Error !"});
+         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({message:StatusMessage.INTERNAL_SERVER_ERROR});
        }
     })
 
     blockOrUnblock = asyncHandler( async(req:Request,res:Response) =>{
       console.info("Block or unblock User in Controller !",req.body);
       try{
-          const { id, role} = req.body;
+          const { id } = req.body;
           const response = await this._adminService.blockOrUnblock(id);
           if(response){
              res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS});
@@ -55,7 +53,7 @@ export class AdminController{
        try{
            const response = await s3Service.generateSignedUrl(fileType);
            console.log('After presigned urls ::',response);
-           res.status(200).json({response});
+           res.status(HttpStatusCode.OK).json({response});
        }catch(error){
           console.error('Error generating signed Urls:',error);
           res.status(HttpStatusCode.INTERNAL_SERVER_ERROR)
@@ -78,12 +76,16 @@ export class AdminController{
     });
    getCategories = asyncHandler( async(req:Request, res: Response)  => {
       try{
-          const { perPage, page} = req.params;
-          const search = (req.query.search as string) || '';
-          const sortBy = (req.query.sortBy as string) || 'name';
-          const sortOrder = (req.query.sortOrder as string) || 'asc';
-          const data  = await this._adminService.getCategories(Number(perPage),Number(page),search,sortBy,sortOrder);
-          console.log(" Categories ::",data);
+          const filterParams : FilterParams ={
+            page: Number(req.query.page),
+            perPage : Number(req.query.perPage),
+            searchParams: {
+                 search : (req.query.search as string) || '',
+                 sortBy : (req.query.sortBy as string) || 'createdAt',
+                 sortOrder : (req.query.sortOrder as string) || 'asc',
+            }
+          }
+          const data  = await this._adminService.getCategories(filterParams);
           res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data});
        }catch(err){
           console.log('Error in get category !');

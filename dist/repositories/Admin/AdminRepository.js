@@ -17,19 +17,18 @@ const User_1 = __importDefault(require("../../models/User"));
 const Agent_1 = __importDefault(require("../../models/Agent"));
 class AdminRepository {
     constructor() {
-        this.userModel = User_1.default;
-        this.agentModel = Agent_1.default;
+        this._userModel = User_1.default;
+        this._agentModel = Agent_1.default;
     }
     findAllData(user, perPage, page, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const query = {
-                    role: user,
-                };
+                const query = { role: user };
                 if (search) {
                     query.$or = [
                         { name: { $regex: search, $options: 'i' } },
                         { email: { $regex: search, $options: 'i' } },
+                        { role: user }
                     ];
                 }
                 const sortOptions = {};
@@ -37,14 +36,15 @@ class AdminRepository {
                     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([
-                    this.userModel
+                    this._userModel
                         .find(query)
                         .sort(sortOptions)
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .select("_id name email phone status"),
-                    this.userModel.countDocuments({ role: user })
+                    this._userModel.countDocuments(query).exec()
                 ]);
+                console.log("Total Count ::", totalCount);
                 return { data, totalCount };
             }
             catch (error) {
@@ -57,7 +57,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("Error in block/unblock User in repository !!", id);
-                const user = yield this.userModel.findById(id);
+                const user = yield this._userModel.findById(id);
                 console.log('After search:', user);
                 if (user) {
                     user.status = !user.status;
@@ -78,7 +78,7 @@ class AdminRepository {
     findPendingAgent(perPage, page) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.agentModel.aggregate([
+                return yield this._agentModel.aggregate([
                     {
                         $match: { isVerified: "Uploaded" }
                     },
@@ -121,7 +121,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.info('Agent approval');
-                const result = yield this.agentModel.updateOne({ _id: agentId }, {
+                const result = yield this._agentModel.updateOne({ _id: agentId }, {
                     $set: { isVerified: "Approved" }
                 });
                 if (result.matchedCount === 1 && result.modifiedCount === 1) {
@@ -141,7 +141,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.info('Agent approval');
-                const result = yield this.agentModel.updateOne({ _id: agentId }, {
+                const result = yield this._agentModel.updateOne({ _id: agentId }, {
                     $set: { isVerified: "Rejected" }
                 });
                 if (result.matchedCount === 1 && result.modifiedCount === 1) {
@@ -160,7 +160,7 @@ class AdminRepository {
     findAdminId() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const adminId = yield this.userModel.findOne({ role: 'Admin' }, { _id: 1 });
+                const adminId = yield this._userModel.findOne({ role: 'Admin' }, { _id: 1 });
                 return adminId;
             }
             catch (err) {

@@ -33,7 +33,8 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 if (searchParams.search) {
                     query.$or = [
                         { bookingId: { $regex: searchParams.search, $options: 'i' } },
-                        { email: { $regex: searchParams.search, $options: 'i' } }
+                        { email: { $regex: searchParams.search, $options: 'i' } },
+                        { tripStatus: { $regex: searchParams.search, $options: 'i' } },
                     ];
                 }
                 console.log("Query ::", searchParams);
@@ -54,15 +55,13 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             }
         });
     }
-    getPackageData(packageId, bookingId) {
+    getPackageData(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const packageData = yield this._bookingModel.findById(bookingId).populate('packageId').exec();
                 if (!packageData) {
                     throw new Error('Package not found');
                 }
-                console.log("Package Data ::", packageData);
-                const packageDetails = packageData.packageId;
                 return packageData;
             }
             catch (error) {
@@ -154,7 +153,8 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 if (searchParams.search) {
                     query.$or = [
                         { bookingId: { $regex: searchParams.search, $options: 'i' } },
-                        { email: { $regex: searchParams.search, $options: 'i' } }
+                        { email: { $regex: searchParams.search, $options: 'i' } },
+                        { tripStatus: { $regex: searchParams.search, $options: 'i' } },
                     ];
                 }
                 const result = yield this._bookingModel.aggregate([
@@ -271,7 +271,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._packageModel.findOne({ _id: packageId });
-                console.log('DAta ==', data);
                 return data;
             }
             catch (err) {
@@ -479,6 +478,33 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             catch (err) {
                 throw err;
             }
+        });
+    }
+    checkBooking(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield this._bookingModel.aggregate([
+                { $match: { userId: userId } },
+                {
+                    $lookup: {
+                        from: 'packages',
+                        localField: 'packageId',
+                        foreignField: '_id',
+                        as: 'packageDetails'
+                    }
+                },
+                { $unwind: '$packageDetails' },
+                { $group: {
+                        _id: "$packageDetails.agent",
+                        totalCount: { $sum: 1 }
+                    } },
+                {
+                    $project: {
+                        _id: 1,
+                        totalCount: 1
+                    }
+                }
+            ]);
+            return data[0];
         });
     }
 }

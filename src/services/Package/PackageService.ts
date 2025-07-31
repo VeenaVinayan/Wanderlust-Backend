@@ -15,11 +15,13 @@ export class PackageService implements IPackageService{
      ){}
     async addPackage(packageData: TPackage ):Promise<boolean>{
          try{
+            console.log('Package Data ::',packageData);
            const data = await this._packageRepository.createNewData(packageData);
            if(data) {
            const adminId : string | null =await this._adminRepository.findAdminId();
            if(adminId){
                 const notification : TNotification = {
+ 
                     userId :adminId,
                     title:'Package',
                     message:`${data.name} is created !`,

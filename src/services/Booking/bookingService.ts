@@ -12,11 +12,12 @@ import { TNotification } from '../../Types/notification';
 import { INotificationService } from '../../Interfaces/Notification/INotificationService';
 import { IBookingValue } from '../../Types/Booking.types';
 import { IBookingValidationResult } from '../../Types/Booking.types';
+import { ISummary } from '../../Types/Booking.types';
+import { CancellBookingResult } from '../../enums/PasswordReset';
 
 @injectable()
 export class BookingService implements IBookingService {
     constructor(
-        @inject('INotificationRepository') private readonly _notificationRepository : INotificationRepository,
         @inject('IBookingRepository') private readonly _bookingRepository: IBookingRepository,
         @inject('INotificationService') private readonly  _notificationService : INotificationService,
     ){}
@@ -25,10 +26,9 @@ export class BookingService implements IBookingService {
             console.log("Inside Booking Service - bookPackage", bookingData);
             const result =  await this._bookingRepository.createNewData(bookingData);
             const data : IBookingValue | null = await this._bookingRepository.getAgentData(result._id);
-            console.log("Booking Value == ",data);
             if(result && data){
                 const notification : TNotification ={
-                   userId:data.agentId,
+                   userId:data.agentId.toString(),
                    title:'New Booking',
                    message:`${data.userName} is created new booking of package ${data.packageName}`,
                 };
@@ -119,11 +119,10 @@ async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBo
         transaction: {
           amount: bookingData.totalAmount,
           description: 'Booking cancelled by agent — amount refunded',
+          bookingId:bookingData.bookingId,
         }
       };
-
       const refundResult = await this.addToWallet(walletData);
-
       if (!refundResult) {
         console.error('⚠️ Wallet refund failed');
         throw new Error('Booking was cancelled, but refund failed');
@@ -150,13 +149,13 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
          throw err;
       }
    }
-   async cancelBooking(id: string):Promise<boolean>{
+   async cancelBooking(id: string):Promise<CancellBookingResult>{
      try{
          console.log('Cancel Booking in service !!',id);
          const bookingData :IBooking | null= await this._bookingRepository.findOneById(id);
          if(!bookingData){
            console.log('No booking Data !!'); 
-           return false;
+           return CancellBookingResult.ID_NOT_FOUND;
          }
         if(bookingData.tripStatus !=='Cancelled'){ 
          const today = new Date();
@@ -174,7 +173,8 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
                   amount : amount,
                   transaction: {
                       amount,
-                      description:'Cancellation balance payment credited' 
+                      description:'Cancellation balance payment credited',
+                      bookingId:bookingData.bookingId, 
                   }
                  }
                   const resultWallet= await this._bookingRepository.creditToWallet(walletData);
@@ -186,23 +186,28 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
                 const data : IBookingValue | null = await this._bookingRepository.getAgentData(id);
                 if(data) { 
                 const notification  = {
-                     userId : data.agentId,
+                     userId : data.agentId.toString(),
                      title:'Booking',
                      message:`The booking of ${data.packageName } is cancelled by ${data.userName}`,
                 }
                 const res = await this._notificationService.createNewNotification(notification);
                 const userNotification ={
-                    userId:bookingData.userId,
+                    userId:bookingData.userId.toString(),
                     title:'Refuned amount',
                     message:`The amount ${amount} refunded after cancellation of ${data.packageName} !`,
                   }
                   console.log("Notification ::",userNotification);
                 const res1 = await this._notificationService.createNewNotification(userNotification);
                 console.log("Notification sent successfully ::",res1);
-              }   
+              } 
+              return CancellBookingResult.SUCCESS;  
+            }else{
+               return CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT;
             } 
+        }else{
+           return CancellBookingResult.ALREADY_CANCELLED;
         }              
-          return true;  
+         
       }catch(err){
          throw err;
      }
@@ -226,7 +231,7 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
    async getDashboard():Promise<IDashBoardData | null>{
      try{
         const data = await this._bookingRepository.getDashboard() as {
-           summary: any[];
+           summary:ISummary[] ;
            bookingsPerMonth: Array<{
              _id: { month: number; year: number };
              totalBookings: number;
@@ -272,7 +277,6 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
        }
    }
 }  
-
 async function sendConfirmationToAgent(bookingData: IBooking): Promise<void> {
     try {
         console.log("Inside Booking Service - sendConfirmationToAgent", bookingData); 

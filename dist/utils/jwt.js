@@ -71,7 +71,7 @@ const verifyRefreshToken = (token) => {
             return accessToken;
         }
         else {
-            console.error("Invalid Token: Missing payload data.");
+            console.error("Invalid Token: Missing payload data");
             return null;
         }
     }

@@ -31,30 +31,26 @@ const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const s3Service_1 = require("../../config/s3Service");
 let AdminController = class AdminController {
-    constructor(_adminService // _add
-    ) {
+    constructor(_adminService) {
         this._adminService = _adminService;
         this.getAllData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.info('Get all users !');
             try {
                 const { user, perPage, page } = req.params;
-                //const { search, sortBy, sortOrder} = req.query;
                 const search = req.query.search || '';
                 const sortBy = req.query.sortBy || 'name';
                 const sortOrder = req.query.sortOrder || 'asc';
                 const users = yield this._adminService.getAllData(user, parseInt(perPage), parseInt(page), search, sortBy, sortOrder);
-                console.log("Users:: ", users);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS, users });
             }
             catch (err) {
                 console.error(err);
-                res.status(500).json({ message: "Internal Server Error !" });
+                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
             }
         }));
         this.blockOrUnblock = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             console.info("Block or unblock User in Controller !", req.body);
             try {
-                const { id, role } = req.body;
+                const { id } = req.body;
                 const response = yield this._adminService.blockOrUnblock(id);
                 if (response) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
@@ -78,7 +74,7 @@ let AdminController = class AdminController {
             try {
                 const response = yield s3Service_1.s3Service.generateSignedUrl(fileType);
                 console.log('After presigned urls ::', response);
-                res.status(200).json({ response });
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ response });
             }
             catch (error) {
                 console.error('Error generating signed Urls:', error);
@@ -103,12 +99,16 @@ let AdminController = class AdminController {
         }));
         this.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { perPage, page } = req.params;
-                const search = req.query.search || '';
-                const sortBy = req.query.sortBy || 'name';
-                const sortOrder = req.query.sortOrder || 'asc';
-                const data = yield this._adminService.getCategories(Number(perPage), Number(page), search, sortBy, sortOrder);
-                console.log(" Categories ::", data);
+                const filterParams = {
+                    page: Number(req.query.page),
+                    perPage: Number(req.query.perPage),
+                    searchParams: {
+                        search: req.query.search || '',
+                        sortBy: req.query.sortBy || 'createdAt',
+                        sortOrder: req.query.sortOrder || 'asc',
+                    }
+                };
+                const data = yield this._adminService.getCategories(filterParams);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {

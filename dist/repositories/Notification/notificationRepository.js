@@ -26,7 +26,6 @@ class NotificationRepository extends BaseRepository_1.BaseRepository {
                 const data = yield this._notificationModel.find({ userId })
                     .sort({ createdAt: -1 })
                     .limit(10);
-                console.log("Data value =", data);
                 return data;
             }
             catch (err) {

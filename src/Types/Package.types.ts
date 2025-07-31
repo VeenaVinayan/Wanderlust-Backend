@@ -30,7 +30,7 @@ export type TPackage = {
 export type TPackageUpdate = Omit<TPackage, '_id' | 'status'>;
 
 export type TPackageResult = {
-      packages: TPackageData[]//TPackage[],
+      packages: TPackageData[]
       totalCount: number;
 }
 

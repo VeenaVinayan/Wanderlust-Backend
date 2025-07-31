@@ -24,7 +24,8 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             if(searchParams.search){
               query.$or = [
                { bookingId: { $regex: searchParams.search, $options: 'i' } },
-               { email: { $regex: searchParams.search, $options: 'i' } }
+               { email: { $regex: searchParams.search, $options: 'i' } },
+               {tripStatus: {$regex: searchParams.search, $options: 'i'}},
             ];
           }
             console.log("Query ::", searchParams);
@@ -43,14 +44,12 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             throw new Error('Internal server error');
         }
     }
-    async getPackageData(packageId: string,bookingId : string): Promise<any> { 
+    async getPackageData(bookingId : string): Promise<any> { 
         try {
             const packageData = await this._bookingModel.findById(bookingId).populate('packageId').exec();
             if (!packageData) {
                 throw new Error('Package not found');
             }
-            console.log("Package Data ::", packageData);
-            const packageDetails = packageData.packageId;
             return packageData;
         } catch (error) {
             console.error('Error retrieving package data:', error);
@@ -134,42 +133,43 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
          if(searchParams.search){
               query.$or = [
                { bookingId: { $regex: searchParams.search, $options: 'i' } },
-               { email: { $regex: searchParams.search, $options: 'i' } }
+               { email: { $regex: searchParams.search, $options: 'i' } },
+               {tripStatus: {$regex: searchParams.search, $options: 'i'}},
             ];
         }
- const result = await this._bookingModel.aggregate([
-   {
-    $lookup: {
-      from: 'packages',
-      localField: 'packageId',
-      foreignField: '_id',
-      as: 'packages',
-    },
-  },
-  { $unwind: '$packages' },
-  {$match: query},
-  {$sort: {bookingDate:-1}},
-  {
-    $facet: {
-      metadata: [
-        { $count: 'total' },
-        { $addFields: { page, perPage } },
-      ],
-      data: [
-        { $skip: skip },
-        { $limit: perPage },
-      ],
-    },
-  },
-]);
-      const data = result[0].data;
-      const totalCount = result[0].metadata[0]?.total || 0;
-      console.log("REsult :::",data,totalCount);
-      return { data, totalCount };
-  } catch (error) {
-       console.error('Error retrieving booking data:', error);
-       throw new Error('Internal server error');
-  }
+      const result = await this._bookingModel.aggregate([
+        {
+          $lookup: {
+            from: 'packages',
+            localField: 'packageId',
+            foreignField: '_id',
+            as: 'packages',
+          },
+        },
+        { $unwind: '$packages' },
+        {$match: query},
+        {$sort: {bookingDate:-1}},
+        {
+          $facet: {
+            metadata: [
+              { $count: 'total' },
+              { $addFields: { page, perPage } },
+            ],
+            data: [
+              { $skip: skip },
+              { $limit: perPage },
+            ],
+          },
+        },
+      ]);
+            const data = result[0].data;
+            const totalCount = result[0].metadata[0]?.total || 0;
+            console.log("REsult :::",data,totalCount);
+            return { data, totalCount };
+        } catch (error) {
+            console.error('Error retrieving booking data:', error);
+            throw new Error('Internal server error');
+        }
 }
    async creditToWallet( walletData : IWalletData) : Promise<IWallet>{
          try{
@@ -240,7 +240,6 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
     async getPackageDetails(packageId : string): Promise<Object | null>{
         try{
               const data = await this._packageModel.findOne({_id:packageId});
-              console.log('DAta ==',data);
               return data;
           }catch(err){
             throw err;
@@ -362,7 +361,8 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
      throw err;
   }
  }
-    async getAgentData(bookingId : string):Promise<IBookingValue | null>{
+
+  async getAgentData(bookingId : string):Promise<IBookingValue | null>{
        try{
             const data = await this._bookingModel.aggregate([
             { $match: { _id: new mongoose.Types.ObjectId(bookingId) } },
@@ -449,4 +449,51 @@ async validateBooking(packageId: string, tripDate: Date): Promise<IBookingValida
   }
 }
 
+   async checkBooking(userId : string):Promise<Object>{
+            const data = await this._bookingModel.aggregate([
+                 { $match: { userId : userId }},
+                 {
+                    $lookup: {
+                        from:'packages',
+                        localField:'packageId',
+                        foreignField:'_id',
+                        as:'packageDetails'
+                    }
+                 },
+                 {$unwind: '$packageDetails'},
+                 {$group: {
+                    _id:"$packageDetails.agent",
+                    totalCount:{$sum:1}
+                 }},
+                 {
+                   $project: {
+                      _id:1,
+                      totalCount:1
+                   }
+                 }
+            ]);
+            return data[0];
+   }
+  //  async checkCancellation(packageId : string,userId : string){
+  //      const data = await this._bookingModel.aggregate([
+  //         {
+  //            $match: { userId: userId}
+  //         },
+  //         {
+  //           $lookup:{
+  //               from:'packages',
+  //               localField:'_id',
+  //               foreignField:'packageId',
+  //               as:'packageDetails'
+  //           }
+  //         },
+  //         {$unwind: '$packageDetails'},
+  //         {
+  //           $group:{
+  //              _id:'$packageDetails.agent',
+  //              agent:{$sum:1}
+  //           }
+  //         }
+  //      ])
+  //  }
 }

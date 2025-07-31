@@ -13,9 +13,8 @@ exports.sendNotification = void 0;
 const socket_1 = require("./socket");
 const sendNotification = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = payload;
-    console.log("User Id is ::::", userId, typeof userId);
-    console.log(`Socket Map ::${socket_1.userSocketMap}`);
-    const socketId = socket_1.userSocketMap[String(userId)];
+    const userid = userId.toString();
+    const socketId = socket_1.userSocketMap[userid];
     console.log(`User connected  ${userId} with ${socketId}`);
     if (socketId) {
         socket_1.io.to(socketId).emit("new-notification", payload);

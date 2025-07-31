@@ -6,6 +6,7 @@ import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
 import stripeService from '../../config/stripePayment';
 import { FilterParams } from '../../Types/Booking.types';
+import { IAgentChatDataDTO } from '../../DTO/userDTO';
 
 @injectable()
 export class UserController{
@@ -73,7 +74,6 @@ export class UserController{
       try{
            
           const data = await this._userService.getPackages();
-          console.log('Packages in User Controller !!!',data);
           if(data){
             res.status(HttpStatusCode.OK).json({message: StatusMessage.SUCCESS,data});
           }else{
@@ -168,7 +168,7 @@ export class UserController{
             perPage:Number(perPage),
             searchParams: {
                  search : ( search as string )|| '',
-                 sortBy : 'description',
+                 sortBy : 'createdAt',
                  sortOrder :(sortOrder as string ) || '',
             }
         }
@@ -205,7 +205,7 @@ export class UserController{
 getUserDetails = asyncHandler(async (req: Request, res: Response) =>{
     try{
         const { userId } = req.params;
-        const data = await this._userService.userDetails(userId);
+        const data : IAgentChatDataDTO | null = await this._userService.userDetails(userId);
         res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data});
     }catch(err){
         throw err;

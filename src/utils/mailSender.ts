@@ -1,7 +1,7 @@
 
-import nodemailer from 'nodemailer';
+import nodemailer, { SentMessageInfo} from 'nodemailer';
 
-const mailSender = async (email: string, title: string, body: string): Promise<any> => {
+const mailSender = async (email: string, title: string, body: string): Promise<SentMessageInfo> => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',

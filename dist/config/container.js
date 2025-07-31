@@ -31,6 +31,9 @@ const chatController_1 = require("../controllers/Chat/chatController");
 const notificationRepository_1 = require("../repositories/Notification/notificationRepository");
 const notificationService_1 = require("../services/Notification/notificationService");
 const notificationController_1 = require("../controllers/Notification/notificationController");
+const AuthRepository_1 = require("../repositories/Auth/AuthRepository");
+const authService_1 = require("../services/Auth/authService");
+const authController_1 = require("../controllers/Auth/authController");
 const container = new inversify_1.Container();
 exports.container = container;
 //admin
@@ -87,3 +90,9 @@ container.bind('INotificationRepository').toDynamicValue(() => {
 }).inSingletonScope();
 container.bind('INotificationService').to(notificationService_1.NotificationService).inSingletonScope();
 container.bind('NotificationController').to(notificationController_1.NotificationController).inSingletonScope();
+//Auth
+container.bind('IAuthRepository').toDynamicValue(() => {
+    return new AuthRepository_1.AuthRepository();
+}).inSingletonScope();
+container.bind('IAuthService').to(authService_1.AuthService).inSingletonScope();
+container.bind('AuthController').to(authController_1.AuthController).inSingletonScope();

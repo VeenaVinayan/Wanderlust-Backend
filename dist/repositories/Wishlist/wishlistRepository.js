@@ -23,7 +23,6 @@ class WishlistRepository extends BaseRepository_1.BaseRepository {
     isExistWishlist(userId, packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Is exist in Repository !');
                 const result = yield this._wishlistModel.findOne({ userId, packageId });
                 if (result)
                     return true;
@@ -38,9 +37,7 @@ class WishlistRepository extends BaseRepository_1.BaseRepository {
     getWishlist(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get Wishlist in Repository ', userId);
                 const data = yield this._wishlistModel.find({ userId }).populate('packageId');
-                console.log('DAta :: ', data);
                 return data;
             }
             catch (err) {

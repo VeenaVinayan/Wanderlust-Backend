@@ -29,9 +29,9 @@ const inversify_1 = require("inversify");
 const mailSender_1 = __importDefault(require("../../utils/mailSender"));
 const emailHelper_1 = __importDefault(require("../../helper/emailHelper"));
 const date_fns_1 = require("date-fns");
+const PasswordReset_1 = require("../../enums/PasswordReset");
 let BookingService = class BookingService {
-    constructor(_notificationRepository, _bookingRepository, _notificationService) {
-        this._notificationRepository = _notificationRepository;
+    constructor(_bookingRepository, _notificationService) {
         this._bookingRepository = _bookingRepository;
         this._notificationService = _notificationService;
     }
@@ -41,10 +41,9 @@ let BookingService = class BookingService {
                 console.log("Inside Booking Service - bookPackage", bookingData);
                 const result = yield this._bookingRepository.createNewData(bookingData);
                 const data = yield this._bookingRepository.getAgentData(result._id);
-                console.log("Booking Value == ", data);
                 if (result && data) {
                     const notification = {
-                        userId: data.agentId,
+                        userId: data.agentId.toString(),
                         title: 'New Booking',
                         message: `${data.userName} is created new booking of package ${data.packageName}`,
                     };
@@ -143,6 +142,7 @@ let BookingService = class BookingService {
                         transaction: {
                             amount: bookingData.totalAmount,
                             description: 'Booking cancelled by agent — amount refunded',
+                            bookingId: bookingData.bookingId,
                         }
                     };
                     const refundResult = yield this.addToWallet(walletData);
@@ -184,7 +184,7 @@ let BookingService = class BookingService {
                 const bookingData = yield this._bookingRepository.findOneById(id);
                 if (!bookingData) {
                     console.log('No booking Data !!');
-                    return false;
+                    return PasswordReset_1.CancellBookingResult.ID_NOT_FOUND;
                 }
                 if (bookingData.tripStatus !== 'Cancelled') {
                     const today = new Date();
@@ -202,7 +202,8 @@ let BookingService = class BookingService {
                                 amount: amount,
                                 transaction: {
                                     amount,
-                                    description: 'Cancellation balance payment credited'
+                                    description: 'Cancellation balance payment credited',
+                                    bookingId: bookingData.bookingId,
                                 }
                             };
                             const resultWallet = yield this._bookingRepository.creditToWallet(walletData);
@@ -215,13 +216,13 @@ let BookingService = class BookingService {
                         const data = yield this._bookingRepository.getAgentData(id);
                         if (data) {
                             const notification = {
-                                userId: data.agentId,
+                                userId: data.agentId.toString(),
                                 title: 'Booking',
                                 message: `The booking of ${data.packageName} is cancelled by ${data.userName}`,
                             };
                             const res = yield this._notificationService.createNewNotification(notification);
                             const userNotification = {
-                                userId: bookingData.userId,
+                                userId: bookingData.userId.toString(),
                                 title: 'Refuned amount',
                                 message: `The amount ${amount} refunded after cancellation of ${data.packageName} !`,
                             };
@@ -229,9 +230,15 @@ let BookingService = class BookingService {
                             const res1 = yield this._notificationService.createNewNotification(userNotification);
                             console.log("Notification sent successfully ::", res1);
                         }
+                        return PasswordReset_1.CancellBookingResult.SUCCESS;
+                    }
+                    else {
+                        return PasswordReset_1.CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT;
                     }
                 }
-                return true;
+                else {
+                    return PasswordReset_1.CancellBookingResult.ALREADY_CANCELLED;
+                }
             }
             catch (err) {
                 throw err;
@@ -311,10 +318,9 @@ let BookingService = class BookingService {
 exports.BookingService = BookingService;
 exports.BookingService = BookingService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('INotificationRepository')),
-    __param(1, (0, inversify_1.inject)('IBookingRepository')),
-    __param(2, (0, inversify_1.inject)('INotificationService')),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(0, (0, inversify_1.inject)('IBookingRepository')),
+    __param(1, (0, inversify_1.inject)('INotificationService')),
+    __metadata("design:paramtypes", [Object, Object])
 ], BookingService);
 function sendConfirmationToAgent(bookingData) {
     return __awaiter(this, void 0, void 0, function* () {

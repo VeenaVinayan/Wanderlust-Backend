@@ -5,7 +5,6 @@ import asyncHandler from 'express-async-handler';
 import { s3Service } from '../../config/s3Service';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';;
 import { StatusMessage } from '../../enums/StatusMessage';
-import { file } from 'googleapis/build/src/apis/file';
 
 @injectable()
 export class AgentController{
@@ -14,7 +13,6 @@ export class AgentController{
      ){}
     getPresignedUrl = asyncHandler(async(req: Request, res: Response) =>{
        const { fileType } = req.body;
-       console.log('Get presigned url ::',fileType);
        if(!fileType){
           res.status(HttpStatusCode.INTERNAL_SERVER_ERROR)
             .json({message: "File types are required !"});
@@ -22,7 +20,6 @@ export class AgentController{
         }
      try{
           const response = await s3Service.generateSignedUrl(fileType);
-          console.log('After presigned urls ::',response);
           res.status(200).json({response});
      }catch(error){
        console.error('Error generating signed Urls:',error);
@@ -34,7 +31,6 @@ export class AgentController{
   uploadCertificate = asyncHandler(async (req:Request, res:Response) =>{
      const { id } = req.params;
      const { publicUrl} = req.body;
-     console.log('INside agent Controller !!!');
      const response = await this._agentService.uploadCertificate(id,publicUrl);
      if(response){
         res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS});
@@ -43,9 +39,7 @@ export class AgentController{
      }
   });
  getCategories = asyncHandler(async (req: Request, res: Response) =>{
-     console.log('Get Categories !!');
      const data = await this._agentService.getCategories();
-     console.log("Categories ::", data);
      if(data){
          res.status(HttpStatusCode.OK).json({success:true,categories:data});
      }else{
@@ -61,7 +55,6 @@ export class AgentController{
      }
      try{
          const data = await s3Service.generateSignedUrls(fileTypes);
-         console.log('After generating PreSigned Urls ::',data);
          res.status(HttpStatusCode.OK).json({message:StatusMessage.BAD_REQUEST,data});
      }catch(err){
         throw err;
@@ -69,9 +62,7 @@ export class AgentController{
   });
   deleteImages = asyncHandler(async (req:Request,res: Response) => {
      try{
-          console.log(' DElete Images ||');
           const deleteImages = req.body;
-          console.log(" Images ::",deleteImages);
           await s3Service.deleteImages(deleteImages);
           res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS})
      }catch(err){
@@ -81,9 +72,7 @@ export class AgentController{
   getDashboardData = asyncHandler(async (req: Request, res: Response) => {
      try{
          const { agentId } = req.params;
-         console.log("Agent ID :",agentId);
          const data = await this._agentService.getDashboardData(agentId);
-         console.log('Dashboard Data ::',data);
          res.status(HttpStatusCode.OK).json({message:StatusMessage.SUCCESS,data});
      }catch(err){
         console.error('Error fetching dashboard data:', err);

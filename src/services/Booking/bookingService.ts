@@ -10,7 +10,7 @@ import { differenceInDays } from 'date-fns';
 import { INotificationRepository } from '../../Interfaces/Notification/INotificationRepository';
 import { TNotification } from '../../Types/notification';
 import { INotificationService } from '../../Interfaces/Notification/INotificationService';
-import { IBookingValue } from '../../Types/Booking.types';
+import { IBookingValue,IBookingCompleteData } from '../../Types/Booking.types';
 import { IBookingValidationResult } from '../../Types/Booking.types';
 import { ISummary } from '../../Types/Booking.types';
 import { CancellBookingResult } from '../../enums/PasswordReset';
@@ -53,7 +53,7 @@ export class BookingService implements IBookingService {
    async sendConfirmationEmail(bookingData: IBooking): Promise<void> {
         try{ 
             console.log("Inside Booking Service - sendConformationEmail", bookingData);
-            const bookingValue  = await this._bookingRepository.getBookingCompleteData(bookingData._id);
+            const bookingValue :IBookingCompleteData = await this._bookingRepository.getBookingCompleteData(bookingData._id);
             if(!bookingValue) {
                 throw new Error("Package not found");   
             }
@@ -207,7 +207,6 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
         }else{
            return CancellBookingResult.ALREADY_CANCELLED;
         }              
-         
       }catch(err){
          throw err;
      }
@@ -237,11 +236,10 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
              totalBookings: number;
              totalRevenue: number;
            }>;
+           topPackages:Array<{packageName:string,value:1}>
          } | null;
          if(!data) return null;
-    
-
-          const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June',
+         const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June',
                            'July', 'August', 'September', 'October', 'November', 'December' ];
           const chartData = data.bookingsPerMonth?.map((item) => ({
             totalBookings: item.totalBookings,
@@ -252,6 +250,7 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
        const dashboardData : IDashBoardData ={
           summary: data?.summary[0],
           bookingsPerMonth:  chartData,
+          topPackages:data?.topPackages,
         } 
        console.log('Dashboard Data ::',dashboardData);
        return dashboardData;

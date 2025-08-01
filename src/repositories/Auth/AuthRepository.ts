@@ -14,11 +14,9 @@ export class AuthRepository extends BaseRepository<IUser> implements IAuthReposi
     constructor(){
          super(User);
      }
-    async isUserExist(email : string):Promise<IUser| null>{
+    async isUserExist(email : string):Promise<LoginResult| null>{
          try {
-            console.log("Inside Auth Repository !!");
-            const user : IUser | null = await this._userModel.findOne({ email:email });
-            console.log("After find  ::", user);
+            const user : LoginResult | null = await this._userModel.findOne({ email:email });
             return user;
          } catch (err) {
             console.error('Error occurred ::', err);

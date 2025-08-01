@@ -43,3 +43,31 @@ export type TReviewEdit ={
      review: string;
      rating: number;
 }
+export type TUserPayload = {
+    id:string;
+    email:string;
+    role:'Admin' | 'Agent' | 'User';
+}
+
+export type  TUser = {
+     name: string;
+     email: string;
+     phone:string;
+     password:string;
+     conPassword:string;
+}
+export type TAgent = TUser &  {
+    address:{
+       home: string;
+       street?:string;
+       city:string;
+       state:string;
+       country:string;
+       zipcode:string;
+    },
+}
+export type TUserData ={
+   otp :string;
+   data: TUser | TAgent;
+   user:string;
+}

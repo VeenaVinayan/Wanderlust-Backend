@@ -32,7 +32,6 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
     }
     isExistCategory(categoryName) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("----------Inside Category Exist -------------");
             return yield this._categoryModel.findOne({ name: categoryName });
         });
     }
@@ -62,13 +61,14 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.info('Inside get Categories !!');
-                const query = {};
                 const { page, perPage, searchParams } = filterParams;
+                const query = {
+                    status: true,
+                };
                 if (searchParams.search) {
                     query.$or = [
                         { name: { $regex: searchParams.search, $options: 'i' } },
                         { description: { $regex: searchParams.search, $options: 'i' } },
-                        { status: true },
                     ];
                 }
                 const sortOptions = {};
@@ -79,7 +79,8 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
                     this._categoryModel
                         .find(query)
                         .sort(sortOptions)
-                        .skip((page - 1) * perPage),
+                        .skip((page - 1) * perPage)
+                        .limit(perPage),
                     this._categoryModel.countDocuments(query),
                 ]);
                 return { data, totalCount };

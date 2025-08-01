@@ -11,6 +11,7 @@ import { IAgent } from '../../interface/Agent';
 import  mongoose  from 'mongoose';
 import { generateAccessToken, generateRefreshToken, verifyToken, verifyRefreshToken } from '../../utils/jwt';
 import { IAgentResponse } from '../../interface/Agent';
+import { TUserData , TAgent} from '../../Types/user.types';
 
 injectable()
 export class AuthService implements IAuthService{
@@ -40,7 +41,7 @@ export class AuthService implements IAuthService{
        throw err;
    }
   }
-  async otpSubmit(userData : any):Promise<string>{
+  async otpSubmit(userData : TUserData):Promise<string>{
       try {
        console.log("Otp submit service !!");
        const { data, user} = userData; 
@@ -65,16 +66,17 @@ export class AuthService implements IAuthService{
            };
           const res : IUser= await this._authRepository.createNewData(User);
           console.log("Agent Data ::",res);
-           if(user === "Agent" && typeof res._id ){
+          if(user === "Agent" && res._id ){
+             const agentData = data as TAgent;
               const Agent :IAgent= {
                   userId: new mongoose.Types.ObjectId(res._id),
                   address:{
-                       home: data.house,
-                       street: data.street,
-                       city: data.city,
-                       state:data.state,
-                       country:data.country,
-                       zipcode:data.zipcode,
+                       home: agentData.address.home,
+                       street: agentData.address.street ?? '',
+                       city: agentData.address.city,
+                       state:agentData.address.state,
+                       country:agentData.address.country,
+                       zipcode:agentData.address.zipcode,
                   }, 
               }
               console.log(" Data agent ::",Agent);
@@ -166,7 +168,7 @@ export class AuthService implements IAuthService{
       const user = await this._authRepository.isUserExist(email);
       if(user){
         const userId : TokenPayload ={
-           id: user.id,
+           id: user.id.toString(),
            role:user.role,
        }
         const token = generateAccessToken(userId);

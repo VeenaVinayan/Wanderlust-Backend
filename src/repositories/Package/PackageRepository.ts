@@ -4,7 +4,7 @@ import Package ,{ IPackage } from '../../models/Package';
 import { IPackageRepository } from '../../Interfaces/Package/IPackageRepository';
 import { TPackageUpdate , TPackageResult , TPackage, QueryString, TAgentPackage, TPackageData } from '../../Types/Package.types';
 import { FilterParams } from '../../Types/Booking.types';
-import { Types } from 'mongoose';
+import { Types, FilterQuery } from 'mongoose';
 
 @injectable()
 export class PackageRepository extends BaseRepository<IPackage> implements IPackageRepository{
@@ -43,7 +43,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
   async findPackages(filterParams : FilterParams) : Promise<TPackageResult>{
     try {
         const {page, perPage, searchParams } = filterParams;
-        const query :any = {};
+        const query :FilterQuery<IPackage> = {};
          if (searchParams.search) {
           query["$or"] = [
             { description: { $regex: searchParams.search, $options: 'i' } },
@@ -75,7 +75,7 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
 async findAgentPackages(filterParams : FilterParams) : Promise<TPackageResult>{
     try {
               const { id,page,perPage, searchParams } = filterParams;
-               const query : any = {};
+               const query : FilterQuery<IPackage> = {};
                if(id){
                  query.agent = id;
                }
@@ -118,12 +118,11 @@ async findAgentPackages(filterParams : FilterParams) : Promise<TPackageResult>{
 
 async advanceSearch(queryString: QueryString): Promise<TPackageResult> {
   try {
-    console.log("Advance search with aggregation !!");
     const searchQuery = queryString;
     const page = Number(queryString.page);
     const perPage = Number(queryString.perPage);
-    let matchStage: any = {};
-    let sortStage: any = {};
+    let matchStage: FilterQuery<IPackage> = {};
+    let sortStage: FilterQuery<IPackage> = {};
  
     const categoryArray = searchQuery.category
       ? (searchQuery.category as string).split(",")

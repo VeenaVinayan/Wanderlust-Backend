@@ -103,10 +103,11 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
               const query : FilterQuery<IWallet> = {};
               if(search){
                query.$or = [
-                 { 'transaction.description': { $regex: searchParams.search, $options: 'i' } },
+                 {'transaction.description': { $regex: searchParams.search, $options: 'i' } },
+                 {'transaction.bookingId': { $regex:searchParams.search,$options:'i'}},
                ];
              }
-             const result = await this._walletModel.aggregate([
+              const result = await this._walletModel.aggregate([
                  { $match: { userId: new mongoose.Types.ObjectId(id) } },
                     {
                      $project: {

@@ -27,9 +27,7 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     isUserExist(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Inside Auth Repository !!");
                 const user = yield this._userModel.findOne({ email: email });
-                console.log("After find  ::", user);
                 return user;
             }
             catch (err) {

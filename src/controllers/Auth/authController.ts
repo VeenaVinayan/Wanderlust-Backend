@@ -37,8 +37,7 @@ export class AuthController{
 });
 otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
-        console.log('Otp Submit Controller', req.body);
-        const response = await this._authService.otpSubmit(req.body);
+         const response = await this._authService.otpSubmit(req.body);
         if(response === "success"){
            res.status(HttpStatusCode.CREATED).json({success:true,message:StatusMessage.CREATED});
        }

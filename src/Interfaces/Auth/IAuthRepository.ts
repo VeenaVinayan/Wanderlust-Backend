@@ -5,7 +5,7 @@ import { IBaseRepository } from '../Base/IBaseRepository';
 import { IUser } from '../../models/User';
 
 export interface IAuthRepository extends IBaseRepository<IUser>{
-    isUserExist(email:string):Promise<any>;
+    isUserExist(email:string):Promise<LoginResult | null>;
     saveOtp(email: string,otp : string):Promise<void>;
     getOtp(email:string):Promise<UserOtp | null>;
     updateOtp(otpData : OtpData) : Promise<string>

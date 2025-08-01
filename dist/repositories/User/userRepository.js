@@ -138,6 +138,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                 if (search) {
                     query.$or = [
                         { 'transaction.description': { $regex: searchParams.search, $options: 'i' } },
+                        { 'transaction.bookingId': { $regex: searchParams.search, $options: 'i' } },
                     ];
                 }
                 const result = yield this._walletModel.aggregate([

@@ -55,21 +55,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             }
         });
     }
-    getPackageData(bookingId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const packageData = yield this._bookingModel.findById(bookingId).populate('packageId').exec();
-                if (!packageData) {
-                    throw new Error('Package not found');
-                }
-                return packageData;
-            }
-            catch (error) {
-                console.error('Error retrieving package data:', error);
-                throw new Error('Internal server error');
-            }
-        });
-    }
     getAgentBookingData(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -77,8 +62,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 console.log('getAgent Data');
                 const { id, page, perPage, searchParams } = filterParams;
                 const data = yield this._bookingModel.aggregate([
-                    {
-                        $lookup: {
+                    { $lookup: {
                             from: 'packages',
                             localField: 'packageId',
                             foreignField: '_id',
@@ -316,7 +300,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                                             year: { $year: "$createdAt" },
                                             month: { $month: "$createdAt" }
                                         },
-                                        totalBookings: { $sum: 1 },
+                                        totalBookings: { $sum: 1 }
                                     }
                                 },
                                 {
@@ -325,11 +309,42 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                                         "_id.month": 1
                                     }
                                 }
+                            ],
+                            topPackages: [
+                                {
+                                    $group: {
+                                        _id: "$packageId",
+                                        value: { $sum: 1 }
+                                    }
+                                },
+                                {
+                                    $sort: { value: -1 }
+                                },
+                                {
+                                    $limit: 5
+                                },
+                                {
+                                    $lookup: {
+                                        from: "packages",
+                                        localField: "_id",
+                                        foreignField: "_id",
+                                        as: "packageDetails"
+                                    }
+                                },
+                                {
+                                    $unwind: "$packageDetails"
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        packageName: "$packageDetails.name",
+                                        value: 1
+                                    }
+                                }
                             ]
                         }
                     }
                 ]);
-                console.log('DAta  dashboard = ', data[0]);
                 return data.length > 0 ? data[0] : null;
             }
             catch (err) {

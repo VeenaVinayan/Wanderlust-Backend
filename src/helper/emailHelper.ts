@@ -1,3 +1,4 @@
+import { IBookingCompleteData } from '../Types/Booking.types';
 
 class EmailHelper{
    public static generateEmailBody(token: string){
@@ -17,7 +18,7 @@ class EmailHelper{
 
       return body;
     }
-    public static generateBookingEmailBody(bookingData: any) {
+    public static generateBookingEmailBody(bookingData: IBookingCompleteData) {
       const email = bookingData.email;
       const title="Booking Confirmation - Wanderlust Travels";
       const body =`<div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px;">

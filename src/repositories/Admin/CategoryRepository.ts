@@ -32,32 +32,37 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
           throw err;
        }
      }
-     async findAllCategory(filterParams : FilterParams) : Promise<Object> {
-        try{
-           console.info('Inside get Categories !!');
-           const query : FilterQuery<ICategory> ={};
-           const { page, perPage, searchParams} = filterParams;
-           if(searchParams.search){
-               query.$or = [
-                   { name: { $regex: searchParams.search, $options:'i'}},
-                   { description: {$regex: searchParams.search, $options: 'i'}},
-                   {status:true},
-               ];
-           }
-           const sortOptions : Record<string, 1|-1> = {};
-           if(searchParams.sortBy){
-              sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
-           }
-           const [ data, totalCount] = await Promise.all([ 
-                 this._categoryModel
-                      .find(query)
-                      .sort(sortOptions)
-                      .skip((page-1)*perPage),
-                 this._categoryModel.countDocuments(query),      
-           ]);
-           return { data,totalCount}
-        }catch(err){
-          throw err;
-        }
-     }
+ async findAllCategory(filterParams: FilterParams): Promise<Object> {
+  try {
+    console.info('Inside get Categories !!');
+    const { page, perPage, searchParams } = filterParams;
+
+    const query: FilterQuery<ICategory> = {
+      status: true, 
+    };
+
+    if (searchParams.search) {
+      query.$or = [
+        { name: { $regex: searchParams.search, $options: 'i' } },
+        { description: { $regex: searchParams.search, $options: 'i' } },
+      ];
+    }
+    const sortOptions: Record<string, 1 | -1> = {};
+    if (searchParams.sortBy) {
+      sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
+    }
+    const [data, totalCount] = await Promise.all([
+      this._categoryModel
+        .find(query)
+        .sort(sortOptions)
+        .skip((page - 1) * perPage)
+        .limit(perPage), 
+      this._categoryModel.countDocuments(query),
+    ]);
+    return { data, totalCount };
+  } catch (err) {
+    throw err;
+  }
+}
+
 }

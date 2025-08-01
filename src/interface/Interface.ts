@@ -6,7 +6,6 @@ export interface UserOtp{
     otp:string;
     createdAt?: Date;
 }
-
 export interface UserData {
     name: string;
     email: string;
@@ -15,7 +14,6 @@ export interface UserData {
     otp?: string;
     data?: UserData;
 }
-  
 export interface OtpData {
     email:string;
     otp: string;

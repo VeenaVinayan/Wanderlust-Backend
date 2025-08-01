@@ -58,7 +58,6 @@ let AuthController = class AuthController {
         }));
         this.otpSubmit = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Otp Submit Controller', req.body);
                 const response = yield this._authService.otpSubmit(req.body);
                 if (response === "success") {
                     res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json({ success: true, message: StatusMessage_1.StatusMessage.CREATED });

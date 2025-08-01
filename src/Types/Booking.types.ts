@@ -41,6 +41,10 @@ export interface IDashBoardData{
     bookingsPerMonth:{
          totalBookings:number;
          month:string;
+    }[],
+    topPackages:{
+       packageName:string;
+       value:number;
     }[]
 }
 export interface IBookingValue{
@@ -60,3 +64,47 @@ export interface ISummary{
      profit:number,
      totalBooking:number,
 }
+export interface IBookingCompleteData {
+    bookingId:string;
+    bookingDate:Date;
+    tripDate:Date;
+    totalGuest:number;
+    totalAmount:number;
+    email:string;
+    phone:string;
+    packageDetails:{
+         name:string;
+    },
+    agentDetails:{
+        name:string;
+        email:string;
+        phone:string;
+    },
+    userDetails:{
+         name:string;
+    },
+    tripStatus:string;
+}
+export type TBookingInput = {
+  email?: string;
+  phone?: string;
+  tripDate?: string | Date;
+  totalAmount: number | string;
+  travellers?: {
+    adult?: number | string;
+    children?: number | string;
+    infant?: number | string;
+  };
+};
+
+export type TSanitizedBooking = {
+  email: string ; 
+  phone: string;
+  tripDate: Date | null;
+  totalAmount: number;
+  travellers: {
+    adult: number;
+    children: number;
+    infant: number;
+  };
+};

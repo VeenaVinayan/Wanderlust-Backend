@@ -5,16 +5,26 @@ const notFound = (req, res, next) => {
     res.status(404);
     next(error);
 };
+function isCastError(error) {
+    return (typeof error === 'object' &&
+        error !== null &&
+        'name' in error &&
+        'kind' in error &&
+        error.name === 'CastError' &&
+        error.kind === 'ObjectId');
+}
 const ErrorHandler = (err, req, res, next) => {
     let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    let message = err.message;
-    if (err.name === "CastError" && err.kind === 'ObjectId') {
-        statusCode = 404;
-        message = "Resource Not Found";
+    if (err instanceof Error) {
+        let message = err.message;
+        if (isCastError(err)) {
+            statusCode = 404;
+            message = "Resource Not Found";
+        }
+        res.status(statusCode).json({
+            message,
+            stack: process.env.NODE_ENV === 'production' ? null : err.stack
+        });
     }
-    res.status(statusCode).json({
-        message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack
-    });
 };
 exports.default = ErrorHandler;

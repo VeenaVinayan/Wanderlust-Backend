@@ -56,7 +56,6 @@ let AdminService = class AdminService {
     addCategory(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.info('Add Category !', data);
                 data.name = data.name.toUpperCase();
                 yield this._categoryRepository.createNewData(data);
                 return true;

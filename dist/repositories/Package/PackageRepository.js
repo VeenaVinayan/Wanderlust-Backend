@@ -150,7 +150,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
     advanceSearch(queryString) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Advance search with aggregation !!");
                 const searchQuery = queryString;
                 const page = Number(queryString.page);
                 const perPage = Number(queryString.perPage);

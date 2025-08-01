@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from '../utils/jwt';
+//import { TUserPayload } from '../Types/user.types';
 
 interface AuthRequest extends Request {
      user?: any;

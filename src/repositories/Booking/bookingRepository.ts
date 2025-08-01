@@ -7,7 +7,7 @@ import Wallet ,{ IWallet } from "../../models/Wallet";
 import { IWalletData } from '../../Types/Booking.types';
 import { FilterQuery } from 'mongoose';
 import Package from "../../models/Package";
-import { IBookingValue } from '../../Types/Booking.types';
+import { IBookingValue , IBookingCompleteData} from '../../Types/Booking.types';
 import { IBookingValidationResult } from '../../Types/Booking.types';
 
 export class BookingRepository extends BaseRepository<IBooking> implements IBookingRepository{
@@ -44,25 +44,13 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             throw new Error('Internal server error');
         }
     }
-    async getPackageData(bookingId : string): Promise<any> { 
-        try {
-            const packageData = await this._bookingModel.findById(bookingId).populate('packageId').exec();
-            if (!packageData) {
-                throw new Error('Package not found');
-            }
-            return packageData;
-        } catch (error) {
-            console.error('Error retrieving package data:', error);
-            throw new Error('Internal server error');
-        }
-    }
+   
     async getAgentBookingData(filterParams: FilterParams): Promise<Object> {
         try {
             console.log('getAgent Data');
             const { id, page, perPage, searchParams } = filterParams;
             const data = await this._bookingModel.aggregate([
-                {
-                    $lookup: {
+                {   $lookup: {
                         from: 'packages',
                         localField: 'packageId',
                         foreignField: '_id',
@@ -73,7 +61,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
                 {
                      $match: {
                          'packageDetails.agent': new mongoose.Types.ObjectId(id),
-                     },
+                      },
                 },
                 {
                     $group: {
@@ -245,14 +233,13 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             throw err;
         }
     }
-  async getDashboard():Promise<Object | null>{
-        try{
-               
+ async getDashboard():Promise<Object | null>{
+  try{
   const data = await this._bookingModel.aggregate([
-  {
+   {
     $match: { tripStatus: "Completed" }
-  },
-  {
+   },
+   {
     $facet: {
       summary: [
         {
@@ -283,8 +270,8 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
               year: { $year: "$createdAt" },
               month: { $month: "$createdAt" }
             },
-            totalBookings: { $sum: 1 },
-         }
+            totalBookings: { $sum: 1 }
+          }
         },
         {
           $sort: {
@@ -292,18 +279,48 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
             "_id.month": 1
           }
         }
+      ],
+      topPackages: [
+        {
+          $group: {
+            _id: "$packageId", 
+            value: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { value: -1 }
+        },
+        {
+          $limit: 5
+        },
+        {
+          $lookup: {
+            from: "packages",
+            localField: "_id",
+            foreignField: "_id",
+            as: "packageDetails"
+          }
+        },
+        {
+          $unwind: "$packageDetails"
+        },
+        {
+          $project: {
+            _id: 0,
+            packageName: "$packageDetails.name",
+            value: 1
+          }
+        }
       ]
     }
   }
 ]);
-
-    console.log('DAta  dashboard = ',data[0]);
-    return data.length>0 ? data[0] : null;
+  return data.length>0 ? data[0] : null;
   }catch(err){
      throw err;
   }
 }
-  async getBookingCompleteData(bookingId : string):Promise<Object>{
+  async getBookingCompleteData(bookingId : string):Promise<IBookingCompleteData>{
          try{
     const data = await this._bookingModel.aggregate([
      { $match: { _id: new mongoose.Types.ObjectId(bookingId) } },
@@ -474,26 +491,4 @@ async validateBooking(packageId: string, tripDate: Date): Promise<IBookingValida
             ]);
             return data[0];
    }
-  //  async checkCancellation(packageId : string,userId : string){
-  //      const data = await this._bookingModel.aggregate([
-  //         {
-  //            $match: { userId: userId}
-  //         },
-  //         {
-  //           $lookup:{
-  //               from:'packages',
-  //               localField:'_id',
-  //               foreignField:'packageId',
-  //               as:'packageDetails'
-  //           }
-  //         },
-  //         {$unwind: '$packageDetails'},
-  //         {
-  //           $group:{
-  //              _id:'$packageDetails.agent',
-  //              agent:{$sum:1}
-  //           }
-  //         }
-  //      ])
-  //  }
-}
+ }

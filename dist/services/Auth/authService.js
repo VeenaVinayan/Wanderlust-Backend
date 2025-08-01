@@ -65,6 +65,7 @@ let AuthService = class AuthService {
     }
     otpSubmit(userData) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 console.log("Otp submit service !!");
                 const { data, user } = userData;
@@ -90,16 +91,17 @@ let AuthService = class AuthService {
                         };
                         const res = yield this._authRepository.createNewData(User);
                         console.log("Agent Data ::", res);
-                        if (user === "Agent" && typeof res._id) {
+                        if (user === "Agent" && res._id) {
+                            const agentData = data;
                             const Agent = {
                                 userId: new mongoose_1.default.Types.ObjectId(res._id),
                                 address: {
-                                    home: data.house,
-                                    street: data.street,
-                                    city: data.city,
-                                    state: data.state,
-                                    country: data.country,
-                                    zipcode: data.zipcode,
+                                    home: agentData.address.home,
+                                    street: (_a = agentData.address.street) !== null && _a !== void 0 ? _a : '',
+                                    city: agentData.address.city,
+                                    state: agentData.address.state,
+                                    country: agentData.address.country,
+                                    zipcode: agentData.address.zipcode,
                                 },
                             };
                             console.log(" Data agent ::", Agent);
@@ -208,7 +210,7 @@ let AuthService = class AuthService {
             const user = yield this._authRepository.isUserExist(email);
             if (user) {
                 const userId = {
-                    id: user.id,
+                    id: user.id.toString(),
                     role: user.role,
                 };
                 const token = (0, jwt_1.generateAccessToken)(userId);

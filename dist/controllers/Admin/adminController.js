@@ -84,10 +84,9 @@ let AdminController = class AdminController {
         }));
         this.addCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' Add category !!', req.body);
                 const response = yield this._adminService.addCategory(req.body);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.ACCEPTED).json({ message: StatusMessage_1.StatusMessage.CREATED });
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.CREATED });
                 }
                 else {
                     res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR });

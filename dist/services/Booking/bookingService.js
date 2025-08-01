@@ -284,6 +284,7 @@ let BookingService = class BookingService {
                 const dashboardData = {
                     summary: data === null || data === void 0 ? void 0 : data.summary[0],
                     bookingsPerMonth: chartData,
+                    topPackages: data === null || data === void 0 ? void 0 : data.topPackages,
                 };
                 console.log('Dashboard Data ::', dashboardData);
                 return dashboardData;

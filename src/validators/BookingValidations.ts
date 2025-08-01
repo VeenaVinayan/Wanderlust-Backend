@@ -1,5 +1,6 @@
 import validator from 'validator';
 import { BookingInput } from '../Types/Validations.Types';
+import { TSanitizedBooking } from '../Types/Booking.types';
 
 export const bookingValidation = (bookingData: BookingInput): string[] => {
   const { tripDate, bookingDate, travellers, totalAmount, email, phone } = bookingData;

@@ -16,7 +16,6 @@ export class AdminRepository implements IAdminRepository {
                   query.$or =[
                      { name: {$regex: search,$options:'i'}},
                      { email: {$regex: search, $options:'i'}},
-                     {role:user}
                   ];
                }
                const sortOptions: Record<string, 1|-1> ={};

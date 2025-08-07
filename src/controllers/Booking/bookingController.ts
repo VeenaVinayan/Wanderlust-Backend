@@ -141,11 +141,6 @@ export class BookingController {
                 default:
                         res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:StatusMessage.NOT_FOUND});        
               }
-            //   if(CancellBookingResult.SUCCESS){
-            //      res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
-            //   }else{
-            //      res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.CANCEL_BOOKING});
-            //   }
          }catch(err){
              throw err;
          }

@@ -133,7 +133,7 @@ let AdminController = class AdminController {
                 throw err;
             }
         }));
-        this.isCategoryExist = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.isCategoryExist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { categoryName } = req.params;
                 const response = yield this._adminService.isExistCategory(categoryName);
@@ -145,10 +145,10 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.editCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.editCategory = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { categoryId } = req.params;
                 const category = req.body;
@@ -162,22 +162,31 @@ let AdminController = class AdminController {
             }
             catch (err) {
                 console.log("Error in Edit Cateory Controler ||");
-                throw err;
+                next(err);
             }
         }));
-        this.pendingAgentData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.pendingAgentData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { perPage, page } = req.params;
-                const agentData = yield this._adminService.getPendingAgentData(Number(perPage), Number(page));
+                const filterParams = {
+                    page: Number(req.query.page),
+                    perPage: Number(req.query.perPage),
+                    searchParams: {
+                        search: req.query.search || '',
+                        sortBy: req.query.sortBy || 'createdAt',
+                        sortOrder: req.query.sortOrder || 'desc',
+                    }
+                };
+                const agentData = yield this._adminService.getPendingAgentData(filterParams);
                 console.log("Agent Data :", agentData);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, agentData });
             }
             catch (err) {
                 console.log('Error in Fetch Pending Agent Data !');
-                throw err;
+                next(err);
             }
         }));
-        this.agentApproval = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.agentApproval = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { agentId } = req.params;
                 const result = yield this._adminService.agentApproval(agentId);
@@ -189,10 +198,10 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.rejectAgentRequest = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.rejectAgentRequest = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { agentId } = req.params;
                 const result = yield this._adminService.rejectAgentRequest(agentId);
@@ -204,10 +213,10 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.blockPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.blockPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(" Block Package ! by Admin");
                 const { packageId } = req.params;
@@ -220,7 +229,7 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

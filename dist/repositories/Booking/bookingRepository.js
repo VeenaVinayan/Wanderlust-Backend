@@ -61,8 +61,21 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             try {
                 console.log('getAgent Data');
                 const { id, page, perPage, searchParams } = filterParams;
+                const searchRegex = searchParams.search
+                    ? { $regex: searchParams.search, $options: 'i' }
+                    : undefined;
+                const matchStage = {
+                    'packageDetails.agent': new mongoose_1.default.Types.ObjectId(id),
+                };
+                if (searchParams.search) {
+                    matchStage['packageDetails.name'] = {
+                        $regex: searchParams.search,
+                        $options: 'i',
+                    };
+                }
                 const data = yield this._bookingModel.aggregate([
-                    { $lookup: {
+                    {
+                        $lookup: {
                             from: 'packages',
                             localField: 'packageId',
                             foreignField: '_id',
@@ -70,11 +83,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                         },
                     },
                     { $unwind: '$packageDetails' },
-                    {
-                        $match: {
-                            'packageDetails.agent': new mongoose_1.default.Types.ObjectId(id),
-                        },
-                    },
+                    { $match: matchStage },
                     {
                         $group: {
                             _id: '$packageDetails.name',
@@ -84,7 +93,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                                 $push: {
                                     _id: '$_id',
                                     packageName: '$packageDetails.name',
-                                    packageImage: '$packageDetails.image[0]',
+                                    packageImage: { $arrayElemAt: ['$packageDetails.image', 0] },
                                     packagePrice: '$packageDetails.price',
                                     bookingId: '$bookingId',
                                     bookingDate: '$bookingDate',
@@ -95,27 +104,27 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                                     phone: '$phone',
                                     tripStatus: '$tripStatus',
                                     totalGuest: '$totalGuest',
-                                    totalAmount: '$totalAmout',
+                                    totalAmount: '$totalAmount', // ✅ Fixed typo
                                 },
-                            }
-                        }
+                            },
+                        },
+                    },
+                    {
+                        $sort: {
+                            [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1,
+                        },
                     },
                     {
                         $facet: {
                             data: [
-                                {
-                                    $sort: {
-                                        [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1,
-                                    },
-                                },
                                 { $skip: (page - 1) * perPage },
                                 { $limit: perPage },
                             ],
                             totalCount: [
-                                { $count: 'count' }
-                            ]
-                        }
-                    }
+                                { $count: 'count' },
+                            ],
+                        },
+                    },
                 ]);
                 const resultData = data[0].data;
                 const totalCount = ((_a = data[0].totalCount[0]) === null || _a === void 0 ? void 0 : _a.count) || 0;

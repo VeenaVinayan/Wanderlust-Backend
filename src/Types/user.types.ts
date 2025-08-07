@@ -55,6 +55,12 @@ export type  TUser = {
      phone:string;
      password:string;
      conPassword:string;
+     home?: string;
+     street?:string;
+     city?:string;
+     state?:string;
+     country?:string;
+     zipcode?:string
 }
 export type TAgent = TUser &  {
     address:{
@@ -68,6 +74,6 @@ export type TAgent = TUser &  {
 }
 export type TUserData ={
    otp :string;
-   data: TUser | TAgent;
+   data: TUser ;
    user:string;
 }

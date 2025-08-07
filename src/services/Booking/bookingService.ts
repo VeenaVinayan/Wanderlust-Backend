@@ -87,20 +87,17 @@ export class BookingService implements IBookingService {
 async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBooking | null> {
   try {
     console.log('Attempting to update booking status by agent:', status);
-
     const bookingData: IBooking | null = await this._bookingRepository.findOneById(bookingId);
-
     if (!bookingData) {
       console.log(' No booking data found.');
       throw new Error('Booking not found');
     }
-    
     if (bookingData.tripStatus === status) {
       throw new Error(`Booking is already marked as ${status}`);
     }
 
-    const now = new Date();
-    const tripDate = new Date(bookingData.tripDate);
+   const now = new Date();
+   const tripDate = new Date(bookingData.tripDate);
    if (status === 'Completed' && tripDate > now) {
       throw new Error('Trip has not yet occurred. Cannot mark as Completed.');
     }
@@ -111,8 +108,8 @@ async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBo
       tripStatus: status,
       paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
     });
-    console.log('✅ Booking updated:', updatedBooking);
-    if (updatedBooking && status === 'Cancelled') {
+   console.log('✅ Booking updated:', updatedBooking);
+   if (updatedBooking && status === 'Cancelled') {
       const walletData: IWalletData = {
         userId: bookingData.userId,
         amount: bookingData.totalAmount,

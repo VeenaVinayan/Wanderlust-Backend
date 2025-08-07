@@ -74,12 +74,72 @@ class AdminRepository {
             }
         });
     }
-    findPendingAgent(perPage, page) {
+    findPendingAgent(params) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             try {
-                return yield this._agentModel.aggregate([
+                const { page, perPage, searchParams } = params;
+                const query = {};
+                if (searchParams.search) {
+                    query.$or = [
+                        { 'userData.name': { $regex: searchParams.search, $options: 'i' } },
+                        { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
+                    ];
+                }
+                // return await this._agentModel.aggregate([
+                //     {
+                //       $match: { isVerified: "Uploaded"}
+                //     },
+                //     {
+                //       $facet: {
+                //         metadata: [{ $count: "total" }],
+                //         data: [
+                //           { $skip: (page - 1) * perPage },
+                //           { $limit: perPage },
+                //           {
+                //             $lookup: {
+                //               from: "users",
+                //               localField: "userId",
+                //               foreignField: "_id",
+                //               as: "userData"
+                //             }
+                //           },
+                //           { $unwind: "$userData" },
+                //           {
+                //             $match: {query}
+                //           },
+                //           {
+                //             $project: {
+                //               _id: 1,
+                //               license: 1,
+                //               name: "$userData.name",
+                //               email: "$userData.email",
+                //               phone: "$userData.phone",
+                //             }
+                //           }
+                //         ]
+                //       }
+                //     }
+                //   ]);
+                const data = yield this._agentModel.aggregate([
                     {
                         $match: { isVerified: "Uploaded" }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "userId",
+                            foreignField: "_id",
+                            as: "userData"
+                        }
+                    },
+                    { $unwind: "$userData" },
+                    {
+                        $match: { $or: [
+                                { 'userData.name': { $regex: searchParams.search, $options: 'i' } },
+                                { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
+                                { 'userData.phone': { $regex: searchParams.search, $options: 'i' } },
+                            ] }
                     },
                     {
                         $facet: {
@@ -88,18 +148,10 @@ class AdminRepository {
                                 { $skip: (page - 1) * perPage },
                                 { $limit: perPage },
                                 {
-                                    $lookup: {
-                                        from: "users",
-                                        localField: "userId",
-                                        foreignField: "_id",
-                                        as: "userData"
-                                    }
-                                },
-                                { $unwind: "$userData" },
-                                {
                                     $project: {
                                         _id: 1,
                                         license: 1,
+                                        address: 1,
                                         name: "$userData.name",
                                         email: "$userData.email",
                                         phone: "$userData.phone"
@@ -109,6 +161,12 @@ class AdminRepository {
                         }
                     }
                 ]);
+                console.log("Pending Agent Data ::", data);
+                const pendingAgent = {
+                    data: ((_a = data[0]) === null || _a === void 0 ? void 0 : _a.data) || [],
+                    totalCount: ((_c = (_b = data[0]) === null || _b === void 0 ? void 0 : _b.metadata[0]) === null || _c === void 0 ? void 0 : _c.total) || 0,
+                };
+                return pendingAgent;
             }
             catch (err) {
                 console.log('Error in fetch pending data in Repository !!');

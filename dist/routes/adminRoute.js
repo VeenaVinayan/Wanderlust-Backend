@@ -21,7 +21,7 @@ router.get('/categories/', protected_1.default, roleAuth.checkRole(['Admin']), a
 router.patch('/category-delete/:categoryId', protected_1.default, roleAuth.checkRole(['Admin']), adminController.deleteCategory);
 router.get('/category-check/:categoryName', protected_1.default, roleAuth.checkRole(['Admin']), adminController.isCategoryExist);
 router.patch('/category-edit/:categoryId', protected_1.default, roleAuth.checkRole(['Admin']), adminController.editCategory);
-router.get('/agent-pending/:perPage/:page', protected_1.default, roleAuth.checkRole(['Admin']), adminController.pendingAgentData);
+router.get('/agent-pending', protected_1.default, roleAuth.checkRole(['Admin']), adminController.pendingAgentData);
 router.patch('/approveAgent/:agentId', protected_1.default, roleAuth.checkRole(['Admin']), adminController.agentApproval);
 router.patch('/rejectAgentRequest/:agentId', protected_1.default, roleAuth.checkRole(['Admin']), adminController.rejectAgentRequest);
 router.patch('/block-package/:packageId', protected_1.default, roleAuth.checkRole(['Admin']), adminController.blockPackage);

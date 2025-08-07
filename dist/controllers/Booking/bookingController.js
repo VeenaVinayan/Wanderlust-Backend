@@ -171,11 +171,6 @@ let BookingController = class BookingController {
                     default:
                         res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
-                //   if(CancellBookingResult.SUCCESS){
-                //      res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SUCCESS});
-                //   }else{
-                //      res.status(HttpStatusCode.CONFLICT).json({success:false,message:StatusMessage.CANCEL_BOOKING});
-                //   }
             }
             catch (err) {
                 throw err;

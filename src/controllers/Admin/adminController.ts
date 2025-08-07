@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { IAdminService } from '../../Interfaces/Admin/IAdminService';
 import asyncHandler from 'express-async-handler';
@@ -107,7 +107,7 @@ export class AdminController{
              throw err;
          }
     })
- isCategoryExist = asyncHandler(async (req:Request, res:Response)=> {
+ isCategoryExist = asyncHandler(async (req:Request, res:Response,next:NextFunction)=> {
          try{
               const { categoryName } = req.params;
               const response = await this._adminService.isExistCategory(categoryName);
@@ -117,10 +117,10 @@ export class AdminController{
                   res.status(HttpStatusCode.CONFLICT).json({success:false});
               }
          }catch(err){
-             throw err;
+            next(err);
          }
     })
- editCategory = asyncHandler(async (req:Request, res:Response) =>{
+ editCategory = asyncHandler(async (req:Request, res:Response,next:NextFunction) =>{
          try{
             const { categoryId } = req.params;
             const  category  = req.body;
@@ -132,21 +132,30 @@ export class AdminController{
             }
          }catch(err){
             console.log("Error in Edit Cateory Controler ||");
-            throw err;
+            next(err);
          }
     })
-    pendingAgentData = asyncHandler(async (req:Request, res: Response) =>{
+    pendingAgentData = asyncHandler(async (req:Request, res: Response,next: NextFunction) =>{
          try{
-             const { perPage, page} = req.params;
-             const agentData = await this._adminService.getPendingAgentData(Number(perPage),Number(page));
+            const { perPage, page} = req.params;
+            const filterParams : FilterParams ={
+            page: Number(req.query.page),
+            perPage : Number(req.query.perPage),
+            searchParams: {
+                 search : (req.query.search as string) || '',
+                 sortBy : (req.query.sortBy as string) || 'createdAt',
+                 sortOrder : (req.query.sortOrder as string) || 'desc',
+            }
+          }
+             const agentData = await this._adminService.getPendingAgentData(filterParams);
              console.log("Agent Data :",agentData);
              res.status(HttpStatusCode.OK).json({success:true,agentData});
          }catch(err){
              console.log('Error in Fetch Pending Agent Data !');
-             throw err;
+             next(err);
          }
     })
-    agentApproval = asyncHandler(async (req: Request, res: Response) =>{
+    agentApproval = asyncHandler(async (req: Request, res: Response,next:NextFunction) =>{
          try{
              const { agentId } = req.params;
              const result = await this._adminService.agentApproval(agentId);
@@ -156,10 +165,10 @@ export class AdminController{
                  res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:StatusMessage.ERROR});
              }
          }catch(err){
-            throw err;
+            next(err);
          }
     })
-    rejectAgentRequest = asyncHandler(async (req: Request, res: Response) =>{
+    rejectAgentRequest = asyncHandler(async (req: Request, res: Response,next: NextFunction) =>{
         try{
             const { agentId } = req.params;
             const result = await this._adminService.rejectAgentRequest(agentId);
@@ -169,10 +178,10 @@ export class AdminController{
                 res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:StatusMessage.ERROR});
             }
         }catch(err){
-           throw err;
+           next(err);
         }
    })
-   blockPackage = asyncHandler( async (req: Request, res: Response) => {
+   blockPackage = asyncHandler( async (req: Request, res: Response,next : NextFunction) => {
       try{
            console.log(" Block Package ! by Admin");
            const {packageId} = req.params;
@@ -183,7 +192,7 @@ export class AdminController{
              res.status(HttpStatusCode.NOT_FOUND).json({message:StatusMessage.ERROR});
            }
       }catch(err){
-         throw err;
+         next(err);
       }   
    })
  }

@@ -126,14 +126,14 @@ let AdminService = class AdminService {
             }
         });
     }
-    getPendingAgentData(perPage, page) {
+    getPendingAgentData(params) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._adminRepository.findPendingAgent(perPage, page);
+                const data = yield this._adminRepository.findPendingAgent(params);
                 return data;
             }
             catch (err) {
-                console.error("Error in get Pending Agent SErvice ::", err);
+                console.error("Error in get Pending Agent Service ::", err);
                 throw err;
             }
         });

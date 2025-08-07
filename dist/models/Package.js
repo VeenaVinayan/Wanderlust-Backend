@@ -87,6 +87,14 @@ const PackageSchema = new mongoose_1.default.Schema({
         enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending',
     },
+    coordinates: {
+        latitude: {
+            type: Number,
+        },
+        longitude: {
+            type: Number,
+        }
+    }
 }, { timestamps: true });
 const Package = mongoose_1.default.model('Package', PackageSchema);
 exports.default = Package;

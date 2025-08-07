@@ -25,7 +25,11 @@ export type TPackage = {
          meals:string[];
          stay:string;
          transfer:string;
-    }[]
+      }[],
+     coordinates?:{
+         latitude:number,
+         longitude:number,  
+     }
 }
 export type TPackageUpdate = Omit<TPackage, '_id' | 'status'>;
 

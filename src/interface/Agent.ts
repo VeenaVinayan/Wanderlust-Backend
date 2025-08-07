@@ -29,4 +29,16 @@ export interface IPendingAgent {
    email:string;
    phone:string;
    license:string;
+   address:{
+    home: string;
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    zipcode: string;
+   },
+}
+export interface IPendingAgentResponse{
+    data: IPendingAgent[];
+    totalCount:number;
 }

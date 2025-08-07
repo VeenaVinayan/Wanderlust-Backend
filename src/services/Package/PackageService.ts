@@ -6,6 +6,7 @@ import { FilterParams } from '../../Types/Booking.types';
 import { IAdminRepository } from '../../Interfaces/Admin/IAdminRepository';
 import { TNotification } from "../../Types/notification";
 import { INotificationService } from '../../Interfaces/Notification/INotificationService';
+
 injectable()
 export class PackageService implements IPackageService{
     constructor(
@@ -79,7 +80,9 @@ export class PackageService implements IPackageService{
     }
     async getCategoryPackages() : Promise<TPackage[]>{
         try{
-             return await this._packageRepository.getCategoryPackages()
+            const categories = await this._packageRepository.getCategoryPackages();
+             console.log("Categories ::",categories);
+             return categories;
         }catch(err){
             throw err;
         }

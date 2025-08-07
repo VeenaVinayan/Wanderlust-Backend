@@ -22,6 +22,10 @@ export interface IPackage extends Document {
          stay:string;
          transfer:string;
     }[],
+    coordinates?:{
+        latitude:number,
+        longitude:number,
+    }
     isVerified: string;
 }
 
@@ -108,6 +112,14 @@ const PackageSchema : Schema = new mongoose.Schema({
              enum:['Pending','Approved','Rejected'],
              default:'Pending',
      },
+     coordinates:{
+        latitude:{
+                type:Number,
+        }, 
+        longitude:{
+              type:Number,
+        }  
+     }
 },{timestamps:true});
 
 const Package = mongoose.model<IPackage>('Package',PackageSchema);

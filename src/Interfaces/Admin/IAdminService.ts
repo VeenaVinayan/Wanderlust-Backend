@@ -1,7 +1,7 @@
 //import { IUser, IAgent} from '../../Types/user.types';
 import { ICategoryResponse } from "../../interface/Category.interface";
 import {ICategory } from '../../interface/Interface';
-import { IPendingAgent} from '../../interface/Agent';
+import { IPendingAgentResponse} from '../../interface/Agent';
 import { FilterParams } from '../../Types/Booking.types';
 
  export interface IAdminService{
@@ -12,7 +12,7 @@ import { FilterParams } from '../../Types/Booking.types';
     deleteCategory(categoryId : string) : Promise<boolean>;
     isExistCategory(categoryName: string) : Promise<boolean>;
     editCategory(categoryId:string, category: ICategory) : Promise<boolean>
-    getPendingAgentData(perPage: number, page: number):Promise<IPendingAgent[]>
+    getPendingAgentData(filterParams : FilterParams):Promise<IPendingAgentResponse>
     agentApproval(agentId: string) : Promise<boolean>
     rejectAgentRequest(agentId: string) : Promise<boolean>;
     blockPackage(packageId: string) : Promise<boolean>;

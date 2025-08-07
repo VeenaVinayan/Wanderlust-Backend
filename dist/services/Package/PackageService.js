@@ -129,7 +129,9 @@ let PackageService = class PackageService {
     getCategoryPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._packageRepository.getCategoryPackages();
+                const categories = yield this._packageRepository.getCategoryPackages();
+                console.log("Categories ::", categories);
+                return categories;
             }
             catch (err) {
                 throw err;

@@ -43,9 +43,8 @@ export class AuthService implements IAuthService{
   }
   async otpSubmit(userData : TUserData):Promise<string>{
       try {
-       console.log("Otp submit service !!");
-       const { data, user} = userData; 
-       const { name, email, phone, password } = data || {name:"",email:"",phone:"",password:"",address:""};
+        const { data, user} = userData; 
+       const { name, email, phone, password } = data || {name:"",email:"",phone:"",password:"",address:""}
        const otpUser :string = userData.otp || " ";
        const otpValue : UserOtp | null=  await this._authRepository.getOtp(email);  
        if(!otpValue) return "error";
@@ -67,16 +66,16 @@ export class AuthService implements IAuthService{
           const res : IUser= await this._authRepository.createNewData(User);
           console.log("Agent Data ::",res);
           if(user === "Agent" && res._id ){
-             const agentData = data as TAgent;
+              const agentData = data as TAgent;
               const Agent :IAgent= {
                   userId: new mongoose.Types.ObjectId(res._id),
                   address:{
-                       home: agentData.address.home,
-                       street: agentData.address.street ?? '',
-                       city: agentData.address.city,
-                       state:agentData.address.state,
-                       country:agentData.address.country,
-                       zipcode:agentData.address.zipcode,
+                       home: data?.home ?? '',
+                       street: data?.street ?? '',
+                       city: data?.city ?? '',
+                       state:data?.state ?? "Kerala",
+                       country:data?.country ?? "India",
+                       zipcode:data?.zipcode ?? "678930",
                   }, 
               }
               console.log(" Data agent ::",Agent);

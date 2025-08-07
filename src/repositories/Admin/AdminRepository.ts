@@ -2,9 +2,10 @@ import User,{IUser} from '../../models/User';
 import { Iuser, IAgent} from '../../Types/user.types';
 import { BaseRepository } from "../Base/BaseRepository";
 import { IAdminRepository } from "../../Interfaces/Admin/IAdminRepository";
-import { IPendingAgent } from '../../interface/Agent';
+import { IPendingAgentResponse } from '../../interface/Agent';
 import Agent from '../../models/Agent';
 import { FilterQuery } from 'mongoose';
+import { FilterParams } from '../../Types/Booking.types';
 
 export class AdminRepository implements IAdminRepository {
      private readonly _userModel = User;
@@ -55,40 +56,99 @@ export class AdminRepository implements IAdminRepository {
              throw new Error("Error in Block/UnBlock")
         }
      }
-     async findPendingAgent(perPage: number, page: number): Promise<IPendingAgent[]> {
+     async findPendingAgent(params:FilterParams): Promise<IPendingAgentResponse> {
          try{
-            return await this._agentModel.aggregate([
-                {
-                  $match: { isVerified: "Uploaded" }
-                },
-                {
-                  $facet: {
-                    metadata: [{ $count: "total" }],
-                    data: [
-                      { $skip: (page - 1) * perPage },
-                      { $limit: perPage },
-                      {
-                        $lookup: {
-                          from: "users",
-                          localField: "userId",
-                          foreignField: "_id",
-                          as: "userData"
-                        }
-                      },
-                      { $unwind: "$userData" },
-                      {
-                        $project: {
-                          _id: 1,
-                          license: 1,
-                          name: "$userData.name",
-                          email: "$userData.email",
-                          phone: "$userData.phone"
-                        }
-                      }
-                    ]
+            const { page, perPage, searchParams} = params;
+            const query :FilterQuery<IUser> = {};
+            if(searchParams.search){
+               query.$or =[
+                  { 'userData.name': {$regex: searchParams.search, $options:'i'}},
+                  {'userData.email':{$regex:searchParams.search,$options:'i'}},
+               ]
+            }
+            // return await this._agentModel.aggregate([
+            //     {
+            //       $match: { isVerified: "Uploaded"}
+            //     },
+            //     {
+            //       $facet: {
+            //         metadata: [{ $count: "total" }],
+            //         data: [
+            //           { $skip: (page - 1) * perPage },
+            //           { $limit: perPage },
+            //           {
+            //             $lookup: {
+            //               from: "users",
+            //               localField: "userId",
+            //               foreignField: "_id",
+            //               as: "userData"
+            //             }
+            //           },
+            //           { $unwind: "$userData" },
+            //           {
+            //             $match: {query}
+            //           },
+            //           {
+            //             $project: {
+            //               _id: 1,
+            //               license: 1,
+            //               name: "$userData.name",
+            //               email: "$userData.email",
+            //               phone: "$userData.phone",
+
+            //             }
+            //           }
+            //         ]
+            //       }
+            //     }
+            //   ]);
+            const data =  await this._agentModel.aggregate([
+            {
+               $match: { isVerified: "Uploaded" }
+            },
+            {
+               $lookup: {
+                  from: "users",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "userData"
+               }
+            },
+            { $unwind: "$userData" },
+
+            {
+               $match: {  $or: [
+                  { 'userData.name': { $regex: searchParams.search, $options: 'i' } },
+                  { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
+                  {'userData.phone':{$regex: searchParams.search, $options:'i'}},
+             ]}
+            },
+            { 
+                $facet: {
+                  metadata: [{ $count: "total" }],
+                  data: [
+                  { $skip: (page - 1) * perPage },
+                  { $limit: perPage },
+                  {
+                     $project: {
+                        _id: 1,
+                        license: 1,
+                        address: 1, 
+                        name: "$userData.name",
+                        email: "$userData.email",
+                        phone: "$userData.phone"
+                     }
                   }
-                }
-              ]);
+                  ]
+               }
+            }
+            ]);
+               console.log("Pending Agent Data ::",data);
+               const pendingAgent : IPendingAgentResponse = {
+                   data : data[0]?.data || [],
+                   totalCount:data[0]?.metadata[0]?.total || 0,
+               }
+               return pendingAgent;
          }catch(err){
              console.log('Error in fetch pending data in Repository !!');
              throw err;

@@ -65,9 +65,8 @@ let AuthService = class AuthService {
     }
     otpSubmit(userData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c, _d, _e, _f;
             try {
-                console.log("Otp submit service !!");
                 const { data, user } = userData;
                 const { name, email, phone, password } = data || { name: "", email: "", phone: "", password: "", address: "" };
                 const otpUser = userData.otp || " ";
@@ -96,12 +95,12 @@ let AuthService = class AuthService {
                             const Agent = {
                                 userId: new mongoose_1.default.Types.ObjectId(res._id),
                                 address: {
-                                    home: agentData.address.home,
-                                    street: (_a = agentData.address.street) !== null && _a !== void 0 ? _a : '',
-                                    city: agentData.address.city,
-                                    state: agentData.address.state,
-                                    country: agentData.address.country,
-                                    zipcode: agentData.address.zipcode,
+                                    home: (_a = data === null || data === void 0 ? void 0 : data.home) !== null && _a !== void 0 ? _a : '',
+                                    street: (_b = data === null || data === void 0 ? void 0 : data.street) !== null && _b !== void 0 ? _b : '',
+                                    city: (_c = data === null || data === void 0 ? void 0 : data.city) !== null && _c !== void 0 ? _c : '',
+                                    state: (_d = data === null || data === void 0 ? void 0 : data.state) !== null && _d !== void 0 ? _d : "Kerala",
+                                    country: (_e = data === null || data === void 0 ? void 0 : data.country) !== null && _e !== void 0 ? _e : "India",
+                                    zipcode: (_f = data === null || data === void 0 ? void 0 : data.zipcode) !== null && _f !== void 0 ? _f : "678930",
                                 },
                             };
                             console.log(" Data agent ::", Agent);

@@ -45,74 +45,85 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
         }
     }
    
-    async getAgentBookingData(filterParams: FilterParams): Promise<Object> {
-        try {
-            console.log('getAgent Data');
-            const { id, page, perPage, searchParams } = filterParams;
-            const data = await this._bookingModel.aggregate([
-                {   $lookup: {
-                        from: 'packages',
-                        localField: 'packageId',
-                        foreignField: '_id',
-                        as: 'packageDetails',
-                    },
-                },
-                { $unwind: '$packageDetails' },
-                {
-                     $match: {
-                         'packageDetails.agent': new mongoose.Types.ObjectId(id),
-                      },
-                },
-                {
-                    $group: {
-                        _id:'$packageDetails.name',
-                        packageName: {$first:'$packageDetails.name'},
-                        totalBooking:{$sum: 1},
-                        bookings:{
-                            $push:{
-                                _id:'$_id',
-                                packageName:'$packageDetails.name',
-                                packageImage:'$packageDetails.image[0]',
-                                packagePrice:'$packageDetails.price',
-                                bookingId:'$bookingId',
-                                bookingDate:'$bookingDate',
-                                userId:'$userId',
-                                tripDate:'$tripDate',
-                                packageId:'$packageId',
-                                email:'$email',
-                                phone:'$phone',
-                                tripStatus:'$tripStatus',
-                                totalGuest:'$totalGuest',
-                                totalAmount:'$totalAmout',
-                            },
-                        }
-                    }
-                 },
-                 {
-                     $facet: {
-                         data: [
-                             {
-                                 $sort: {
-                                     [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1,
-                                 },
-                             },
-                             { $skip: (page - 1) * perPage },
-                             { $limit: perPage },
-                         ],
-                         totalCount: [
-                             { $count: 'count' }
-                         ]
-                     }
-                 }
-            ]);
-            const resultData = data[0].data;
-            const totalCount = data[0].totalCount[0]?.count || 0;
-            return { data:resultData, totalCount}
-        }catch(err){
-             throw err;
-        }  
+async getAgentBookingData(filterParams: FilterParams): Promise<Object> {
+   try {
+      console.log('getAgent Data');
+      const { id, page, perPage, searchParams } = filterParams;
+      const searchRegex = searchParams.search
+        ? { $regex: searchParams.search, $options: 'i' }
+        : undefined;
+    const matchStage: Record<string, any> = {
+  'packageDetails.agent': new mongoose.Types.ObjectId(id),
+  };
+
+if (searchParams.search) {
+  matchStage['packageDetails.name'] = {
+    $regex: searchParams.search,
+    $options: 'i',
+  };
+}
+const data = await this._bookingModel.aggregate([
+  {
+    $lookup: {
+      from: 'packages',
+      localField: 'packageId',
+      foreignField: '_id',
+      as: 'packageDetails',
+    },
+  },
+  { $unwind: '$packageDetails' },
+  { $match: matchStage },
+  {
+    $group: {
+      _id: '$packageDetails.name',
+      packageName: { $first: '$packageDetails.name' },
+      totalBooking: { $sum: 1 },
+      bookings: {
+        $push: {
+          _id: '$_id',
+          packageName: '$packageDetails.name',
+          packageImage: { $arrayElemAt: ['$packageDetails.image', 0] },
+          packagePrice: '$packageDetails.price',
+          bookingId: '$bookingId',
+          bookingDate: '$bookingDate',
+          userId: '$userId',
+          tripDate: '$tripDate',
+          packageId: '$packageId',
+          email: '$email',
+          phone: '$phone',
+          tripStatus: '$tripStatus',
+          totalGuest: '$totalGuest',
+          totalAmount: '$totalAmount', // ✅ Fixed typo
+        },
+      },
+    },
+  },
+  {
+    $sort: {
+      [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1,
+    },
+  },
+  {
+    $facet: {
+      data: [
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ],
+      totalCount: [
+        { $count: 'count' },
+      ],
+    },
+  },
+]);
+     const resultData = data[0].data;
+     const totalCount = data[0].totalCount[0]?.count || 0;
+     return { data:resultData, totalCount}
+   }catch(err){
+        throw err;
+   }  
     }
-   async getBookingDataToAdmin(filterParams: FilterParams): Promise<Object> {
+
+  async getBookingDataToAdmin(filterParams: FilterParams): Promise<Object> {
     try {
         const { page, perPage, searchParams } = filterParams;
         const skip =  (page - 1) * perPage;
@@ -208,7 +219,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
                   { bookingId: { $regex: searchParams.search, $options: 'i' } },
                   { email: { $regex: searchParams.search, $options: 'i' } },
                   { tripStatus: {$regex: searchParams.search, $options: 'i'}},
-                 ];
+                ];
                }  
                const [ data ,totalCount] = await Promise.all([ 
                   this._bookingModel.find(query)

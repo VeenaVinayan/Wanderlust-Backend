@@ -47,7 +47,7 @@ const PORT: number = parseInt(process.env.PORT || '8001', 10);
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body) || "No Body");
 app.use(morgan("Request Body: :body"));
-const logDirectory = path.join(__dirname, 'logs');
+const logDirectory = path.join(process.cwd(),'src', 'logs');
 
 if (!fs.existsSync(logDirectory)) {
   fs.mkdirSync(logDirectory);

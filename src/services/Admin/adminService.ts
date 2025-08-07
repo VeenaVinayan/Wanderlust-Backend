@@ -4,7 +4,7 @@ import { IAdminService } from '../../Interfaces/Admin/IAdminService';
 import {Iuser, IAgent} from '../../Types/user.types';
 import { ICategoryRepository } from "../../Interfaces/Admin/ICategoryRepository";
 import { ICategory } from "../../interface/Interface";
-import { IPendingAgent } from '../../interface/Agent';
+import { IPendingAgentResponse } from '../../interface/Agent';
 import { IAdminPackageRepository } from "../../Interfaces/Package/IAdminPackageRepository";
 import { FilterParams } from '../../Types/Booking.types';
 
@@ -85,12 +85,12 @@ export class AdminService implements IAdminService{
          throw err;
       }
   }
-  async getPendingAgentData(perPage: number, page:number) : Promise<IPendingAgent[]> {
+  async getPendingAgentData(params : FilterParams) : Promise<IPendingAgentResponse> {
      try{
-         const data = await this._adminRepository.findPendingAgent(perPage, page);
+         const data = await this._adminRepository.findPendingAgent(params);
          return data;
      }catch(err){
-      console.error("Error in get Pending Agent SErvice ::",err);
+      console.error("Error in get Pending Agent Service ::",err);
       throw err;
      }
   }

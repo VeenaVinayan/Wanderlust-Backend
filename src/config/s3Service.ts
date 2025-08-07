@@ -45,7 +45,7 @@ class S3Service {
                 });
 
                 const signedUrl = await getSignedUrl(this._s3, params, {
-                    expiresIn: 3600,
+                    expiresIn:  3600,
                     signableHeaders: new Set(['content-type']),
                 });
 

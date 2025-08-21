@@ -34,9 +34,7 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
     editPackage(packageId, packageData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Edit package in repository!!", packageData);
                 const updatedPackage = yield this._packageModel.findByIdAndUpdate(packageId, { $set: packageData }, { new: true, runValidators: true });
-                console.log("After update ::", updatedPackage);
                 return updatedPackage;
             }
             catch (err) {
@@ -48,7 +46,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
     deletePackage(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Delete Package agent ', packageId);
                 const packageData = yield this._packageModel.findOne({ _id: packageId });
                 if (packageData) {
                     packageData.status = !(packageData === null || packageData === void 0 ? void 0 : packageData.status);
@@ -90,7 +87,6 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                     packages: data,
                     totalCount
                 };
-                console.log('Packages ::', packageData);
                 return packageData;
             }
             catch (err) {

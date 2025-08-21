@@ -16,20 +16,17 @@ export class PackageService implements IPackageService{
      ){}
     async addPackage(packageData: TPackage ):Promise<boolean>{
          try{
-            console.log('Package Data ::',packageData);
            const data = await this._packageRepository.createNewData(packageData);
            if(data) {
            const adminId : string | null =await this._adminRepository.findAdminId();
            if(adminId){
                 const notification : TNotification = {
- 
                     userId :adminId,
                     title:'Package',
                     message:`${data.name} is created !`,
                 }
                  const res = await this._notificationService.createNewNotification(notification);
-                 console.log('Notification created succesfully ::',res);
-            }
+                }
             return true;
            }
            else return false;
@@ -40,9 +37,7 @@ export class PackageService implements IPackageService{
     } 
     async editPackage(packageId: string,packageData : TPackage) : Promise<boolean>{
       try{
-            console.log("Package edit in service !");
             const { ...updatedPackage }: TPackageUpdate = packageData;
-            console.log("Updated package ::", updatedPackage,"Package Data ::",packageData);
             const result =  await this._packageRepository.editPackage(packageId,updatedPackage);
             if(result) return true;
             else return false;
@@ -81,31 +76,28 @@ export class PackageService implements IPackageService{
     async getCategoryPackages() : Promise<TPackage[]>{
         try{
             const categories = await this._packageRepository.getCategoryPackages();
-             console.log("Categories ::",categories);
-             return categories;
+            return categories;
         }catch(err){
             throw err;
         }
     }
     async advanceSearch(query: QueryString) : Promise<TPackageResult> {
          try{
-               return await this._packageRepository.advanceSearch(query);
-         }catch(err){
+             return await this._packageRepository.advanceSearch(query);
+        }catch(err){
              throw err;
          }
     }
     async verifyPackage(packageId : string,value : string): Promise<boolean>{
         try{
-              console.log('Admin Verify Package :',packageId);
-              if (!packageId) {
+             if(!packageId){
                   throw new Error(`Package with ID ${packageId} not found`);
               }
               const result = await this._packageRepository.updateOneById(packageId,{
                   isVerified: value
                });
                if(result) {
-                   console.log("Result is ::",result);
-                   return true;
+                  return true;
                } return false;
         }catch(err){
             throw err; 

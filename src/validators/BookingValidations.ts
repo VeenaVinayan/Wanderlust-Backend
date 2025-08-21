@@ -38,6 +38,7 @@ export const bookingValidation = (bookingData: BookingInput): string[] => {
 
 export const sanitizeBooking = (bookingData: BookingInput): any => {
   return {
+    
     ...bookingData,
     email: validator.normalizeEmail(bookingData.email || ''),
     totalAmount: parseFloat(bookingData.totalAmount.toString()),

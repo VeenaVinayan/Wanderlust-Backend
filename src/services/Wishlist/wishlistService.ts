@@ -34,9 +34,9 @@ export class WishlistService implements IWishlistService{
              throw err;
         }
      }
-     async deleteWishlist(id : string) : Promise<boolean> {
+     async deleteWishlist(wishlistId : string) : Promise<boolean> {
           try{
-               return await this._wishlistRepository.deleteOneById(id);
+               return await this._wishlistRepository.deleteOneById(wishlistId);
           }catch(err){
                 throw err;
           }

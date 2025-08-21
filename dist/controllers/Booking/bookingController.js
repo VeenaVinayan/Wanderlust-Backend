@@ -33,10 +33,8 @@ const PasswordReset_1 = require("../../enums/PasswordReset");
 let BookingController = class BookingController {
     constructor(_bookingService) {
         this._bookingService = _bookingService;
-        this.bookPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.bookPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                //const resultValue = await this._bookingService.validateBooking(req.body);
-                console.log("Booking Data ::", req.body);
                 const result = yield this._bookingService.bookPackage(req.body);
                 if (result) {
                     yield this._bookingService.sendConfirmationEmail(result);
@@ -47,13 +45,11 @@ let BookingController = class BookingController {
                 }
             }
             catch (error) {
-                console.error('Error retrieving booking data:', error);
-                throw error;
+                next(error);
             }
         }));
-        this.getBookingData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getBookingData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Get Booking Data ", req.query);
                 const { id } = req.params;
                 const { page, perPage, search, sortBy, sortOrder } = req.query;
                 const filterParams = {
@@ -67,7 +63,6 @@ let BookingController = class BookingController {
                     }
                 };
                 const data = yield this._bookingService.getBookingData(filterParams);
-                console.log("Booking Data ::", data);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: 'Booking data retrieved successfully', data });
                 }
@@ -76,13 +71,11 @@ let BookingController = class BookingController {
                 }
             }
             catch (error) {
-                console.error('Error retrieving booking data:', error);
-                throw error;
+                next(error);
             }
         }));
-        this.getAgentBookingData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAgentBookingData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get Agent  Booking Data !');
                 const { id } = req.params;
                 const filterParams = {
                     id,
@@ -103,12 +96,11 @@ let BookingController = class BookingController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.updateBookingStatusByAgent = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.updateBookingStatusByAgent = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Update Booking Status by Agent !!');
                 const { bookingId } = req.params;
                 const { status } = req.body;
                 if (!bookingId || !status) {
@@ -124,10 +116,10 @@ let BookingController = class BookingController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getBookingDataToAdmin = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getBookingDataToAdmin = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const filterParams = {
                     page: Number(req.query.page),
@@ -139,7 +131,6 @@ let BookingController = class BookingController {
                     }
                 };
                 const data = yield this._bookingService.getBookingDataToAdmin(filterParams);
-                console.log("Booking Data is ::", data);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
                 }
@@ -148,10 +139,10 @@ let BookingController = class BookingController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.cancelBooking = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.cancelBooking = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { bookingId } = req.body;
                 const result = yield this._bookingService.cancelBooking(String(bookingId));
@@ -173,14 +164,13 @@ let BookingController = class BookingController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getPackageBooking = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getPackageBooking = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId } = req.params;
                 const { page, perPage, searchParams } = req.query;
-                console.log('Get packages : ,packagId, searchParams', packageId, searchParams);
                 const filterParams = {
                     id: packageId,
                     page: Number(page),
@@ -192,14 +182,13 @@ let BookingController = class BookingController {
                     }
                 };
                 const data = yield this._bookingService.getPackageBookingData(filterParams);
-                console.log("Package Data is :: ", data);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getDashboard = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getDashboard = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._bookingService.getDashboard();
                 if (data) {
@@ -210,10 +199,10 @@ let BookingController = class BookingController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.validateBooking = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.validateBooking = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId, day } = req.query;
                 if (!packageId || !day) {
@@ -221,12 +210,10 @@ let BookingController = class BookingController {
                     return;
                 }
                 const data = yield this._bookingService.validateBooking(String(packageId), new Date(String(day)));
-                console.log("Validation Data ::", JSON.stringify(data === null || data === void 0 ? void 0 : data.tripDate));
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
-                console.log('Validate Booking ', req.body);
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

@@ -30,7 +30,6 @@ const WalletSchema = new mongoose_1.default.Schema({
             },
             bookingId: {
                 type: String,
-                required: true,
             }
         }]
 }, { timestamps: true });

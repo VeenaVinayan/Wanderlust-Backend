@@ -35,59 +35,6 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
-                // const chatUsers: IChatUsers[] | null = await Message.aggregate([
-                //   {
-                //     $match: {
-                //       $or: [
-                //         { sender: userObjectId },
-                //         { receiver: userObjectId }
-                //       ]
-                //     }
-                //   },
-                //   {
-                //     $addFields: {
-                //       otherUser: {
-                //         $cond: [
-                //           { $eq: ["$sender", userObjectId] },
-                //           "$receiver",
-                //           "$sender"
-                //         ]
-                //       }
-                //     }
-                //   },
-                //   {
-                //     $sort: { createdAt: -1 } 
-                //   },
-                //   {
-                //     $group: {
-                //       _id: "$otherUser",
-                //       lastMessageTime: { $first: "$createdAt" },
-                //       lastMessage: { $first: "$content" } 
-                //     }
-                //   },
-                //   {
-                //     $lookup: {
-                //       from: "users",
-                //       localField: "_id",
-                //       foreignField: "_id",
-                //       as: "user"
-                //     }
-                //   },
-                //   {
-                //     $unwind: "$user"
-                //   },
-                //   {
-                //     $project: {
-                //       _id: "$user._id",
-                //       name: "$user.name",
-                //       lastMessageTime: 1,
-                //       lastMessage: 1 
-                //     }
-                //   },
-                //   {
-                //     $sort: { lastMessageTime: -1 } 
-                //   }
-                // ]);
                 const chatUsers = yield Message_1.default.aggregate([
                     {
                         $match: {
@@ -169,7 +116,6 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
                 }, {
                     $set: { isRead: true }
                 });
-                console.log("REsult after update message Count = ", result);
                 const messages = yield this._messageModel.find({
                     $or: [
                         { sender: sender, receiver: receiver },

@@ -14,29 +14,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isBlocked = void 0;
 const User_1 = __importDefault(require("../models/User"));
+const HttpStatusCode_1 = require("../enums/HttpStatusCode");
+const StatusMessage_1 = require("../enums/StatusMessage");
 const isBlocked = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         if (!userId) {
-            res.status(401).json({ message: "Unauthorized: User ID not found" });
+            res.status(HttpStatusCode_1.HttpStatusCode.UNAUTHORIZED).json({ message: StatusMessage_1.StatusMessage.UNAUTHORIZED });
             return;
         }
         const user = yield User_1.default.findById(userId);
         if (!user) {
-            res.status(404).json({ message: "User not found" });
+            res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.USER_NOT_FOUND });
             return;
         }
         if (!user.status) {
-            console.log("Block User !! true !!");
-            res.status(403).json({ message: "Access denied: You have been blocked" });
+            res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ message: StatusMessage_1.StatusMessage.BLOCKED });
             return;
         }
         next();
     }
     catch (error) {
-        console.error("Error in isBlocked middleware", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
     }
 });
 exports.isBlocked = isBlocked;

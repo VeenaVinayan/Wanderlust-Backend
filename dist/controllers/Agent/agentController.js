@@ -34,11 +34,11 @@ const StatusMessage_1 = require("../../enums/StatusMessage");
 let AgentController = class AgentController {
     constructor(_agentService) {
         this._agentService = _agentService;
-        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileType } = req.body;
             if (!fileType) {
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
-                    .json({ message: "File types are required !" });
+                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                    .json({ message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 return;
             }
             try {
@@ -46,14 +46,17 @@ let AgentController = class AgentController {
                 res.status(200).json({ response });
             }
             catch (error) {
-                console.error('Error generating signed Urls:', error);
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
-                    .json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+                next(error);
             }
         }));
         this.uploadCertificate = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
             const { publicUrl } = req.body;
+            if (!id || !publicUrl) {
+                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                    .json({ message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                return;
+            }
             const response = yield this._agentService.uploadCertificate(id, publicUrl);
             if (response) {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
@@ -71,7 +74,7 @@ let AgentController = class AgentController {
                 res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
             }
         }));
-        this.getSignedUrls = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getSignedUrls = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileTypes } = req.body;
             if (!fileTypes) {
                 res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
@@ -83,29 +86,27 @@ let AgentController = class AgentController {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.deleteImages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.deleteImages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const deleteImages = req.body;
                 yield s3Service_1.s3Service.deleteImages(deleteImages);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getDashboardData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getDashboardData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { agentId } = req.params;
                 const data = yield this._agentService.getDashboardData(agentId);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                console.error('Error fetching dashboard data:', err);
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
-                    .json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+                next(err);
             }
         }));
     }

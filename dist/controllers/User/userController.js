@@ -33,12 +33,10 @@ const stripePayment_1 = __importDefault(require("../../config/stripePayment"));
 let UserController = class UserController {
     constructor(_userService) {
         this._userService = _userService;
-        this.updateProfile = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.updateProfile = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('UPdate User profile !!');
                 const { name, phone } = req.body;
-                const userId = req.params.id;
-                console.log("User id is ", userId);
+                const userId = req.params.userId;
                 const data = yield this._userService.updateUser(userId, name, phone);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
@@ -48,12 +46,11 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.resetPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.resetPassword = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Reset password !!');
                 const response = yield this._userService.resetPassword(req);
                 switch (response) {
                     case 1:
@@ -73,10 +70,10 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getCategories = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._userService.getCategories();
                 if (data) {
@@ -87,11 +84,10 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                console.log("Error in Get Categories !!", err);
-                throw err;
+                next(err);
             }
         }));
-        this.getPackages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getPackages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._userService.getPackages();
                 if (data) {
@@ -102,14 +98,12 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                console.log('Error in Get Packages !!');
-                throw err;
+                next(err);
             }
         }));
-        this.stripePayment = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.stripePayment = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { price, packageName } = req.body;
-                console.log("Booking Data ::", req.body);
                 const data = yield stripePayment_1.default.createCheckoutSession({ price, packageName });
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
@@ -119,14 +113,12 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                console.log('Error in Stripe Payment !!');
-                throw err;
+                next(err);
             }
         }));
-        this.addReview = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.addReview = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { reviewData } = req.body;
-                console.log('Values in add Review ::', reviewData);
                 const result = yield this._userService.addReview(reviewData);
                 if (result) {
                     res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
@@ -136,12 +128,11 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getReview = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getReview = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get Review controller !!');
                 const { userId, packageId } = req.query;
                 const review = yield this._userService.getReview(String(userId), String(packageId));
                 if (review) {
@@ -152,13 +143,12 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.deleteReview = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.deleteReview = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { reviewId } = req.query;
-                console.log('Delete REview !!', reviewId);
                 if (!reviewId) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                 }
@@ -171,13 +161,12 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getReviews = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getReviews = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId } = req.params;
-                console.log('DAta in get Reviews ::', packageId);
                 if (!packageId) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
@@ -186,10 +175,10 @@ let UserController = class UserController {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getWallet = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getWallet = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.params;
                 const { page, perPage, search, sortBy, sortOrder } = req.query;
@@ -211,14 +200,13 @@ let UserController = class UserController {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.editReview = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.editReview = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { review, rating } = req.body;
                 const { reviewId } = req.params;
-                console.log('Data in edit Review ::', review, rating, reviewId);
                 if (!reviewId || !review || !rating) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
@@ -232,17 +220,17 @@ let UserController = class UserController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getUserDetails = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getUserDetails = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.params;
                 const data = yield this._userService.userDetails(userId);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

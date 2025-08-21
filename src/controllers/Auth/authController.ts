@@ -17,7 +17,6 @@ export class AuthController{
 
    register = asyncHandler(async (req: Request, res: Response) => {
     try {
-      console.log('IN authController !!', req.body);
       const  user  = await this._authService.register(req.body);
       if (user) {
          res.status(HttpStatusCode.CONFLICT).json({
@@ -31,7 +30,6 @@ export class AuthController{
         });
       }
     } catch (error) {
-      console.error('Error in register:', error);
       throw error;
     }
 });
@@ -45,14 +43,12 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
           res.status(HttpStatusCode.BAD_REQUEST).json({success:false,message:StatusMessage.INVALID_OTP})
        }
     }catch(err){
-       console.error('Error in otpSubmit:', err);
        throw err;
     }
   });
  resendOtp = asyncHandler(async(req:Request, res: Response): Promise <void> =>{
      try{
         const response = await this._authService.resendOtp(req.body.email);
-        console.log(" Resend otp ::",response)
         res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SENT_MAIL});
      }catch(err){
          throw err;
@@ -60,7 +56,6 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   });
   login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
-        console.log("Login Controller! Values:");
         const response: LoginResponse | string = await this._authService.login(req.body);
         if (typeof response === "string") {
           if(response ==="User"){ 
@@ -88,23 +83,18 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
             return;
         }
     } catch (err) {
-        console.error("Error in login controller:", err);
         throw err;
     }
  });
  getAccessToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
-        console.log("Refresh Token Controller!");
-        if (!req.cookies || !req.cookies.token) {
+       if (!req.cookies || !req.cookies.token) {
             res.status(HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage.REFRESH_TOKEN_MISSING});
             return;
         }
         const refreshToken = req.cookies.token;
-        console.log("Refresh Token:", refreshToken);
-
         const accessToken = await this._authService.getAccessToken(refreshToken);
-
-        if (accessToken) {
+       if (accessToken) {
             res.status(HttpStatusCode.OK).json({ success: true, accessToken });
         } else {
             res.status(HttpStatusCode.UNAUTHORIZED).json({ error: true, message:StatusMessage.REFRESH_TOKEN_EXPIRY });
@@ -115,8 +105,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     }
   })
   logout = asyncHandler(async (req:Request, res: Response) :Promise<void> =>{
-     console.log('Logout countroller !');
-     res.clearCookie('token',{
+    res.clearCookie('token',{
         httpOnly: true,
         sameSite:"none",
         secure:true,
@@ -129,8 +118,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
       res.status(HttpStatusCode.BAD_REQUEST).json({success:false,message:StatusMessage.MISSING_REQUIRED_FIELD});
       return;
     }
-    console.log('Forgot Password controller : Email !',email);
-    const response = await this._authService.forgotPassword(email);
+   const response = await this._authService.forgotPassword(email);
     if(response){
       res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SENT_MAIL});
     }else{
@@ -138,7 +126,6 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     }
   })
   resetPassword = asyncHandler(async(req:Request, res: Response) :Promise<void> =>{
-     console.log(" Reset password Controller !",req.body);
      const {password,token } = req.body;
      const response = await this._authService.resetPassword(token,password)
      if(response){
@@ -169,7 +156,6 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
            }
            const accessToken = generateAccessToken(payloadJwt);
            const refreshToken =generateRefreshToken(payloadJwt);
-           console.log("Token ::: ",accessToken,refreshToken);
            res.cookie("token", refreshToken, {
             httpOnly: true,
             sameSite:"none",
@@ -184,17 +170,13 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
            role:payload.role,
            status:payload.status,
          }
-         console.log('User data ::',user);
          res.status(HttpStatusCode.OK).json({
              message:StatusMessage.CREATED,data:{
               accessToken,
               user
          }});
         }catch(error){
-           console.error('Google Auth error :',error);
-           res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-             message:StatusMessage.INTERNAL_SERVER_ERROR
-           })
+           throw error;
         }
      })
 }

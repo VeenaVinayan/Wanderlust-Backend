@@ -32,18 +32,14 @@ export class AdminRepository implements IAdminRepository {
                              .select("_id name email phone status"),
                     this._userModel.countDocuments(query).exec()
              ]);
-             console.log("Total Count ::",totalCount);
             return { data,totalCount};
          }catch(error){
-             console.error("Error fetching users:",error);
-             throw new Error("Error fetching users !");
+            throw new Error("Error fetching users !");
         }
      }
      async blockOrUnblock (id:string): Promise<boolean> {
         try{
-            console.log("Error in block/unblock User in repository !!",id);
             const user = await this._userModel.findById(id);
-            console.log('After search:',user);
             if(user){
                 user.status = !user.status
                 const res =await user.save();
@@ -66,42 +62,6 @@ export class AdminRepository implements IAdminRepository {
                   {'userData.email':{$regex:searchParams.search,$options:'i'}},
                ]
             }
-            // return await this._agentModel.aggregate([
-            //     {
-            //       $match: { isVerified: "Uploaded"}
-            //     },
-            //     {
-            //       $facet: {
-            //         metadata: [{ $count: "total" }],
-            //         data: [
-            //           { $skip: (page - 1) * perPage },
-            //           { $limit: perPage },
-            //           {
-            //             $lookup: {
-            //               from: "users",
-            //               localField: "userId",
-            //               foreignField: "_id",
-            //               as: "userData"
-            //             }
-            //           },
-            //           { $unwind: "$userData" },
-            //           {
-            //             $match: {query}
-            //           },
-            //           {
-            //             $project: {
-            //               _id: 1,
-            //               license: 1,
-            //               name: "$userData.name",
-            //               email: "$userData.email",
-            //               phone: "$userData.phone",
-
-            //             }
-            //           }
-            //         ]
-            //       }
-            //     }
-            //   ]);
             const data =  await this._agentModel.aggregate([
             {
                $match: { isVerified: "Uploaded" }
@@ -143,21 +103,18 @@ export class AdminRepository implements IAdminRepository {
                }
             }
             ]);
-               console.log("Pending Agent Data ::",data);
                const pendingAgent : IPendingAgentResponse = {
                    data : data[0]?.data || [],
                    totalCount:data[0]?.metadata[0]?.total || 0,
                }
                return pendingAgent;
          }catch(err){
-             console.log('Error in fetch pending data in Repository !!');
-             throw err;
+            throw err;
          }
      }
      async agentApproval(agentId: string): Promise<boolean> {
           try{
-              console.info('Agent approval');
-              const result = await this._agentModel.updateOne({_id:agentId},{
+            const result = await this._agentModel.updateOne({_id:agentId},{
                 $set: { isVerified: "Approved"}
               })
               if(result.matchedCount === 1 && result.modifiedCount===1){
@@ -166,13 +123,11 @@ export class AdminRepository implements IAdminRepository {
                  return false;
               }
           }catch(err){
-             console.log('Error in Agent Approval !!');
-             throw err;
+            throw err;
           }
      }
      async rejectAgentRequest(agentId: string): Promise<boolean> {
         try{
-            console.info('Agent approval');
             const result = await this._agentModel.updateOne({_id:agentId},{
               $set: { isVerified: "Rejected"}
             })
@@ -182,7 +137,6 @@ export class AdminRepository implements IAdminRepository {
                return false;
             }
         }catch(err){
-           console.log('Error in Agent Approval !!');
            throw err;
         }
    }

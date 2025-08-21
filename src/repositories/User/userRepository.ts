@@ -5,7 +5,7 @@ import { LoginResult  } from "../../interface/Interface";
 import Category from '../../models/Category';
 import { ICategoryValue , IReviewData , IReviewResponse , IReviews, TReviewEdit} from '../../Types/user.types'
 import Package from "../../models/Package";
-import { TPackage, TPackageData } from  '../../Types/Package.types';
+import { TPackageData } from  '../../Types/Package.types';
 import Review from '../../models/Review';
 import Wallet , { IWallet } from '../../models/Wallet';
 import  mongoose ,{ FilterQuery}  from 'mongoose';
@@ -22,8 +22,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
      }
     async updateProfile( userId: string, name:string,phone:string) :Promise<LoginResult | null> {
            try{
-                console.log('In user Repository !',userId,name,phone);
-                return await this._userModel.findByIdAndUpdate(userId,
+               return await this._userModel.findByIdAndUpdate(userId,
                   {name,phone},
                   {new : true} )
            }catch(err){
@@ -36,21 +35,18 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
             console.log('Inside Repository !!');
             return await this._categoryModel.find({status:true},{_id:1,name:1,image:1})
       }catch(err){
-           console.log('Error in Get Category in Landing page!!');
-           throw err;
+          throw err;
       }
      }
      async getPackages(): Promise<TPackageData[]>{
        try{
-            console.log('Fetch Packages !');
-            return await this._packageModel.find({status:true})
+           return await this._packageModel.find({status:true})
                                             .populate({ path: 'agent', select: '_id name email phone' })
                                             .sort({price:-1}) 
                                             .limit(6)
                                             .lean() as unknown as TPackageData[]; 
        }catch(err){
-            console.log('Error in get Packages !!!');
-            throw err;
+          throw err;
        }
      }
      async addReview(reviewData : IReviewData): Promise<boolean>{
@@ -85,7 +81,6 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
           try{
                console.log('in repository get Reviews ::',packageId);
                const data = await this._reviewModel.find({packageId}).populate('userId','name createdAt').lean();
-               console.log("DAta is ::",data, typeof data);
                return data;
           }catch(err){
                throw err;
@@ -93,7 +88,6 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
      } 
      async getWallet(userId : string, filterParams : FilterParams) : Promise<Object | null>{
           try{
-              console.log('IN Wallet Repository :::' , filterParams);
               const { id, page, perPage, searchParams } = filterParams;
               const data : IWallet | null = await this._walletModel.findOne({userId});
               if(!data){
@@ -129,6 +123,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
                                amount: '$transaction.amount',
                                description: '$transaction.description',
                                transactionDate: '$transaction.transactionDate',
+                               bookingId: '$transaction.bookingId',
                            },
                         },
                     ],

@@ -23,8 +23,8 @@ const chatController = container.get<ChatController>('ChatController');
 const agentController = container.get<AgentController>('AgentController');
 const notificationController = container.get<NotificationController>('NotificationController');
 
-router.patch('/users/update/:id',auth,roleAuth.checkRole(['User']),isBlocked,userController.updateProfile);
-router.patch('/users/update-password/:id',auth,roleAuth.checkRole(['User']),isBlocked,userController.resetPassword);
+router.patch('/users/update/:userId',auth,roleAuth.checkRole(['User']),isBlocked,userController.updateProfile);
+router.patch('/users/update-password/:userId',auth,roleAuth.checkRole(['User']),isBlocked,userController.resetPassword);
 router.get('/category',userController.getCategories);
 router.get('/packages',userController.getPackages);
 router.get('/packages-category',packageController.getCategoryPackages);

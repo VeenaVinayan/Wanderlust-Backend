@@ -29,12 +29,12 @@ const inversify_1 = require("inversify");
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const packageMapper_1 = __importDefault(require("../../mapper/packageMapper"));
 let PackageController = class PackageController {
     constructor(_packageService) {
         this._packageService = _packageService;
-        this.addPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.addPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Add Package !!');
                 const data = yield this._packageService.addPackage(req.body);
                 if (data) {
                     res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json(StatusMessage_1.StatusMessage.CREATED);
@@ -44,13 +44,11 @@ let PackageController = class PackageController {
                 }
             }
             catch (err) {
-                console.log('Error in Add Package !!');
-                throw err;
+                next(err);
             }
         }));
-        this.editPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.editPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Edit Package");
                 const { packageId } = req.params;
                 const packageData = req.body;
                 const result = yield this._packageService.editPackage(packageId, packageData);
@@ -62,10 +60,10 @@ let PackageController = class PackageController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.deletePackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.deletePackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId } = req.params;
                 const response = yield this._packageService.deletePackage(packageId);
@@ -77,10 +75,10 @@ let PackageController = class PackageController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getPackages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getPackages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const filterParams = {
                     page: Number(req.query.page),
@@ -91,14 +89,19 @@ let PackageController = class PackageController {
                         sortOrder: req.query.sortOrder || 'des',
                     }
                 };
-                const packages = yield this._packageService.findPackages(filterParams);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data: packages });
+                const result = yield this._packageService.findPackages(filterParams);
+                const packages = packageMapper_1.default.userPackageData(result.packages);
+                const data = {
+                    packages: packages,
+                    totalCount: result.totalCount,
+                };
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getAgentPackages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAgentPackages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id } = req.params;
                 const filterParams = {
@@ -115,29 +118,34 @@ let PackageController = class PackageController {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data: packages });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getCategoryPackages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getCategoryPackages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const packages = yield this._packageService.getCategoryPackages();
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ packages });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.advanceSearch = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.advanceSearch = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('Advance Search ::', req.query);
-                const data = yield this._packageService.advanceSearch(req.query);
+                const result = yield this._packageService.advanceSearch(req.query);
+                const packages = packageMapper_1.default.userPackageData(result.packages);
+                const data = {
+                    packages: packages,
+                    totalPackages: result.totalCount,
+                };
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.verifyPackage = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.verifyPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { packageId } = req.params;
                 const { value } = req.body;
@@ -150,7 +158,7 @@ let PackageController = class PackageController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

@@ -7,11 +7,12 @@ import  bcryptjs  from 'bcryptjs' ;
 import {IUser } from '../../models/User';
 import { TPackageData } from '../../Types/Package.types';
 import { ICategoryValue, IReviewData, IReviewResponse, TReviewEdit } from '../../Types/user.types';
-import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
 import { FilterParams } from '../../Types/Booking.types';
 import  AgentMapper  from '../../mapper/userMapper';
 import { IAgentChatDataDTO } from '../../DTO/userDTO';
+import packageMapper from '../../mapper/packageMapper';
+import { TPackageDataDTO } from "../../DTO/packageDTO";
 
 @injectable()
 export class UserService implements IUserService {
@@ -34,15 +35,15 @@ export class UserService implements IUserService {
                  return user;
              }else return null;
         }catch(err){
-               throw err;
+            throw err;
          }
     }
   
  async resetPassword(req: Request): Promise<ResetPasswordResult> {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    const user = await this._userRepository.findOneById(id);
+    const user = await this._userRepository.findOneById(userId);
     if (!user) {
       return ResetPasswordResult.USER_NOT_FOUND;
     }
@@ -58,7 +59,7 @@ export class UserService implements IUserService {
 
     const hashedPassword = await bcryptjs.hash(newPassword, 10);
 
-    const updateResult = await this._userRepository.updateOneById(id, {
+    const updateResult = await this._userRepository.updateOneById(userId, {
       password: hashedPassword,
     });
 
@@ -68,8 +69,7 @@ export class UserService implements IUserService {
     throw err;
   }
 }
-
-    async getCategories():Promise<ICategoryValue[]>{
+  async getCategories():Promise<ICategoryValue[]>{
         try{
             return await this._userRepository.getCategories();
         }catch(err){
@@ -77,12 +77,14 @@ export class UserService implements IUserService {
             throw err;
         }
     }
-    async  getPackages() : Promise<TPackageData[]>{
-         try{
-            return await this._userRepository.getPackages();
-         }catch(err){
+    async  getPackages() : Promise<TPackageDataDTO[]>{
+        try{
+            const data =  await this._userRepository.getPackages();
+            const packages : TPackageDataDTO []= packageMapper.userPackageData(data);
+            return packages; 
+        }catch(err){
             throw err;
-         }
+        }
     }
     async addReview( reviewData : IReviewData) : Promise<boolean>{
         try{

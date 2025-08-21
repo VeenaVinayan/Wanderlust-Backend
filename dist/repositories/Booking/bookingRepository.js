@@ -37,11 +37,10 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                         { tripStatus: { $regex: searchParams.search, $options: 'i' } },
                     ];
                 }
-                console.log("Query ::", searchParams);
                 const [data, totalCount] = yield Promise.all([
                     this._bookingModel.find(query)
-                        .sort({ bookingDate: -1 })
-                        .populate({ path: 'packageId', select: 'name images price description day night itinerary' })
+                        .sort({ [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 })
+                        .populate({ path: 'packageId', select: 'name images price description day night itinerary agent' })
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .exec(),
@@ -59,7 +58,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                console.log('getAgent Data');
                 const { id, page, perPage, searchParams } = filterParams;
                 const searchRegex = searchParams.search
                     ? { $regex: searchParams.search, $options: 'i' }
@@ -104,7 +102,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                                     phone: '$phone',
                                     tripStatus: '$tripStatus',
                                     totalGuest: '$totalGuest',
-                                    totalAmount: '$totalAmount', // ✅ Fixed typo
+                                    totalAmount: '$totalAmount',
                                 },
                             },
                         },
@@ -141,7 +139,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             try {
                 const { page, perPage, searchParams } = filterParams;
                 const skip = (page - 1) * perPage;
-                console.log(' DAta value is ::', page, perPage, skip);
                 const query = {};
                 if (searchParams.search) {
                     query.$or = [
@@ -161,7 +158,7 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                     },
                     { $unwind: '$packages' },
                     { $match: query },
-                    { $sort: { bookingDate: -1 } },
+                    { $sort: { [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 } },
                     {
                         $facet: {
                             metadata: [
@@ -177,11 +174,9 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 ]);
                 const data = result[0].data;
                 const totalCount = ((_a = result[0].metadata[0]) === null || _a === void 0 ? void 0 : _a.total) || 0;
-                console.log("REsult :::", data, totalCount);
                 return { data, totalCount };
             }
             catch (error) {
-                console.error('Error retrieving booking data:', error);
                 throw new Error('Internal server error');
             }
         });
@@ -189,7 +184,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
     creditToWallet(walletData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Credit to Wallet !!');
                 const wallet = new Wallet_1.default(walletData);
                 const result = yield wallet.save();
                 return result;
@@ -202,7 +196,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
     getWallet(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get Wallet Data !!', userId);
                 const wallet = yield this._walletModel.findOne({ userId });
                 return wallet;
             }
@@ -211,15 +204,16 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
             }
         });
     }
-    updateWallet(userId, amount, description) {
+    updateWallet(userId, amount, bookingId, description) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Update Wallet !!');
+                console.log("Booking Id", bookingId);
                 const updated = yield this._walletModel.updateOne({ userId }, {
                     $inc: { amount: amount },
                     $push: {
                         transaction: {
                             amount,
+                            bookingId,
                             description
                         }
                     }
@@ -414,7 +408,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                         }
                     }
                 ]);
-                console.log('Booking Data ::', data[0]);
                 return data[0] || {};
             }
             catch (err) {
@@ -453,7 +446,6 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                         }
                     }
                 ]).exec();
-                console.log("Data value = ", data[0]);
                 return data.length > 0 ? { packageName: data[0].packageName, userName: data[0].userName, agentId: data[0].agentId } : null;
             }
             catch (err) {

@@ -68,7 +68,6 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     updateOtp(otpData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Auth Repository !!! ');
                 const updatedOtp = yield this._otpModel.findOneAndUpdate({ email: otpData.email }, {
                     otp: otpData.otp,
                     createdAt: new Date(),
@@ -83,7 +82,6 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     login(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('INside Auth Repository !!');
                 let user;
                 console.log(email);
                 user = yield this._userModel.findOne({ email: email }, { _id: 1, name: 1, email: 1, password: 1, phone: 1, role: 1, status: 1 });
@@ -107,7 +105,6 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     registerAgent(agentData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Register Agent ! Repositroy');
                 const agent = new Agent_1.default(agentData);
                 yield agent.save();
                 return true;
@@ -121,7 +118,6 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     getAgentData(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get agent data !', id);
                 return yield this._agentModel.findOne({ userId: id }, { address: 1, isVerified: 1, _id: 0 }).lean();
             }
             catch (err) {

@@ -32,7 +32,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     updateProfile(userId, name, phone) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('In user Repository !', userId, name, phone);
                 return yield this._userModel.findByIdAndUpdate(userId, { name, phone }, { new: true });
             }
             catch (err) {
@@ -48,7 +47,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                 return yield this._categoryModel.find({ status: true }, { _id: 1, name: 1, image: 1 });
             }
             catch (err) {
-                console.log('Error in Get Category in Landing page!!');
                 throw err;
             }
         });
@@ -56,7 +54,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     getPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Fetch Packages !');
                 return yield this._packageModel.find({ status: true })
                     .populate({ path: 'agent', select: '_id name email phone' })
                     .sort({ price: -1 })
@@ -64,7 +61,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     .lean();
             }
             catch (err) {
-                console.log('Error in get Packages !!!');
                 throw err;
             }
         });
@@ -115,7 +111,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
             try {
                 console.log('in repository get Reviews ::', packageId);
                 const data = yield this._reviewModel.find({ packageId }).populate('userId', 'name createdAt').lean();
-                console.log("DAta is ::", data, typeof data);
                 return data;
             }
             catch (err) {
@@ -127,7 +122,6 @@ class UserRepository extends BaseRepository_1.BaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d;
             try {
-                console.log('IN Wallet Repository :::', filterParams);
                 const { id, page, perPage, searchParams } = filterParams;
                 const data = yield this._walletModel.findOne({ userId });
                 if (!data) {
@@ -163,6 +157,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                                         amount: '$transaction.amount',
                                         description: '$transaction.description',
                                         transactionDate: '$transaction.transactionDate',
+                                        bookingId: '$transaction.bookingId',
                                     },
                                 },
                             ],

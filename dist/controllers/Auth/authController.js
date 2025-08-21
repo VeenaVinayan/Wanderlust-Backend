@@ -36,7 +36,6 @@ let AuthController = class AuthController {
         this._authService = _authService;
         this.register = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('IN authController !!', req.body);
                 const user = yield this._authService.register(req.body);
                 if (user) {
                     res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({
@@ -52,7 +51,6 @@ let AuthController = class AuthController {
                 }
             }
             catch (error) {
-                console.error('Error in register:', error);
                 throw error;
             }
         }));
@@ -67,14 +65,12 @@ let AuthController = class AuthController {
                 }
             }
             catch (err) {
-                console.error('Error in otpSubmit:', err);
                 throw err;
             }
         }));
         this.resendOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._authService.resendOtp(req.body.email);
-                console.log(" Resend otp ::", response);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SENT_MAIL });
             }
             catch (err) {
@@ -83,7 +79,6 @@ let AuthController = class AuthController {
         }));
         this.login = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Login Controller! Values:");
                 const response = yield this._authService.login(req.body);
                 if (typeof response === "string") {
                     if (response === "User") {
@@ -114,19 +109,16 @@ let AuthController = class AuthController {
                 }
             }
             catch (err) {
-                console.error("Error in login controller:", err);
                 throw err;
             }
         }));
         this.getAccessToken = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Refresh Token Controller!");
                 if (!req.cookies || !req.cookies.token) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.REFRESH_TOKEN_MISSING });
                     return;
                 }
                 const refreshToken = req.cookies.token;
-                console.log("Refresh Token:", refreshToken);
                 const accessToken = yield this._authService.getAccessToken(refreshToken);
                 if (accessToken) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, accessToken });
@@ -141,7 +133,6 @@ let AuthController = class AuthController {
             }
         }));
         this.logout = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('Logout countroller !');
             res.clearCookie('token', {
                 httpOnly: true,
                 sameSite: "none",
@@ -155,7 +146,6 @@ let AuthController = class AuthController {
                 res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 return;
             }
-            console.log('Forgot Password controller : Email !', email);
             const response = yield this._authService.forgotPassword(email);
             if (response) {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SENT_MAIL });
@@ -165,7 +155,6 @@ let AuthController = class AuthController {
             }
         }));
         this.resetPassword = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log(" Reset password Controller !", req.body);
             const { password, token } = req.body;
             const response = yield this._authService.resetPassword(token, password);
             if (response) {
@@ -197,7 +186,6 @@ let AuthController = class AuthController {
                 };
                 const accessToken = (0, jwt_1.generateAccessToken)(payloadJwt);
                 const refreshToken = (0, jwt_1.generateRefreshToken)(payloadJwt);
-                console.log("Token ::: ", accessToken, refreshToken);
                 res.cookie("token", refreshToken, {
                     httpOnly: true,
                     sameSite: "none",
@@ -212,7 +200,6 @@ let AuthController = class AuthController {
                     role: payload.role,
                     status: payload.status,
                 };
-                console.log('User data ::', user);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                     message: StatusMessage_1.StatusMessage.CREATED, data: {
                         accessToken,
@@ -221,10 +208,7 @@ let AuthController = class AuthController {
                 });
             }
             catch (error) {
-                console.error('Google Auth error :', error);
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                    message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR
-                });
+                throw error;
             }
         }));
     }

@@ -26,6 +26,7 @@ export type TPackage = {
          stay:string;
          transfer:string;
       }[],
+      isVerified:string;
      coordinates?:{
          latitude:number,
          longitude:number,  

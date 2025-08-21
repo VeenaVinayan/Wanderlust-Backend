@@ -26,7 +26,7 @@ const server = http.createServer(app);
 initializeSocket(server);
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: process.env.CLIENT_URL,
   credentials:true,
 };
 app.use(cors(corsOptions));

@@ -15,59 +15,6 @@ export class ChatRepository extends BaseRepository<IMessage> implements IChatRep
      async getAllUsers(userId :string ): Promise< IChatUsers[]| null> {
             try{
                 const userObjectId = new mongoose.Types.ObjectId(userId);
-                // const chatUsers: IChatUsers[] | null = await Message.aggregate([
-                //   {
-                //     $match: {
-                //       $or: [
-                //         { sender: userObjectId },
-                //         { receiver: userObjectId }
-                //       ]
-                //     }
-                //   },
-                //   {
-                //     $addFields: {
-                //       otherUser: {
-                //         $cond: [
-                //           { $eq: ["$sender", userObjectId] },
-                //           "$receiver",
-                //           "$sender"
-                //         ]
-                //       }
-                //     }
-                //   },
-                //   {
-                //     $sort: { createdAt: -1 } 
-                //   },
-                //   {
-                //     $group: {
-                //       _id: "$otherUser",
-                //       lastMessageTime: { $first: "$createdAt" },
-                //       lastMessage: { $first: "$content" } 
-                //     }
-                //   },
-                //   {
-                //     $lookup: {
-                //       from: "users",
-                //       localField: "_id",
-                //       foreignField: "_id",
-                //       as: "user"
-                //     }
-                //   },
-                //   {
-                //     $unwind: "$user"
-                //   },
-                //   {
-                //     $project: {
-                //       _id: "$user._id",
-                //       name: "$user.name",
-                //       lastMessageTime: 1,
-                //       lastMessage: 1 
-                //     }
-                //   },
-                //   {
-                //     $sort: { lastMessageTime: -1 } 
-                //   }
-                // ]);
                 const chatUsers = await Message.aggregate([
                     {
                       $match: {
@@ -147,7 +94,6 @@ export class ChatRepository extends BaseRepository<IMessage> implements IChatRep
          {
             $set:{isRead:true}
          });
-      console.log("REsult after update message Count = ",result);
       const messages = await this._messageModel.find(
         {
           $or: [

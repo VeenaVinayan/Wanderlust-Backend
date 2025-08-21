@@ -27,7 +27,9 @@ export enum StatusMessage{
     REFRESH_TOKEN_EXPIRY="Refresh Token Expired !",
     REFRESH_TOKEN_MISSING="Refresh token not provided !",
     LOGOUT_SUCCESS="Logout successfully !",
-    TOKEN_EXPIRED="Token Expired fro the reset password request !!",
+    TOKEN_EXPIRED="Token Expired reset password request !!",
     EXCEEDED_CANCELLATION_LIMIT="Exceeded cancellation limit Atleast 4 days before booking!",
     ALREADY_CANCELLED="Booking already cancelled !",
+    ACCESS_DENIED="Access denied !",
+    INVALID_TOKEN="Invalid Token",
 }

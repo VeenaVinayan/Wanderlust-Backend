@@ -1,9 +1,8 @@
 import { Iuser } from "../../interface/User";
 import { IUpdateUser } from "../../interface/User";
 import {  ICategoryValue, IReviewData, IReviewResponse, TReviewEdit } from '../../Types/user.types';
-import { TPackageData } from "../../Types/Package.types";
+import { TPackageDataDTO } from '../../DTO/packageDTO';
 import { Request }  from 'express';
-import { IWallet } from '../../models/Wallet';
 import { ResetPasswordResult } from '../../enums/PasswordReset';
 import { FilterParams } from '../../Types/Booking.types';
 import { IAgentChatDataDTO } from '../../DTO/userDTO';
@@ -12,7 +11,7 @@ export interface IUserService{
      updateUser(userId:string,name:string,phone:string):Promise<Iuser | null>;
      resetPassword(req : Request) :Promise<ResetPasswordResult>;
      getCategories():Promise<ICategoryValue[]>;
-     getPackages():Promise<TPackageData[]>;
+     getPackages():Promise<TPackageDataDTO[]>;
      addReview(reviewData : IReviewData): Promise<boolean>
      getReview(userId: string,packageId: string) : Promise<IReviewResponse | null>
      deleteReview(reviewId : string): Promise<boolean>;

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../models/User";
+import { HttpStatusCode } from '../enums/HttpStatusCode';
+import { StatusMessage } from "../enums/StatusMessage";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -15,23 +17,21 @@ export const isBlocked = async (
   try {
     const userId = req.user?._id;
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized: User ID not found" });
+      res.status(HttpStatusCode.UNAUTHORIZED).json({ message: StatusMessage.UNAUTHORIZED });
       return;
     }
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(HttpStatusCode.NOT_FOUND).json({ message:StatusMessage.USER_NOT_FOUND });
       return;
     }
     if (!user.status) {
-      console.log("Block User !! true !!");
-      res.status(403).json({ message: "Access denied: You have been blocked" });
+        res.status(HttpStatusCode.FORBIDDEN).json({ message: StatusMessage.BLOCKED });
       return;
     }
     next();
   }catch (error) {
-    console.error("Error in isBlocked middleware", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage.INTERNAL_SERVER_ERROR });
   }
 };
 

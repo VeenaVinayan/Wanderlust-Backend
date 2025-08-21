@@ -48,8 +48,7 @@ export class AuthRepository extends BaseRepository<IUser> implements IAuthReposi
      }
     async updateOtp(otpData : OtpData):Promise<string>{
      try{
-         console.log('Auth Repository !!! ');
-         const updatedOtp: string = await this._otpModel.findOneAndUpdate(
+           const updatedOtp: string = await this._otpModel.findOneAndUpdate(
             { email: otpData.email},
             {
               otp: otpData.otp,
@@ -64,8 +63,7 @@ export class AuthRepository extends BaseRepository<IUser> implements IAuthReposi
     } 
   async login(email: string): Promise<LoginResult | null>{
       try{
-                console.log('INside Auth Repository !!');
-                let user :LoginResult | null;
+               let user :LoginResult | null;
                 console.log(email);
                 user = await this._userModel.findOne({email:email},
                     {_id:1,name:1,email:1,password:1,phone:1,role:1,status:1}
@@ -87,7 +85,6 @@ export class AuthRepository extends BaseRepository<IUser> implements IAuthReposi
   }
   async registerAgent(agentData : IAgent):Promise<boolean>{
       try{
-         console.log('Register Agent ! Repositroy');
          const agent = new Agent(agentData);
          await agent.save();
          return true;
@@ -98,7 +95,6 @@ export class AuthRepository extends BaseRepository<IUser> implements IAuthReposi
   } 
   async getAgentData(id : string): Promise<IAgentResponse | null>{
       try{
-            console.log('Get agent data !',id);
             return await this._agentModel.findOne({userId:id},{address:1,isVerified:1,_id:0}).lean();
         }catch(err){
             console.error('Error in agent data fetch');

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { IBookingService } from '../../Interfaces/Booking/IBookingService';
 import { FilterParams, IDashBoardData } from '../../Types/Booking.types'
@@ -13,10 +13,8 @@ export class BookingController {
      constructor(
         @inject('IBookingService') private readonly _bookingService: IBookingService
      ){}
-     bookPackage = asyncHandler(async(req: Request, res: Response) => {
+     bookPackage = asyncHandler(async(req: Request, res: Response,next:NextFunction) => {
             try {
-                //const resultValue = await this._bookingService.validateBooking(req.body);
-                console.log("Booking Data ::",req.body);
                 const result = await this._bookingService.bookPackage(req.body);
                 if(result) {
                     await this._bookingService.sendConfirmationEmail(result);
@@ -25,13 +23,11 @@ export class BookingController {
                     res.status(HttpStatusCode.NOT_FOUND).json({ success: false, message: 'No booking data found' });
                 }
             }catch(error){
-                console.error('Error retrieving booking data:', error);
-                throw error;
+                next(error);
             }
     });
-    getBookingData = asyncHandler(async(req: Request, res: Response) => {
+    getBookingData = asyncHandler(async(req: Request, res: Response,next:NextFunction) => {
        try {
-            console.log("Get Booking Data ",req.query);
             const { id } = req.params;
             const { page , perPage , search, sortBy, sortOrder} = req.query;
             const filterParams : FilterParams = {
@@ -45,20 +41,17 @@ export class BookingController {
                 }
             }
             const data = await this._bookingService.getBookingData(filterParams);
-            console.log("Booking Data ::",data);
             if(data) {
                 res.status(HttpStatusCode.OK).json({ success: true, message: 'Booking data retrieved successfully', data });
             }else {
                 res.status(HttpStatusCode.NOT_FOUND).json({ success: false, message: 'No booking data found' });
             }
         }catch(error){
-            console.error('Error retrieving booking data:', error);
-            throw error;
+            next(error);
         }
     });
-    getAgentBookingData = asyncHandler(async(req:Request, res: Response) => {
-      try{   
-        console.log('Get Agent  Booking Data !');
+    getAgentBookingData = asyncHandler(async(req:Request, res: Response,next:NextFunction) => {
+    try{   
         const { id } = req.params;
         const filterParams : FilterParams = {
             id,
@@ -77,12 +70,11 @@ export class BookingController {
              res.status(HttpStatusCode.NOT_FOUND).json({success:false,data});
         }
     }catch(err){
-        throw err;
+        next(err);
     } 
     });
-    updateBookingStatusByAgent = asyncHandler(async(req:Request, res:Response) =>{
+    updateBookingStatusByAgent = asyncHandler(async(req:Request, res:Response,next:NextFunction) =>{
         try{
-            console.log('Update Booking Status by Agent !!');
             const { bookingId } = req.params;
             const { status } = req.body;
             if(!bookingId || ! status){
@@ -96,10 +88,10 @@ export class BookingController {
                  res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:'Not successfully updated!'});
             }
         }catch(err){
-            throw err;
+            next(err);
         }
     });
-    getBookingDataToAdmin = asyncHandler( async(req:Request, res:Response) =>{
+    getBookingDataToAdmin = asyncHandler( async(req:Request, res:Response,next:NextFunction) =>{
         try{
                 const filterParams : FilterParams = {
                 page: Number(req.query.page),
@@ -111,17 +103,16 @@ export class BookingController {
                 }
             }
              const data = await this._bookingService.getBookingDataToAdmin(filterParams);
-             console.log("Booking Data is ::",data);
-             if(data){
+            if(data){
                   res.status(HttpStatusCode.OK).json({success:true,data});
              }else{
                  res.status(HttpStatusCode.NOT_FOUND).json({success:true,data});
              }
         }catch(err){
-            throw err;
+            next(err);
         } 
     });
-    cancelBooking = asyncHandler(async(req: Request, res: Response) =>{
+    cancelBooking = asyncHandler(async(req: Request, res: Response,next:NextFunction) =>{
          try{
               const { bookingId } = req.body;
               const result : CancellBookingResult = await this._bookingService.cancelBooking(String(bookingId));
@@ -142,14 +133,13 @@ export class BookingController {
                         res.status(HttpStatusCode.NOT_FOUND).json({success:false,message:StatusMessage.NOT_FOUND});        
               }
          }catch(err){
-             throw err;
+             next(err);
          }
     })
- getPackageBooking = asyncHandler(async ( req: Request, res: Response) => {
+ getPackageBooking = asyncHandler(async ( req: Request, res: Response,next:NextFunction) => {
     try{     
      const { packageId } = req.params;
      const { page, perPage, searchParams } = req.query;
-     console.log('Get packages : ,packagId, searchParams', packageId, searchParams);
      const filterParams : FilterParams = {
         id: packageId,
         page : Number(page),
@@ -161,13 +151,12 @@ export class BookingController {
       }  
     }
      const data = await this._bookingService.getPackageBookingData(filterParams);
-     console.log("Package Data is :: ",data);
      res.status(HttpStatusCode.OK).json({success:true, data});
   }catch(err){
-    throw err;
+    next(err);
  }
 });
- getDashboard = asyncHandler(async(req: Request, res: Response) => {
+ getDashboard = asyncHandler(async(req: Request, res: Response,next:NextFunction) => {
      try{
           const data : IDashBoardData | null = await this._bookingService.getDashboard();
           if(data){
@@ -176,10 +165,10 @@ export class BookingController {
              res.status(HttpStatusCode.NOT_FOUND).json({data});     
           } 
      }catch(err){
-        throw err;
+        next(err);
      }
  } );
- validateBooking = asyncHandler(async(req:Request,res:Response) =>{
+ validateBooking = asyncHandler(async(req:Request,res:Response,next:NextFunction) =>{
      try{
             const { packageId, day} = req.query;
             if(!packageId || !day){
@@ -190,11 +179,9 @@ export class BookingController {
                 String(packageId),
                 new Date(String(day))
             );
-            console.log("Validation Data ::",JSON.stringify(data?.tripDate));
             res.status(HttpStatusCode.OK).json({success:true,data});
-            console.log('Validate Booking ',req.body);
-     }catch(err){
-         throw err;
+      }catch(err){
+         next(err);
      }
  })
 }

@@ -23,7 +23,6 @@ class AdminPackageRepository extends BaseRepository_1.BaseRepository {
     blockPackage(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Admin block / UNblock packages');
                 if (!packageId) {
                     throw new Error(`Package with ID ${packageId} not found`);
                 }

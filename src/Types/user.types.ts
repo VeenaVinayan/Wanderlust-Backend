@@ -77,3 +77,8 @@ export type TUserData ={
    data: TUser ;
    user:string;
 }
+
+export type IUserPayload = {
+  _id: string;
+  role: 'Admin' | 'User' | 'Agent';
+}

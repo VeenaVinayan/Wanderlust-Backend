@@ -32,7 +32,7 @@ const StatusMessage_1 = require("../../enums/StatusMessage");
 let NotificationController = class NotificationController {
     constructor(_notificationService) {
         this._notificationService = _notificationService;
-        this.getAllNotification = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAllNotification = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.params;
                 const data = yield this._notificationService.getAllNotifications(userId);
@@ -41,10 +41,10 @@ let NotificationController = class NotificationController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.changeNotificationStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.changeNotificationStatus = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { notificationId } = req.params;
                 const result = yield this._notificationService.changeNotificationStatus(notificationId);
@@ -56,7 +56,7 @@ let NotificationController = class NotificationController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

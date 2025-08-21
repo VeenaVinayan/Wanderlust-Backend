@@ -30,10 +30,11 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const s3Service_1 = require("../../config/s3Service");
+const categoryMapper_1 = __importDefault(require("../../mapper/categoryMapper"));
 let AdminController = class AdminController {
     constructor(_adminService) {
         this._adminService = _adminService;
-        this.getAllData = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAllData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { user, perPage, page } = req.params;
                 const search = req.query.search || '';
@@ -44,10 +45,10 @@ let AdminController = class AdminController {
             }
             catch (err) {
                 console.error(err);
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+                next(err);
             }
         }));
-        this.blockOrUnblock = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.blockOrUnblock = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             console.info("Block or unblock User in Controller !", req.body);
             try {
                 const { id } = req.body;
@@ -60,10 +61,10 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileType } = req.body;
             console.log('Get presigned url ::', fileType);
             if (!fileType) {
@@ -73,16 +74,13 @@ let AdminController = class AdminController {
             }
             try {
                 const response = yield s3Service_1.s3Service.generateSignedUrl(fileType);
-                console.log('After presigned urls ::', response);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ response });
             }
-            catch (error) {
-                console.error('Error generating signed Urls:', error);
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
-                    .json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+            catch (err) {
+                next(err);
             }
         }));
-        this.addCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.addCategory = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._adminService.addCategory(req.body);
                 if (response) {
@@ -93,10 +91,10 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getCategories = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const filterParams = {
                     page: Number(req.query.page),
@@ -107,20 +105,25 @@ let AdminController = class AdminController {
                         sortOrder: req.query.sortOrder || 'asc',
                     }
                 };
-                const data = yield this._adminService.getCategories(filterParams);
+                const result = yield this._adminService.getCategories(filterParams);
+                const categories = categoryMapper_1.default.categoryMapper(result.categories);
+                const data = {
+                    categories,
+                    totalCount: result.totalCount,
+                };
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
-                console.log('Error in get category !');
-                throw err;
+                next(err);
             }
         }));
-        this.deleteCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.deleteCategory = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Delete category in Controller !!');
                 const { categoryId } = req.params;
+                if (!categoryId) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                }
                 const response = yield this._adminService.deleteCategory(categoryId);
-                console.log(" Result :: ", response);
                 if (response) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true });
                 }
@@ -129,13 +132,15 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                console.log("Error in  Delete Category !! Controller !!", err);
-                throw err;
+                next(err);
             }
         }));
         this.isCategoryExist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { categoryName } = req.params;
+                if (!categoryName) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                }
                 const response = yield this._adminService.isExistCategory(categoryName);
                 if (!response) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true });
@@ -151,6 +156,9 @@ let AdminController = class AdminController {
         this.editCategory = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { categoryId } = req.params;
+                if (!categoryId) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                }
                 const category = req.body;
                 const response = yield this._adminService.editCategory(categoryId, category);
                 if (response) {
@@ -161,13 +169,11 @@ let AdminController = class AdminController {
                 }
             }
             catch (err) {
-                console.log("Error in Edit Cateory Controler ||");
                 next(err);
             }
         }));
         this.pendingAgentData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { perPage, page } = req.params;
                 const filterParams = {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
@@ -178,11 +184,9 @@ let AdminController = class AdminController {
                     }
                 };
                 const agentData = yield this._adminService.getPendingAgentData(filterParams);
-                console.log("Agent Data :", agentData);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, agentData });
             }
             catch (err) {
-                console.log('Error in Fetch Pending Agent Data !');
                 next(err);
             }
         }));
@@ -218,7 +222,6 @@ let AdminController = class AdminController {
         }));
         this.blockPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(" Block Package ! by Admin");
                 const { packageId } = req.params;
                 const result = yield this._adminService.blockPackage(packageId);
                 if (result) {

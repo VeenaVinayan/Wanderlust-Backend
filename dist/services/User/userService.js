@@ -29,6 +29,7 @@ const inversify_1 = require("inversify");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const PasswordReset_1 = require("../../enums/PasswordReset");
 const userMapper_1 = __importDefault(require("../../mapper/userMapper"));
+const packageMapper_1 = __importDefault(require("../../mapper/packageMapper"));
 let UserService = class UserService {
     constructor(_userRepository) {
         this._userRepository = _userRepository;
@@ -60,9 +61,9 @@ let UserService = class UserService {
     resetPassword(req) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id } = req.params;
+                const { userId } = req.params;
                 const { oldPassword, newPassword, confirmPassword } = req.body;
-                const user = yield this._userRepository.findOneById(id);
+                const user = yield this._userRepository.findOneById(userId);
                 if (!user) {
                     return PasswordReset_1.ResetPasswordResult.USER_NOT_FOUND;
                 }
@@ -74,7 +75,7 @@ let UserService = class UserService {
                     return PasswordReset_1.ResetPasswordResult.INVALID_OLD_PASSWORD;
                 }
                 const hashedPassword = yield bcryptjs_1.default.hash(newPassword, 10);
-                const updateResult = yield this._userRepository.updateOneById(id, {
+                const updateResult = yield this._userRepository.updateOneById(userId, {
                     password: hashedPassword,
                 });
                 return PasswordReset_1.ResetPasswordResult.SUCCESS;
@@ -99,7 +100,9 @@ let UserService = class UserService {
     getPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._userRepository.getPackages();
+                const data = yield this._userRepository.getPackages();
+                const packages = packageMapper_1.default.userPackageData(data);
+                return packages;
             }
             catch (err) {
                 throw err;

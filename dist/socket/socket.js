@@ -1,16 +1,30 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userSocketMap = exports.io = exports.initializeSocket = void 0;
 const socket_io_1 = require("socket.io");
 const chatSocket_1 = require("./chatSocket");
+const dotenv_1 = __importDefault(require("dotenv"));
 const userSocketMap = {};
 exports.userSocketMap = userSocketMap;
 let io;
+dotenv_1.default.config();
 const initializeSocket = (server) => {
     console.log("Inside Socket intialize file !!");
     exports.io = io = new socket_io_1.Server(server, {
         cors: {
-            origin: ["http://localhost:3000"],
+            origin: process.env.CLIENT_URL,
             methods: ["GET", "POST"],
             credentials: true
         },
@@ -22,45 +36,42 @@ const initializeSocket = (server) => {
             userSocketMap[userId] = socket.id;
         }
         (0, chatSocket_1.chatHandlers)(socket, io, userSocketMap);
-        // video-call handlers
         console.log("User socker Map ::", userSocketMap);
-        socket.on("call-user", ({ to, offer }) => {
-            const targetSocket = userSocketMap[to];
-            if (targetSocket) {
-                console.log("Call from ", userId);
-                io.to(targetSocket).emit("receive-call", {
-                    from: userId,
-                    offer,
-                });
-            }
+        socket.on("outgoing-video-call", (data) => {
+            console.log("Make an outgoing call Agent ", data);
+            const socketId = userSocketMap[data.to];
+            io.to(socketId).emit("incoming-video-call", {
+                to: data.to,
+                from: data.from,
+                callType: data.callType,
+                agentName: data.agentName,
+                roomId: data.roomId,
+            });
         });
-        socket.on("answer-call", ({ to, answer }) => {
-            const targetSocket = userSocketMap[to];
-            console.log('Answer calll from', to);
-            if (targetSocket) {
-                io.to(targetSocket).emit("call-answered", {
-                    answer,
-                });
+        socket.on("accept-incoming-call", (data) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                console.log("Receive incoming call", data);
+                const socketId = userSocketMap[data.to];
+                io.to(socketId).emit("accepted-call", Object.assign(Object.assign({}, data), { startedAt: new Date() }));
             }
+            catch (error) {
+                if (error instanceof Error)
+                    console.error("Error in accept-incoming-call handler:", error.message);
+            }
+        }));
+        socket.on("agent-call-accept", (data) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log("Agent Id is ::", data.agentId);
+            const socketId = userSocketMap[data.agentId];
+            console.log("Accept Incoming Call :: socket ::", socketId);
+            io.to(socketId).emit("agent-accept", data);
+        }));
+        socket.on("reject-call", (data) => {
+            const socketId = userSocketMap[data.to];
+            socket.to(socketId).emit("call-rejected");
         });
-        socket.on("ice-candidate", ({ to, candidate }) => {
-            const targetSocket = userSocketMap[to];
-            if (targetSocket) {
-                io.to(targetSocket).emit("ice-candidate", { candidate });
-            }
-        });
-        socket.on("end-call", ({ to }) => {
-            const targetSocket = userSocketMap[to];
-            console.log("End call from  ", to);
-            if (targetSocket) {
-                io.to(targetSocket).emit("call-ended");
-            }
-        });
-        socket.on("decline-call", ({ to }) => {
-            const targetSocket = userSocketMap[to];
-            if (targetSocket) {
-                io.to(targetSocket).emit("call-declined");
-            }
+        socket.on("leave-room", (data) => {
+            const socketId = userSocketMap[data.to];
+            socket.to(socketId).emit("user-left", data.to);
         });
         socket.on("disconnect", () => {
             console.log("User disconnected", socket.id);

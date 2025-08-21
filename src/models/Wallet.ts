@@ -35,8 +35,7 @@ const WalletSchema : Schema<IWallet> = new mongoose.Schema({
              required:true,
          },
          bookingId:{
-             type:String,
-             required:true,
+            type:String,
          }         
     }]
 },{timestamps: true}  

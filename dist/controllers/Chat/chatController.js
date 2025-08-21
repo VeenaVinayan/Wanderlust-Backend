@@ -32,22 +32,21 @@ const StatusMessage_1 = require("../../enums/StatusMessage");
 let ChatController = class ChatController {
     constructor(_chatService) {
         this._chatService = _chatService;
-        this.getAllUsers = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAllUsers = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.params;
                 if (!userId) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
-                console.log("Get alll users :", userId);
                 const users = yield this._chatService.getAllUsers(userId);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ users });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getMessages = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getMessages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sender, receiver } = req.query;
                 if (!sender || !receiver) {
@@ -55,11 +54,10 @@ let ChatController = class ChatController {
                     return;
                 }
                 const messages = yield this._chatService.getMessages(String(sender), String(receiver));
-                console.log('Messsges sent to client !');
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ messages });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

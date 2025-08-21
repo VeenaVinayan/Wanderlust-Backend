@@ -67,10 +67,10 @@ let WishlistService = class WishlistService {
             }
         });
     }
-    deleteWishlist(id) {
+    deleteWishlist(wishlistId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._wishlistRepository.deleteOneById(id);
+                return yield this._wishlistRepository.deleteOneById(wishlistId);
             }
             catch (err) {
                 throw err;

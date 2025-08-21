@@ -14,13 +14,11 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
    }
    async editPackage(packageId: string, packageData: TPackageUpdate): Promise<IPackage | null> {
       try {
-          console.log("Edit package in repository!!",packageData);
           const updatedPackage = await this._packageModel.findByIdAndUpdate(
               packageId,
               { $set: packageData },
               { new: true, runValidators: true } 
           );
-          console.log("After update ::", updatedPackage);
           return updatedPackage;
       } catch (err) {
           console.log("Error in package edit :",err);
@@ -29,7 +27,6 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
   }
   async deletePackage(packageId: string) :Promise<boolean> {
      try{
-          console.log('Delete Package agent ', packageId);
           const packageData = await this._packageModel.findOne({_id:packageId});
           if(packageData){
             packageData.status = !packageData?.status;  
@@ -66,7 +63,6 @@ export class PackageRepository extends BaseRepository<IPackage> implements IPack
             packages : data as unknown as TPackageData[],
             totalCount
         }  
-        console.log('Packages ::',packageData);  
         return packageData;
    }catch(err){
        throw err;
@@ -150,7 +146,7 @@ async advanceSearch(queryString: QueryString): Promise<TPackageResult> {
       }
     }
   
-   if (searchQuery.sort) {
+    if (searchQuery.sort) {
       if (searchQuery.sort === "price-low") sortStage.price = 1;
       else if (searchQuery.sort === "price-high") sortStage.price = -1;
       else if (searchQuery.sort === "A-Z") sortStage.name = 1;

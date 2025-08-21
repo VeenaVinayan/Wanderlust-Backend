@@ -4,7 +4,7 @@ import { IChatService } from '../../Interfaces/Chat/IChatService';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
 import { StatusMessage } from '../../enums/StatusMessage';
 
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { IChatUserDTO } from '../../DTO/chatDTO';
 import { TMessage } from '../../Types/chat.types';
 
@@ -13,21 +13,20 @@ export class ChatController{
     constructor(
          @inject('IChatService') private readonly _chatService : IChatService
     ){}
-    getAllUsers = asyncHandler(async (req: Request, res: Response) =>{
+    getAllUsers = asyncHandler(async (req: Request, res: Response,next:NextFunction) =>{
         try{
               const { userId } = req.params;
                if(!userId){
                   res.status(HttpStatusCode.BAD_REQUEST).json({message:StatusMessage.BAD_REQUEST});
                   return;
               }
-              console.log("Get alll users :",userId);
               const users : IChatUserDTO [] | null = await  this._chatService.getAllUsers(userId);
               res.status(HttpStatusCode.OK).json({users});
         }catch(err){
-             throw err;
+             next(err);
         }
     })
-    getMessages = asyncHandler(async (req: Request, res: Response) =>{
+    getMessages = asyncHandler(async (req: Request, res: Response,next: NextFunction) =>{
          try{
               const { sender, receiver } = req.query;
               if(!sender || ! receiver){
@@ -35,10 +34,9 @@ export class ChatController{
                   return;
               }
               const messages : TMessage[] = await this._chatService.getMessages(String(sender),String(receiver));
-              console.log('Messsges sent to client !');
               res.status(HttpStatusCode.OK).json({messages});
          }catch(err){
-            throw err;
+            next(err);
          }
     });
 }

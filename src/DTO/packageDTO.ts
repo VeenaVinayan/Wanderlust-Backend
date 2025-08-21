@@ -1,0 +1,32 @@
+export type TPackageDataDTO ={
+    _id:string;
+    name:string;
+    agent:{
+        id:string;
+        name:string;
+        email:string;
+        phone:string;
+    },
+    category:string;
+    description:string;
+    images:string[];
+    status:boolean;
+    day:number;
+    night:number;
+    price:number;
+    totalCapacity:number;
+    discount?:number;
+    itinerary:{
+        day:number;
+        description:string;
+        activities:string;
+        meals:string[];
+        stay:string;
+        transfer:string;
+      }[],
+      isVerified:string;
+      coordinates?:{
+        latitude:number,
+        longitude:number,  
+    } 
+}

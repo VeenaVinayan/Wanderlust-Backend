@@ -43,11 +43,9 @@ class AdminRepository {
                         .select("_id name email phone status"),
                     this._userModel.countDocuments(query).exec()
                 ]);
-                console.log("Total Count ::", totalCount);
                 return { data, totalCount };
             }
             catch (error) {
-                console.error("Error fetching users:", error);
                 throw new Error("Error fetching users !");
             }
         });
@@ -55,9 +53,7 @@ class AdminRepository {
     blockOrUnblock(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Error in block/unblock User in repository !!", id);
                 const user = yield this._userModel.findById(id);
-                console.log('After search:', user);
                 if (user) {
                     user.status = !user.status;
                     const res = yield user.save();
@@ -86,41 +82,6 @@ class AdminRepository {
                         { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
                     ];
                 }
-                // return await this._agentModel.aggregate([
-                //     {
-                //       $match: { isVerified: "Uploaded"}
-                //     },
-                //     {
-                //       $facet: {
-                //         metadata: [{ $count: "total" }],
-                //         data: [
-                //           { $skip: (page - 1) * perPage },
-                //           { $limit: perPage },
-                //           {
-                //             $lookup: {
-                //               from: "users",
-                //               localField: "userId",
-                //               foreignField: "_id",
-                //               as: "userData"
-                //             }
-                //           },
-                //           { $unwind: "$userData" },
-                //           {
-                //             $match: {query}
-                //           },
-                //           {
-                //             $project: {
-                //               _id: 1,
-                //               license: 1,
-                //               name: "$userData.name",
-                //               email: "$userData.email",
-                //               phone: "$userData.phone",
-                //             }
-                //           }
-                //         ]
-                //       }
-                //     }
-                //   ]);
                 const data = yield this._agentModel.aggregate([
                     {
                         $match: { isVerified: "Uploaded" }
@@ -161,7 +122,6 @@ class AdminRepository {
                         }
                     }
                 ]);
-                console.log("Pending Agent Data ::", data);
                 const pendingAgent = {
                     data: ((_a = data[0]) === null || _a === void 0 ? void 0 : _a.data) || [],
                     totalCount: ((_c = (_b = data[0]) === null || _b === void 0 ? void 0 : _b.metadata[0]) === null || _c === void 0 ? void 0 : _c.total) || 0,
@@ -169,7 +129,6 @@ class AdminRepository {
                 return pendingAgent;
             }
             catch (err) {
-                console.log('Error in fetch pending data in Repository !!');
                 throw err;
             }
         });
@@ -177,7 +136,6 @@ class AdminRepository {
     agentApproval(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.info('Agent approval');
                 const result = yield this._agentModel.updateOne({ _id: agentId }, {
                     $set: { isVerified: "Approved" }
                 });
@@ -189,7 +147,6 @@ class AdminRepository {
                 }
             }
             catch (err) {
-                console.log('Error in Agent Approval !!');
                 throw err;
             }
         });
@@ -197,7 +154,6 @@ class AdminRepository {
     rejectAgentRequest(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.info('Agent approval');
                 const result = yield this._agentModel.updateOne({ _id: agentId }, {
                     $set: { isVerified: "Rejected" }
                 });
@@ -209,7 +165,6 @@ class AdminRepository {
                 }
             }
             catch (err) {
-                console.log('Error in Agent Approval !!');
                 throw err;
             }
         });

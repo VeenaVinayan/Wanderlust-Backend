@@ -12,15 +12,13 @@ export class AgentService implements IAgentService{
 
      async uploadCertificate(id: string, publicUrl: string): Promise<boolean>{
           try{
-              console.log(' Upload certificate agent service !!! ');
               const result =await this._agentRepository.uploadCertificate(id,publicUrl);
               if(result.acknowledged && result.matchedCount===1 && result.modifiedCount ===1){
                  return true;
               }
               return false;
           }catch(err){
-             console.log("Error in Agent service !");
-             throw err;
+            throw err;
           }
      }
    async getCategories() : Promise<TCategoryValue[]> {
@@ -32,13 +30,11 @@ export class AgentService implements IAgentService{
              }));
              return category;
         }catch(err){
-           console.log('Error in fetch category in services !!');
-           throw err;
+            throw err;
         }
    }  
    async createPackage(packageData: TPackage) : Promise<boolean>{
        try{
-            console.log("Data ::",packageData);
             return true;
        }catch(err){
           console.log("Error in create Package !!");

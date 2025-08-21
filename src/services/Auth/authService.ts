@@ -20,17 +20,13 @@ export class AuthService implements IAuthService{
     ){}
     async register(userData : UserData):Promise<boolean>{
      try{     
-         console.log("Service ... user Data ::", userData);
          const {  email } = userData;
          const isUserExist : LoginResult| null= await this._authRepository.isUserExist(email);
         // const res: { user: boolean ; otp?: string; time?: Date } = { user: isUserExist? true:false };
         const res = isUserExist? true : false;
-         console.log("User Response :: ", res);
-         if (isUserExist === null) {
+        if (isUserExist === null) {
             const otp:string = OtpHelper.generateOtp();
             console.log("Otp is ::", otp);
-            // res.otp = otp;
-            // res.time = new Date();
             const body = OtpHelper.generateEmailBody(otp);
             await sendMail(email, "OTP Verification", body);
             await this._authRepository.saveOtp(email, otp);
@@ -78,7 +74,6 @@ export class AuthService implements IAuthService{
                        zipcode:data?.zipcode ?? "678930",
                   }, 
               }
-              console.log(" Data agent ::",Agent);
               await this._authRepository.registerAgent(Agent); 
            }
         return "success" ;
@@ -93,7 +88,6 @@ export class AuthService implements IAuthService{
   }
   async resendOtp(userEmail : string): Promise<string>{
     try{
-        console.log("Resend OTP ");
         const otpNew = OtpHelper.generateOtp();
         const body = OtpHelper.generateEmailBody(otpNew);
         sendMail(userEmail, "OTP Verification", body);
@@ -110,7 +104,6 @@ export class AuthService implements IAuthService{
   }
   async login(userData: UserLogin) : Promise<LoginResponse | string >{
     try{
-      console.log('Auth Services !!', userData);
       let res : LoginResponse;
       let response : LoginResult | null = await this._authRepository.login(userData.email);
       if(!response) return "User";
@@ -139,14 +132,12 @@ export class AuthService implements IAuthService{
               }
               if(response.role === "Agent"){
                   const agent : IAgentResponse | null = await this._authRepository.getAgentData(response.id.toString());
-                  console.log("Agent Data :::",agent)
                   if(agent){
                       res ={...res , ...agent};
                    }
               }
               return res;
           }else{
-            console.log('Invalid credentials !!')
             return "Invalid";
           }
         }catch(err){
@@ -163,8 +154,7 @@ export class AuthService implements IAuthService{
         }
     }
    async forgotPassword(email: string) :Promise<boolean>{
-      console.log('Forgot password Service !');
-      const user = await this._authRepository.isUserExist(email);
+     const user = await this._authRepository.isUserExist(email);
       if(user){
         const userId : TokenPayload ={
            id: user.id.toString(),
@@ -180,9 +170,7 @@ export class AuthService implements IAuthService{
    }
    async resetPassword(token : string ,password : string) :Promise<boolean>{
       try{
-          console.log('Reset password SErvice !!')
           const user : TokenPayload | null = verifyToken(token);
-          console.log(`User after decode Token === ${user}`);
           if(user){
               const hashPassword = await bcryptjs.hash(password,10);
               await this._authRepository.resetPassword(user.id,hashPassword);

@@ -2,34 +2,38 @@ import { Request, Response, NextFunction } from 'express';
 import { TokenPayload } from '../interface/Interface';
 import { verifyToken } from '../utils/jwt';
 import User from '../models/User';
+import { StatusMessage } from '../enums/StatusMessage';
+import { HttpStatusCode } from '../enums/HttpStatusCode';
 
 interface AuthenticatedRequest extends Request {
-     user?: any; 
+     user?: {
+          _id:string;
+     }; 
 }
 const auth = async (req: AuthenticatedRequest, res:Response, next: NextFunction) =>{
      try{
         const token = req.headers.authorization?.split(' ')[1];
         if(!token){
-             console.log('No token provided !!');
-             res.status(403).json({message:'Access denied. No token provided !'});
+             res.status(HttpStatusCode.FORBIDDEN).json({message:StatusMessage.ACCESS_DENIED});
              return;
         }
         try{
              let payload = verifyToken(token) as TokenPayload;
              const user = await User.findById(payload.id);
              if(!user){ 
-                console.log('No token provided -- by payload!!');
-                res.status(403).json({message:'Access denied. No User provided !'});
+                res.status(HttpStatusCode.FORBIDDEN).json({message:StatusMessage.ACCESS_DENIED});
                 return
              }
              req.user = user;
              next();
         }catch(err){
-             res.status(401).json({message:'Invalid Token !'});
+             res.status(HttpStatusCode.UNAUTHORIZED).json({message:StatusMessage.INVALID_TOKEN});
+             next (err);
              return;
         }
      }catch(err){
         console.error(err);
+        next(err);
      }
 }
 

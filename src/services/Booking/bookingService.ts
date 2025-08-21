@@ -7,7 +7,6 @@ import  { FilterParams, IWalletData } from '../../Types/Booking.types';
 import mailSender from '../../utils/mailSender';
 import EmailHelper from '../../helper/emailHelper';
 import { differenceInDays } from 'date-fns';
-import { INotificationRepository } from '../../Interfaces/Notification/INotificationRepository';
 import { TNotification } from '../../Types/notification';
 import { INotificationService } from '../../Interfaces/Notification/INotificationService';
 import { IBookingValue,IBookingCompleteData } from '../../Types/Booking.types';
@@ -23,7 +22,6 @@ export class BookingService implements IBookingService {
     ){}
     async bookPackage (bookingData: IBookingData) : Promise<IBooking>{
         try {
-            console.log("Inside Booking Service - bookPackage", bookingData);
             const result =  await this._bookingRepository.createNewData(bookingData);
             const data : IBookingValue | null = await this._bookingRepository.getAgentData(result._id);
             if(result && data){
@@ -33,51 +31,41 @@ export class BookingService implements IBookingService {
                    message:`${data.userName} is created new booking of package ${data.packageName}`,
                 };
                 const res = await this._notificationService.createNewNotification(notification);
-                console.log("Notification sent successfully ::",res);
-            }
+             }
             return result;
         }catch (error) {
-            console.error('Error retrieving booking data:', error);
             throw new Error('Internal server error');
         }
     }
     async getBookingData(filterParams : FilterParams): Promise<Object> {
         try {
-            console.log("Inside Booking Service - getBookingData", filterParams);
-            return await this._bookingRepository.getBookingData(filterParams)
+           return await this._bookingRepository.getBookingData(filterParams)
         }catch (error) {  
-            console.error('Error retrieving booking data:', error);
-            throw new Error('Internal server error');
+          throw new Error('Internal server error');
         }
    }
    async sendConfirmationEmail(bookingData: IBooking): Promise<void> {
         try{ 
-            console.log("Inside Booking Service - sendConformationEmail", bookingData);
-            const bookingValue :IBookingCompleteData = await this._bookingRepository.getBookingCompleteData(bookingData._id);
+           const bookingValue :IBookingCompleteData = await this._bookingRepository.getBookingCompleteData(bookingData._id);
             if(!bookingValue) {
                 throw new Error("Package not found");   
             }
-           //  const outputPath = path.join(__dirname, '../../', 'itinerary.pdf');
-           // const itineraryPdf = generateItineraryPDF(packageData,outputPath);
-           { 
+            { 
             const { email,body, title } = EmailHelper.generateBookingEmailBody(bookingValue);
             await mailSender(email,title,body);
-            console.log("Email sent successfully");
+            
            } 
            {
             const { email, body, title } = EmailHelper.generateBookingNotificationToAgent(bookingValue);
             console.log('Email to agent ::',email);
             await mailSender(email, title,body);
-            console.log("Agent Email sent successfully");
            }
         }catch(err){
-             console.log("Error in sending email", err);    
              throw err;
         }    
    }
    async getAgentBookingData( filterParams : FilterParams ) : Promise<Object>{
        try{
-              console.log('Get Agent Booking Data !!');
               const data = await this._bookingRepository.getAgentBookingData(filterParams);
               return data;
        }catch(err){
@@ -86,7 +74,6 @@ export class BookingService implements IBookingService {
    }
 async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBooking | null> {
   try {
-    console.log('Attempting to update booking status by agent:', status);
     const bookingData: IBooking | null = await this._bookingRepository.findOneById(bookingId);
     if (!bookingData) {
       console.log(' No booking data found.');
@@ -108,15 +95,15 @@ async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBo
       tripStatus: status,
       paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
     });
-   console.log('✅ Booking updated:', updatedBooking);
+  
    if (updatedBooking && status === 'Cancelled') {
       const walletData: IWalletData = {
         userId: bookingData.userId,
         amount: bookingData.totalAmount,
         transaction: {
           amount: bookingData.totalAmount,
-          description: 'Booking cancelled by agent — amount refunded',
           bookingId:bookingData.bookingId,
+          description: 'Booking cancelled by agent — amount refunded',
         }
       };
       const refundResult = await this.addToWallet(walletData);
@@ -139,7 +126,6 @@ async updateBookingStatusByAgent(bookingId: string, status: string): Promise<IBo
 }
 async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
       try{
-          console.log('Get Booking Data !!');
           const data = await this._bookingRepository.getBookingDataToAdmin(filterParams);
           return data;
       }catch(err){
@@ -148,10 +134,8 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
    }
    async cancelBooking(id: string):Promise<CancellBookingResult>{
      try{
-         console.log('Cancel Booking in service !!',id);
          const bookingData :IBooking | null= await this._bookingRepository.findOneById(id);
          if(!bookingData){
-           console.log('No booking Data !!'); 
            return CancellBookingResult.ID_NOT_FOUND;
          }
         if(bookingData.tripStatus !=='Cancelled'){ 
@@ -174,11 +158,10 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
                       bookingId:bookingData.bookingId, 
                   }
                  }
+                 console.log("Wallet Data ::",walletData);
                   const resultWallet= await this._bookingRepository.creditToWallet(walletData);
-                  console.log('Values in Wallet ::',resultWallet)
-                }else{
-                    const updateResult = await this._bookingRepository.updateWallet(bookingData.userId,amount,'Cancellation Balance payment credited !');
-                    console.log('Values in Wallet ::',updateResult)
+               }else{
+                    const updateResult = await this._bookingRepository.updateWallet(bookingData.userId,amount,bookingData.bookingId,'Cancellation Balance payment credited !');
                 }
                 const data : IBookingValue | null = await this._bookingRepository.getAgentData(id);
                 if(data) { 
@@ -193,7 +176,6 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
                     title:'Refuned amount',
                     message:`The amount ${amount} refunded after cancellation of ${data.packageName} !`,
                   }
-                  console.log("Notification ::",userNotification);
                 const res1 = await this._notificationService.createNewNotification(userNotification);
                 console.log("Notification sent successfully ::",res1);
               } 
@@ -218,7 +200,6 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
   async validateBooking(packageId :string, day : Date): Promise<IBookingValidationResult | null >{
     try{
         const data : IBookingValidationResult | null = await this._bookingRepository.validateBooking(packageId,day);
-        console.log(`Data value is ${data}`);   
         return data;     
      }catch(err){
         throw err;
@@ -249,33 +230,29 @@ async getBookingDataToAdmin(filterParams : FilterParams) : Promise<Object>{
           bookingsPerMonth:  chartData,
           topPackages:data?.topPackages,
         } 
-       console.log('Dashboard Data ::',dashboardData);
-       return dashboardData;
+        return dashboardData;
      }catch(err){
         throw err;
      }
    }
    async addToWallet(walletData: IWalletData): Promise<boolean> {
        try {
-           console.log("Adding to wallet:", walletData);
-           const wallet = await this._bookingRepository.getWallet(walletData.userId);
+          const wallet = await this._bookingRepository.getWallet(walletData.userId);
            console.log("Wallet found ::",wallet);
            if (!wallet) {
                const result = await this._bookingRepository.creditToWallet(walletData);
                return !!result
            } else {
-               const result = await this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.description);
+               const result = await this._bookingRepository.updateWallet(walletData.userId, walletData.amount,walletData.transaction.bookingId,walletData.transaction.description);
                return !!result;
            }
        } catch (error) {
-           console.error('Error adding to wallet:', error);
-           throw new Error('Internal server error');
+         throw new Error('Internal server error');
        }
    }
 }  
 async function sendConfirmationToAgent(bookingData: IBooking): Promise<void> {
     try {
-        console.log("Inside Booking Service - sendConfirmationToAgent", bookingData); 
         const bookingDetails = EmailHelper.generateBookingNotificationToAgent(bookingData._id);
     }catch(err){
        throw err;

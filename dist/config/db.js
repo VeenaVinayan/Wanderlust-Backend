@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-// Define a function to connect to MongoDB
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const URI = process.env.MONGODB_URI;

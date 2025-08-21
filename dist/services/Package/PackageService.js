@@ -44,7 +44,6 @@ let PackageService = class PackageService {
     addPackage(packageData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Package Data ::', packageData);
                 const data = yield this._packageRepository.createNewData(packageData);
                 if (data) {
                     const adminId = yield this._adminRepository.findAdminId();
@@ -55,7 +54,6 @@ let PackageService = class PackageService {
                             message: `${data.name} is created !`,
                         };
                         const res = yield this._notificationService.createNewNotification(notification);
-                        console.log('Notification created succesfully ::', res);
                     }
                     return true;
                 }
@@ -71,9 +69,7 @@ let PackageService = class PackageService {
     editPackage(packageId, packageData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Package edit in service !");
                 const updatedPackage = __rest(packageData, []);
-                console.log("Updated package ::", updatedPackage, "Package Data ::", packageData);
                 const result = yield this._packageRepository.editPackage(packageId, updatedPackage);
                 if (result)
                     return true;
@@ -130,7 +126,6 @@ let PackageService = class PackageService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const categories = yield this._packageRepository.getCategoryPackages();
-                console.log("Categories ::", categories);
                 return categories;
             }
             catch (err) {
@@ -151,7 +146,6 @@ let PackageService = class PackageService {
     verifyPackage(packageId, value) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Admin Verify Package :', packageId);
                 if (!packageId) {
                     throw new Error(`Package with ID ${packageId} not found`);
                 }
@@ -159,7 +153,6 @@ let PackageService = class PackageService {
                     isVerified: value
                 });
                 if (result) {
-                    console.log("Result is ::", result);
                     return true;
                 }
                 return false;

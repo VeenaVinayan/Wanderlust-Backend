@@ -40,17 +40,13 @@ let AuthService = class AuthService {
     register(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Service ... user Data ::", userData);
                 const { email } = userData;
                 const isUserExist = yield this._authRepository.isUserExist(email);
                 // const res: { user: boolean ; otp?: string; time?: Date } = { user: isUserExist? true:false };
                 const res = isUserExist ? true : false;
-                console.log("User Response :: ", res);
                 if (isUserExist === null) {
                     const otp = otpHelper_1.default.generateOtp();
                     console.log("Otp is ::", otp);
-                    // res.otp = otp;
-                    // res.time = new Date();
                     const body = otpHelper_1.default.generateEmailBody(otp);
                     yield (0, mailSender_1.default)(email, "OTP Verification", body);
                     yield this._authRepository.saveOtp(email, otp);
@@ -103,7 +99,6 @@ let AuthService = class AuthService {
                                     zipcode: (_f = data === null || data === void 0 ? void 0 : data.zipcode) !== null && _f !== void 0 ? _f : "678930",
                                 },
                             };
-                            console.log(" Data agent ::", Agent);
                             yield this._authRepository.registerAgent(Agent);
                         }
                         return "success";
@@ -124,7 +119,6 @@ let AuthService = class AuthService {
     resendOtp(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Resend OTP ");
                 const otpNew = otpHelper_1.default.generateOtp();
                 const body = otpHelper_1.default.generateEmailBody(otpNew);
                 (0, mailSender_1.default)(userEmail, "OTP Verification", body);
@@ -144,7 +138,6 @@ let AuthService = class AuthService {
     login(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Auth Services !!', userData);
                 let res;
                 let response = yield this._authRepository.login(userData.email);
                 if (!response)
@@ -174,7 +167,6 @@ let AuthService = class AuthService {
                     };
                     if (response.role === "Agent") {
                         const agent = yield this._authRepository.getAgentData(response.id.toString());
-                        console.log("Agent Data :::", agent);
                         if (agent) {
                             res = Object.assign(Object.assign({}, res), agent);
                         }
@@ -182,7 +174,6 @@ let AuthService = class AuthService {
                     return res;
                 }
                 else {
-                    console.log('Invalid credentials !!');
                     return "Invalid";
                 }
             }
@@ -205,7 +196,6 @@ let AuthService = class AuthService {
     }
     forgotPassword(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Forgot password Service !');
             const user = yield this._authRepository.isUserExist(email);
             if (user) {
                 const userId = {
@@ -225,9 +215,7 @@ let AuthService = class AuthService {
     resetPassword(token, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Reset password SErvice !!');
                 const user = (0, jwt_1.verifyToken)(token);
-                console.log(`User after decode Token === ${user}`);
                 if (user) {
                     const hashPassword = yield bcryptjs_1.default.hash(password, 10);
                     yield this._authRepository.resetPassword(user.id, hashPassword);

@@ -10,7 +10,6 @@ export class AdminPackageRepository extends BaseRepository<IPackage> implements 
      }
      async blockPackage(packageId: string) :Promise<IPackage | null>{
         try{
-            console.log('Admin block / UNblock packages');
             if (!packageId) {
                 throw new Error(`Package with ID ${packageId} not found`);
             }

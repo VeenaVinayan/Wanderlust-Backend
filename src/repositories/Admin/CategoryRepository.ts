@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import Category , { ICategory }from '../../models/Category';
 import { BaseRepository } from "../Base/BaseRepository";
-import { ICategoryResponse } from "../../interface/Category.interface";
+import { ICategoryResponse, TCategoryResult } from "../../interface/Category.interface";
 import { ICategoryRepository } from '../../Interfaces/Admin/ICategoryRepository';
 import { FilterQuery } from 'mongoose';
 import { FilterParams } from '../../Types/Booking.types';
@@ -17,10 +17,8 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
      }
      async deleteCategory(categoryId : string) : Promise<boolean> {
         try{
-          console.log('Delete Category !! Repository');
-          const category = await this._categoryModel.findById(categoryId);
-          console.log("Category ::: ",category);
-          if(category){
+         const category = await this._categoryModel.findById(categoryId);
+         if(category){
               category.status =!category.status;
               const res = await category.save();
               if(res) return true;
@@ -32,15 +30,10 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
           throw err;
        }
      }
- async findAllCategory(filterParams: FilterParams): Promise<Object> {
+ async findAllCategory(filterParams: FilterParams): Promise<TCategoryResult> {
   try {
-    console.info('Inside get Categories !!');
     const { page, perPage, searchParams } = filterParams;
-
-    const query: FilterQuery<ICategory> = {
-      status: true, 
-    };
-
+    const query: FilterQuery<ICategory> = { }
     if (searchParams.search) {
       query.$or = [
         { name: { $regex: searchParams.search, $options: 'i' } },
@@ -59,7 +52,11 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
         .limit(perPage), 
       this._categoryModel.countDocuments(query),
     ]);
-    return { data, totalCount };
+    const result : TCategoryResult ={
+       categories:data,
+       totalCount,
+    }
+    return result;
   } catch (err) {
     throw err;
   }

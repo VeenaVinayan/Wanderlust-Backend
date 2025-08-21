@@ -33,10 +33,9 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 let WishlistController = class WishlistController {
     constructor(_wishlistService) {
         this._wishlistService = _wishlistService;
-        this.addToWishlist = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.addToWishlist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, packageId } = req.body;
-                console.log('Add to wish list !!');
                 const result = yield this._wishlistService.isExistWishlist(userId, packageId);
                 if (!result) {
                     const data = yield this._wishlistService.addToWishlist(userId, packageId);
@@ -52,13 +51,12 @@ let WishlistController = class WishlistController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getWishlist = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getWishlist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.query;
-                console.log('Get Wishlist controller !!');
                 const result = yield this._wishlistService.getWishlist(String(userId));
                 if (result)
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data: result });
@@ -66,14 +64,13 @@ let WishlistController = class WishlistController {
                     res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ success: false });
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.deleteWishlist = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.deleteWishlist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id } = req.query;
-                console.log('Delete Wishlist !! ');
-                const result = yield this._wishlistService.deleteWishlist(String(id));
+                const { wishlistId } = req.query;
+                const result = yield this._wishlistService.deleteWishlist(String(wishlistId));
                 if (result) {
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.DELETED });
                 }
@@ -82,7 +79,7 @@ let WishlistController = class WishlistController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
     }

@@ -27,7 +27,7 @@ app.use((0, helmet_1.default)());
 const server = http_1.default.createServer(app);
 (0, socket_1.initializeSocket)(server);
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL,
     credentials: true,
 };
 app.use((0, cors_1.default)(corsOptions));

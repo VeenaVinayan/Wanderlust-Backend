@@ -38,9 +38,7 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
     deleteCategory(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Delete Category !! Repository');
                 const category = yield this._categoryModel.findById(categoryId);
-                console.log("Category ::: ", category);
                 if (category) {
                     category.status = !category.status;
                     const res = yield category.save();
@@ -60,11 +58,8 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
     findAllCategory(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.info('Inside get Categories !!');
                 const { page, perPage, searchParams } = filterParams;
-                const query = {
-                    status: true,
-                };
+                const query = {};
                 if (searchParams.search) {
                     query.$or = [
                         { name: { $regex: searchParams.search, $options: 'i' } },
@@ -83,7 +78,11 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
                         .limit(perPage),
                     this._categoryModel.countDocuments(query),
                 ]);
-                return { data, totalCount };
+                const result = {
+                    categories: data,
+                    totalCount,
+                };
+                return result;
             }
             catch (err) {
                 throw err;

@@ -33,11 +33,9 @@ let AdminService = class AdminService {
     getAllData(user, perPage, page, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Inside Service - getAllUser");
                 return yield this._adminRepository.findAllData(user, perPage, page, search, sortBy, sortOrder);
             }
             catch (error) {
-                console.log(error);
                 throw new Error("Failed to retrieve users ");
             }
         });
@@ -45,7 +43,6 @@ let AdminService = class AdminService {
     blockOrUnblock(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.info('Block / Unblock User in service!');
                 return yield this._adminRepository.blockOrUnblock(id);
             }
             catch (err) {
@@ -69,11 +66,9 @@ let AdminService = class AdminService {
     getCategories(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Get Categories !');
                 return yield this._categoryRepository.findAllCategory(filterParams);
             }
             catch (err) {
-                console.log('Error in service get Categories !!');
                 throw err;
             }
         });
@@ -81,7 +76,6 @@ let AdminService = class AdminService {
     deleteCategory(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(' Delete Category , service!!');
                 const res = yield this._categoryRepository.deleteCategory(categoryId);
                 if (res)
                     return true;
@@ -89,7 +83,6 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
-                console.log('Error in Delete Category , service!! catch', err);
                 throw err;
             }
         });
@@ -97,7 +90,6 @@ let AdminService = class AdminService {
     isExistCategory(categoryName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('In Admin Service !!');
                 const res = yield this._categoryRepository.isExistCategory(categoryName.toUpperCase());
                 if (res)
                     return true;
@@ -105,7 +97,6 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
-                console.error('Error in service', err);
                 throw err;
             }
         });
@@ -113,7 +104,6 @@ let AdminService = class AdminService {
     editCategory(categoryId, category) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Admin service -- Edit category !');
                 const res = yield this._categoryRepository.updateOneById(categoryId, category);
                 if (res)
                     return true;
@@ -121,7 +111,6 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
-                console.error("Error in Edit Category SErvice ::", err);
                 throw err;
             }
         });
@@ -133,7 +122,6 @@ let AdminService = class AdminService {
                 return data;
             }
             catch (err) {
-                console.error("Error in get Pending Agent Service ::", err);
                 throw err;
             }
         });
@@ -161,7 +149,6 @@ let AdminService = class AdminService {
     blockPackage(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Admin block a package !!');
                 const result = yield this._adminPackageRepository.blockPackage(packageId);
                 if (result)
                     return true;

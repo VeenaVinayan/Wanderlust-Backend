@@ -10,4 +10,5 @@ class AgentMapper{
     }
 }
 const agentMapper = new AgentMapper();
+
 export default agentMapper;

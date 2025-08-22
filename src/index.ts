@@ -29,6 +29,9 @@ const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials:true,
 };
+
+console.log('CORS Options:', corsOptions);
+
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");

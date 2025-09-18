@@ -55,8 +55,7 @@ class EmailHelper{
               `;
              return { email, title, body} 
     }
-    public static generateBookingNotificationToAgent(bookingData : any){
-      console.log('Booking Data  in Email Helper :: ',bookingData);
+    public static generateBookingNotificationToAgent(bookingData : IBookingCompleteData){
       const email = bookingData.agentDetails.email;
       const title = "New Booking Notification - Wanderlust Travels";
       const body = `<div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px;">
@@ -83,11 +82,10 @@ class EmailHelper{
                     <p>If you have any questions or need assistance, please contact our support team at <a href="mailto:`;
                     return { email,title, body};
     }
-    public static generateCancellationNotification(bookingData : any){
-      console.log('Booking Data  in Email Helper :: ',bookingData);
+    public static generateCancellationNotification(bookingData : IBookingCompleteData){
       const email = bookingData.email;
       const title = "Cancellation of Booking Notification - Wanderlust Travels";
-     const body = `
+      const body = `
           <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #f4f4f4; padding: 30px;">
             <div style="max-width: 600px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
               

@@ -29,7 +29,6 @@ const inversify_1 = require("inversify");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const s3Service_1 = require("../../config/s3Service");
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
-;
 const StatusMessage_1 = require("../../enums/StatusMessage");
 let AgentController = class AgentController {
     constructor(_agentService) {
@@ -37,7 +36,8 @@ let AgentController = class AgentController {
         this.getPresignedUrl = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileType } = req.body;
             if (!fileType) {
-                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
                     .json({ message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 return;
             }
@@ -50,14 +50,15 @@ let AgentController = class AgentController {
             }
         }));
         this.uploadCertificate = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { id } = req.params;
+            const { userId } = req.params;
             const { publicUrl } = req.body;
-            if (!id || !publicUrl) {
-                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+            if (!userId || !publicUrl) {
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
                     .json({ message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 return;
             }
-            const response = yield this._agentService.uploadCertificate(id, publicUrl);
+            const response = yield this._agentService.uploadCertificate(userId, publicUrl);
             if (response) {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
             }
@@ -71,19 +72,24 @@ let AgentController = class AgentController {
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, categories: data });
             }
             else {
-                res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                    .json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
             }
         }));
         this.getSignedUrls = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileTypes } = req.body;
             if (!fileTypes) {
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
                     .json({ message: "File types are required !" });
                 return;
             }
             try {
                 const data = yield s3Service_1.s3Service.generateSignedUrls(fileTypes);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST, data });
             }
             catch (err) {
                 next(err);
@@ -103,7 +109,9 @@ let AgentController = class AgentController {
             try {
                 const { agentId } = req.params;
                 const data = yield this._agentService.getDashboardData(agentId);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -114,6 +122,6 @@ let AgentController = class AgentController {
 exports.AgentController = AgentController;
 exports.AgentController = AgentController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IAgentService')),
+    __param(0, (0, inversify_1.inject)("IAgentService")),
     __metadata("design:paramtypes", [Object])
 ], AgentController);

@@ -20,25 +20,13 @@ export class WishlistService implements IWishlistService{
          else return false;
      } 
      async isExistWishlist(user : string, packageId : string) : Promise<boolean> {
-          try{
-               console.log('Is exist wishlist check !!');
-               return await this._wishlistRepository.isExistWishlist(user,packageId);
-          }catch(err){
-             throw err;
-          }
+            return await this._wishlistRepository.isExistWishlist(user,packageId);
      }
-     async getWishlist(userId: string) : Promise<Object[]> {
-        try{
-             return await this._wishlistRepository.getWishlist(userId);
-           }catch(err){
-             throw err;
-        }
+     async getWishlist(userId: string) : Promise<object[]> {
+       return await this._wishlistRepository.getWishlist(userId);
+           
      }
      async deleteWishlist(wishlistId : string) : Promise<boolean> {
-          try{
-               return await this._wishlistRepository.deleteOneById(wishlistId);
-          }catch(err){
-                throw err;
-          }
+          return await this._wishlistRepository.deleteOneById(wishlistId);
      }
     }

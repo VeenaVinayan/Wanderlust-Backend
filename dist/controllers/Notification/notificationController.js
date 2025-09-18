@@ -37,7 +37,9 @@ let NotificationController = class NotificationController {
                 const { userId } = req.params;
                 const data = yield this._notificationService.getAllNotifications(userId);
                 if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
             }
             catch (err) {
@@ -64,6 +66,6 @@ let NotificationController = class NotificationController {
 exports.NotificationController = NotificationController;
 exports.NotificationController = NotificationController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('INotificationService')),
+    __param(0, (0, inversify_1.inject)("INotificationService")),
     __metadata("design:paramtypes", [Object])
 ], NotificationController);

@@ -36,26 +36,20 @@ let UserService = class UserService {
     }
     updateUser(userId, name, phone) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(" User  service !!");
-                const data = yield this._userRepository.updateProfile(userId, name, phone);
-                if (data) {
-                    const user = {
-                        id: data.id.toString(),
-                        name: data.name,
-                        email: data.email,
-                        phone: data.phone,
-                        status: data.status,
-                        role: data.role,
-                    };
-                    return user;
-                }
-                else
-                    return null;
+            const data = yield this._userRepository.updateProfile(userId, name, phone);
+            if (data) {
+                const user = {
+                    id: data.id.toString(),
+                    name: data.name,
+                    email: data.email,
+                    phone: data.phone,
+                    status: data.status,
+                    role: data.role,
+                };
+                return user;
             }
-            catch (err) {
-                throw err;
-            }
+            else
+                return null;
         });
     }
     resetPassword(req) {
@@ -75,7 +69,7 @@ let UserService = class UserService {
                     return PasswordReset_1.ResetPasswordResult.INVALID_OLD_PASSWORD;
                 }
                 const hashedPassword = yield bcryptjs_1.default.hash(newPassword, 10);
-                const updateResult = yield this._userRepository.updateOneById(userId, {
+                yield this._userRepository.updateOneById(userId, {
                     password: hashedPassword,
                 });
                 return PasswordReset_1.ResetPasswordResult.SUCCESS;
@@ -92,95 +86,54 @@ let UserService = class UserService {
                 return yield this._userRepository.getCategories();
             }
             catch (err) {
-                console.log(' Error in Get Category service !!');
+                console.error(" Error in Get Category service !!");
                 throw err;
             }
         });
     }
     getPackages() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._userRepository.getPackages();
-                const packages = packageMapper_1.default.userPackageData(data);
-                return packages;
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = yield this._userRepository.getPackages();
+            const packages = packageMapper_1.default.userPackageData(data);
+            return packages;
         });
     }
     addReview(reviewData) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.addReview(reviewData);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.addReview(reviewData);
         });
     }
     getReview(userId, packageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.getReview(userId, packageId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.getReview(userId, packageId);
         });
     }
     deleteReview(reviewId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.deleteReview(reviewId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.deleteReview(reviewId);
         });
     }
     getReviews(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.getReviews(packageId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.getReviews(packageId);
         });
     }
     getWallet(userId, filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.getWallet(userId, filterParams);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.getWallet(userId, filterParams);
         });
     }
     editReview(data, reviewId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._userRepository.editReview(data, reviewId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._userRepository.editReview(data, reviewId);
         });
     }
     userDetails(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log("User Id :::", userId);
-                const data = yield this._userRepository.findOneById(userId);
-                if (!data)
-                    return null;
-                return userMapper_1.default.agentDataMapper(data);
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = yield this._userRepository.findOneById(userId);
+            if (!data)
+                return null;
+            return userMapper_1.default.agentDataMapper(data);
         });
     }
 };

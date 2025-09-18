@@ -21,7 +21,6 @@ exports.userSocketMap = userSocketMap;
 let io;
 dotenv_1.default.config();
 const initializeSocket = (server) => {
-    console.log("Inside Socket intialize file !!");
     exports.io = io = new socket_io_1.Server(server, {
         cors: {
             origin: process.env.CLIENT_URL,
@@ -31,14 +30,11 @@ const initializeSocket = (server) => {
     });
     io.on("connection", (socket) => {
         const userId = socket.handshake.query.userId;
-        console.log("A user connected", socket.id, userId);
         if (userId && userId !== "undefined") {
             userSocketMap[userId] = socket.id;
         }
         (0, chatSocket_1.chatHandlers)(socket, io, userSocketMap);
-        console.log("User socker Map ::", userSocketMap);
         socket.on("outgoing-video-call", (data) => {
-            console.log("Make an outgoing call Agent ", data);
             const socketId = userSocketMap[data.to];
             io.to(socketId).emit("incoming-video-call", {
                 to: data.to,
@@ -50,7 +46,6 @@ const initializeSocket = (server) => {
         });
         socket.on("accept-incoming-call", (data) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                console.log("Receive incoming call", data);
                 const socketId = userSocketMap[data.to];
                 io.to(socketId).emit("accepted-call", Object.assign(Object.assign({}, data), { startedAt: new Date() }));
             }
@@ -60,9 +55,7 @@ const initializeSocket = (server) => {
             }
         }));
         socket.on("agent-call-accept", (data) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log("Agent Id is ::", data.agentId);
             const socketId = userSocketMap[data.agentId];
-            console.log("Accept Incoming Call :: socket ::", socketId);
             io.to(socketId).emit("agent-accept", data);
         }));
         socket.on("reject-call", (data) => {
@@ -74,7 +67,6 @@ const initializeSocket = (server) => {
             socket.to(socketId).emit("user-left", data.to);
         });
         socket.on("disconnect", () => {
-            console.log("User disconnected", socket.id);
             for (const [userId, socketId] of Object.entries(userSocketMap)) {
                 if (socketId === socket.id) {
                     delete userSocketMap[userId];

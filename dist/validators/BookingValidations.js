@@ -7,7 +7,7 @@ exports.sanitizeBooking = exports.bookingValidation = void 0;
 const validator_1 = __importDefault(require("validator"));
 const bookingValidation = (bookingData) => {
     var _a, _b, _c;
-    const { tripDate, bookingDate, travellers, totalAmount, email, phone } = bookingData;
+    const { tripDate, travellers, totalAmount, email, phone } = bookingData;
     const errors = [];
     if (!tripDate || !validator_1.default.isISO8601(tripDate)) {
         errors.push("Trip Date is not a valid ISO date!");

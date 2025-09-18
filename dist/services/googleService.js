@@ -21,7 +21,6 @@ class GoogleService {
     googleAuth(code) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Inside Google service |', code);
                 const googleRes = yield googleAuth_1.default.getToken(code);
                 googleAuth_1.default.setCredentials(googleRes.tokens);
                 const userRes = yield axios_1.default.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`);
@@ -50,7 +49,6 @@ class GoogleService {
                         role: 'User',
                     });
                 }
-                console.log('User data :', user);
                 return user;
             }
             catch (error) {

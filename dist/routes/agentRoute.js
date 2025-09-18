@@ -15,7 +15,7 @@ const bookingController = container_1.container.get('BookingController');
 const chatController = container_1.container.get('ChatController');
 const notificationController = container_1.container.get('NotificationController');
 router.post("/getPresignedUrl", protected_1.default, roleAuth.checkRole(['Agent']), agentController.getPresignedUrl);
-router.patch('/upload-certificate/:id', protected_1.default, roleAuth.checkRole(['Agent']), agentController.uploadCertificate);
+router.patch('/upload-certificate/:userId', protected_1.default, roleAuth.checkRole(['Agent']), agentController.uploadCertificate);
 router.post('/packages', protected_1.default, roleAuth.checkRole(['Agent']), packageController.addPackage);
 router.get('/categories', protected_1.default, roleAuth.checkRole(['Agent']), agentController.getCategories);
 router.post('/getPresignedUrls', protected_1.default, roleAuth.checkRole(['Agent']), agentController.getSignedUrls);

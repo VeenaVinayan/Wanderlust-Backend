@@ -23,12 +23,14 @@ class NotificationRepository extends BaseRepository_1.BaseRepository {
     findAllNotification(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._notificationModel.find({ userId })
+                const data = yield this._notificationModel
+                    .find({ userId })
                     .sort({ createdAt: -1 })
                     .limit(10);
                 return data;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });

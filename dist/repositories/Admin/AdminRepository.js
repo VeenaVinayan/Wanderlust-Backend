@@ -26,13 +26,13 @@ class AdminRepository {
                 const query = { role: user };
                 if (search) {
                     query.$or = [
-                        { name: { $regex: search, $options: 'i' } },
-                        { email: { $regex: search, $options: 'i' } },
+                        { name: { $regex: search, $options: "i" } },
+                        { email: { $regex: search, $options: "i" } },
                     ];
                 }
                 const sortOptions = {};
                 if (sortBy) {
-                    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+                    sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([
                     this._userModel
@@ -41,19 +41,20 @@ class AdminRepository {
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .select("_id name email phone status"),
-                    this._userModel.countDocuments(query).exec()
+                    this._userModel.countDocuments(query).exec(),
                 ]);
                 return { data, totalCount };
             }
             catch (error) {
-                throw new Error("Error fetching users !");
+                console.log(error);
+                throw error;
             }
         });
     }
-    blockOrUnblock(id) {
+    blockOrUnblock(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._userModel.findById(id);
+                const user = yield this._userModel.findById(userId);
                 if (user) {
                     user.status = !user.status;
                     const res = yield user.save();
@@ -78,29 +79,43 @@ class AdminRepository {
                 const query = {};
                 if (searchParams.search) {
                     query.$or = [
-                        { 'userData.name': { $regex: searchParams.search, $options: 'i' } },
-                        { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
+                        { "userData.name": { $regex: searchParams.search, $options: "i" } },
+                        { "userData.email": { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const data = yield this._agentModel.aggregate([
                     {
-                        $match: { isVerified: "Uploaded" }
+                        $match: { isVerified: "Uploaded" },
                     },
                     {
                         $lookup: {
                             from: "users",
                             localField: "userId",
                             foreignField: "_id",
-                            as: "userData"
-                        }
+                            as: "userData",
+                        },
                     },
                     { $unwind: "$userData" },
                     {
-                        $match: { $or: [
-                                { 'userData.name': { $regex: searchParams.search, $options: 'i' } },
-                                { 'userData.email': { $regex: searchParams.search, $options: 'i' } },
-                                { 'userData.phone': { $regex: searchParams.search, $options: 'i' } },
-                            ] }
+                        $match: {
+                            $or: [
+                                {
+                                    "userData.name": { $regex: searchParams.search, $options: "i" },
+                                },
+                                {
+                                    "userData.email": {
+                                        $regex: searchParams.search,
+                                        $options: "i",
+                                    },
+                                },
+                                {
+                                    "userData.phone": {
+                                        $regex: searchParams.search,
+                                        $options: "i",
+                                    },
+                                },
+                            ],
+                        },
                     },
                     {
                         $facet: {
@@ -115,12 +130,12 @@ class AdminRepository {
                                         address: 1,
                                         name: "$userData.name",
                                         email: "$userData.email",
-                                        phone: "$userData.phone"
-                                    }
-                                }
-                            ]
-                        }
-                    }
+                                        phone: "$userData.phone",
+                                    },
+                                },
+                            ],
+                        },
+                    },
                 ]);
                 const pendingAgent = {
                     data: ((_a = data[0]) === null || _a === void 0 ? void 0 : _a.data) || [],
@@ -129,6 +144,7 @@ class AdminRepository {
                 return pendingAgent;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -137,7 +153,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._agentModel.updateOne({ _id: agentId }, {
-                    $set: { isVerified: "Approved" }
+                    $set: { isVerified: "Approved" },
                 });
                 if (result.matchedCount === 1 && result.modifiedCount === 1) {
                     return true;
@@ -147,6 +163,7 @@ class AdminRepository {
                 }
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -155,7 +172,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._agentModel.updateOne({ _id: agentId }, {
-                    $set: { isVerified: "Rejected" }
+                    $set: { isVerified: "Rejected" },
                 });
                 if (result.matchedCount === 1 && result.modifiedCount === 1) {
                     return true;
@@ -165,6 +182,7 @@ class AdminRepository {
                 }
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -172,10 +190,11 @@ class AdminRepository {
     findAdminId() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const adminId = yield this._userModel.findOne({ role: 'Admin' }, { _id: 1 });
+                const adminId = yield this._userModel.findOne({ role: "Admin" }, { _id: 1 });
                 return adminId;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });

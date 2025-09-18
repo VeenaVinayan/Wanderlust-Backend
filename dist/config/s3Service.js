@@ -32,9 +32,7 @@ class S3Service {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("File Types ||", fileTypes);
             return Promise.all(fileTypes.map((fileType) => __awaiter(this, void 0, void 0, function* () {
-                console.log("Typeof fileType", fileType, typeof fileType);
                 const typeName = fileType;
-                console.log('File Type::', typeName);
                 const fileKey = `image_${Date.now()}_${Math.random().toString(36).substring(7)}.${typeName}`;
                 const params = new client_s3_1.PutObjectCommand({
                     Bucket: this._bucket,
@@ -80,7 +78,6 @@ class S3Service {
                     Key: key,
                 });
                 yield this._s3.send(params);
-                console.log(`Deleted image: ${key}`);
             }
             catch (error) {
                 console.error("Error deleting image:", error);
@@ -90,13 +87,11 @@ class S3Service {
     deleteImages(imageUrls) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Type of string ::", typeof imageUrls);
                 const keys = imageUrls.map((url) => ({ Key: url.split(".com/")[1] }));
-                const params = new client_s3_1.DeleteObjectsCommand({
+                new client_s3_1.DeleteObjectsCommand({
                     Bucket: this._bucket,
                     Delete: { Objects: keys },
                 });
-                console.log(`Deleted ${keys.length} images`);
             }
             catch (error) {
                 console.error("Error deleting images:", error);

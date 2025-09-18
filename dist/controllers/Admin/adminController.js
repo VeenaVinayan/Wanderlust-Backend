@@ -37,27 +37,31 @@ let AdminController = class AdminController {
         this.getAllData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { user, perPage, page } = req.params;
-                const search = req.query.search || '';
-                const sortBy = req.query.sortBy || 'name';
-                const sortOrder = req.query.sortOrder || 'asc';
+                const search = req.query.search || "";
+                const sortBy = req.query.sortBy || "name";
+                const sortOrder = req.query.sortOrder || "asc";
                 const users = yield this._adminService.getAllData(user, parseInt(perPage), parseInt(page), search, sortBy, sortOrder);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS, users });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS, users });
             }
             catch (err) {
-                console.error(err);
                 next(err);
             }
         }));
         this.blockOrUnblock = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            console.info("Block or unblock User in Controller !", req.body);
             try {
-                const { id } = req.body;
-                const response = yield this._adminService.blockOrUnblock(id);
+                const { userId } = req.body;
+                const response = yield this._adminService.blockOrUnblock(userId);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -66,9 +70,9 @@ let AdminController = class AdminController {
         }));
         this.getPresignedUrl = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { fileType } = req.body;
-            console.log('Get presigned url ::', fileType);
             if (!fileType) {
-                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
                     .json({ message: "File types are required !" });
                 return;
             }
@@ -84,10 +88,14 @@ let AdminController = class AdminController {
             try {
                 const response = yield this._adminService.addCategory(req.body);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.CREATED });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.CREATED });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -100,10 +108,10 @@ let AdminController = class AdminController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'createdAt',
-                        sortOrder: req.query.sortOrder || 'asc',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "createdAt",
+                        sortOrder: req.query.sortOrder || "asc",
+                    },
                 };
                 const result = yield this._adminService.getCategories(filterParams);
                 const categories = categoryMapper_1.default.categoryMapper(result.categories);
@@ -111,7 +119,9 @@ let AdminController = class AdminController {
                     categories,
                     totalCount: result.totalCount,
                 };
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -121,7 +131,9 @@ let AdminController = class AdminController {
             try {
                 const { categoryId } = req.params;
                 if (!categoryId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 }
                 const response = yield this._adminService.deleteCategory(categoryId);
                 if (response) {
@@ -139,7 +151,9 @@ let AdminController = class AdminController {
             try {
                 const { categoryName } = req.params;
                 if (!categoryName) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 }
                 const response = yield this._adminService.isExistCategory(categoryName);
                 if (!response) {
@@ -157,15 +171,21 @@ let AdminController = class AdminController {
             try {
                 const { categoryId } = req.params;
                 if (!categoryId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ meessage: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
                 }
                 const category = req.body;
                 const response = yield this._adminService.editCategory(categoryId, category);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -178,10 +198,10 @@ let AdminController = class AdminController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'createdAt',
-                        sortOrder: req.query.sortOrder || 'desc',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "createdAt",
+                        sortOrder: req.query.sortOrder || "desc",
+                    },
                 };
                 const agentData = yield this._adminService.getPendingAgentData(filterParams);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, agentData });
@@ -195,10 +215,14 @@ let AdminController = class AdminController {
                 const { agentId } = req.params;
                 const result = yield this._adminService.agentApproval(agentId);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -210,10 +234,14 @@ let AdminController = class AdminController {
                 const { agentId } = req.params;
                 const result = yield this._adminService.rejectAgentRequest(agentId);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -225,10 +253,14 @@ let AdminController = class AdminController {
                 const { packageId } = req.params;
                 const result = yield this._adminService.blockPackage(packageId);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -240,6 +272,6 @@ let AdminController = class AdminController {
 exports.AdminController = AdminController;
 exports.AdminController = AdminController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IAdminService')),
+    __param(0, (0, inversify_1.inject)("IAdminService")),
     __metadata("design:paramtypes", [Object])
 ], AdminController);

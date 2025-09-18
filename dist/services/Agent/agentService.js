@@ -27,16 +27,19 @@ let AgentService = class AgentService {
     constructor(_agentRepository) {
         this._agentRepository = _agentRepository;
     }
-    uploadCertificate(id, publicUrl) {
+    uploadCertificate(userId, publicUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._agentRepository.uploadCertificate(id, publicUrl);
-                if (result.acknowledged && result.matchedCount === 1 && result.modifiedCount === 1) {
+                const result = yield this._agentRepository.uploadCertificate(userId, publicUrl);
+                if (result.acknowledged &&
+                    result.matchedCount === 1 &&
+                    result.modifiedCount === 1) {
                     return true;
                 }
                 return false;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -52,17 +55,7 @@ let AgentService = class AgentService {
                 return category;
             }
             catch (err) {
-                throw err;
-            }
-        });
-    }
-    createPackage(packageData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return true;
-            }
-            catch (err) {
-                console.log("Error in create Package !!");
+                console.error(err);
                 throw err;
             }
         });
@@ -79,6 +72,7 @@ let AgentService = class AgentService {
                 }
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });

@@ -15,14 +15,11 @@ const sendNotification = (payload) => __awaiter(void 0, void 0, void 0, function
     const { userId } = payload;
     const userid = userId.toString();
     const socketId = socket_1.userSocketMap[userid];
-    console.log(`User connected  ${userId} with ${socketId}`);
     if (socketId) {
         socket_1.io.to(socketId).emit("new-notification", payload);
-        console.log(`Notification sent to ${userId} with ${payload}`);
         return true;
     }
     else {
-        console.log(`User ${userId} is not connected`);
         return false;
     }
 });

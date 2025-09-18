@@ -4,7 +4,7 @@ import { IPendingAgentResponse} from '../../interface/Agent';
 import { FilterParams } from '../../Types/Booking.types';
 
  export interface IAdminService{
-    getAllData(user :string,perPage:number,page:number,search: string,sortBy: string, sortOrder: string ):Promise<Object>;
+    getAllData(user :string,perPage:number,page:number,search: string,sortBy: string, sortOrder: string ):Promise<object>;
     blockOrUnblock(id:string):Promise<boolean>;
     addCategory(data: ICategory):Promise<boolean>;
     getCategories(filterParams : FilterParams): Promise<TCategoryResult>;

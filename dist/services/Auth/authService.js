@@ -42,19 +42,17 @@ let AuthService = class AuthService {
             try {
                 const { email } = userData;
                 const isUserExist = yield this._authRepository.isUserExist(email);
-                // const res: { user: boolean ; otp?: string; time?: Date } = { user: isUserExist? true:false };
                 const res = isUserExist ? true : false;
                 if (isUserExist === null) {
                     const otp = otpHelper_1.default.generateOtp();
-                    console.log("Otp is ::", otp);
                     const body = otpHelper_1.default.generateEmailBody(otp);
                     yield (0, mailSender_1.default)(email, "OTP Verification", body);
                     yield this._authRepository.saveOtp(email, otp);
-                    console.log(res);
                 }
                 return res;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -64,7 +62,13 @@ let AuthService = class AuthService {
             var _a, _b, _c, _d, _e, _f;
             try {
                 const { data, user } = userData;
-                const { name, email, phone, password } = data || { name: "", email: "", phone: "", password: "", address: "" };
+                const { name, email, phone, password } = data || {
+                    name: "",
+                    email: "",
+                    phone: "",
+                    password: "",
+                    address: "",
+                };
                 const otpUser = userData.otp || " ";
                 const otpValue = yield this._authRepository.getOtp(email);
                 if (!otpValue)
@@ -72,7 +76,8 @@ let AuthService = class AuthService {
                 const isOtpValid = otpValue.otp === otpUser;
                 let timeDiff = 0;
                 if (otpValue === null || otpValue === void 0 ? void 0 : otpValue.createdAt) {
-                    timeDiff = new Date().getTime() - new Date(otpValue === null || otpValue === void 0 ? void 0 : otpValue.createdAt).getTime();
+                    timeDiff =
+                        new Date().getTime() - new Date(otpValue === null || otpValue === void 0 ? void 0 : otpValue.createdAt).getTime();
                 }
                 if (isOtpValid && timeDiff < 60000) {
                     if (password) {
@@ -85,15 +90,13 @@ let AuthService = class AuthService {
                             role: user,
                         };
                         const res = yield this._authRepository.createNewData(User);
-                        console.log("Agent Data ::", res);
                         if (user === "Agent" && res._id) {
-                            const agentData = data;
                             const Agent = {
                                 userId: new mongoose_1.default.Types.ObjectId(res._id),
                                 address: {
-                                    home: (_a = data === null || data === void 0 ? void 0 : data.home) !== null && _a !== void 0 ? _a : '',
-                                    street: (_b = data === null || data === void 0 ? void 0 : data.street) !== null && _b !== void 0 ? _b : '',
-                                    city: (_c = data === null || data === void 0 ? void 0 : data.city) !== null && _c !== void 0 ? _c : '',
+                                    home: (_a = data === null || data === void 0 ? void 0 : data.home) !== null && _a !== void 0 ? _a : "",
+                                    street: (_b = data === null || data === void 0 ? void 0 : data.street) !== null && _b !== void 0 ? _b : "",
+                                    city: (_c = data === null || data === void 0 ? void 0 : data.city) !== null && _c !== void 0 ? _c : "",
                                     state: (_d = data === null || data === void 0 ? void 0 : data.state) !== null && _d !== void 0 ? _d : "Kerala",
                                     country: (_e = data === null || data === void 0 ? void 0 : data.country) !== null && _e !== void 0 ? _e : "India",
                                     zipcode: (_f = data === null || data === void 0 ? void 0 : data.zipcode) !== null && _f !== void 0 ? _f : "678930",
@@ -107,11 +110,11 @@ let AuthService = class AuthService {
                         return "error";
                 }
                 else {
-                    console.log("Invalid otp !");
                     return "error";
                 }
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -131,6 +134,7 @@ let AuthService = class AuthService {
                 return data;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -139,12 +143,12 @@ let AuthService = class AuthService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let res;
-                let response = yield this._authRepository.login(userData.email);
+                const response = yield this._authRepository.login(userData.email);
                 if (!response)
                     return "User";
                 if (!response.status)
                     return "Blocked";
-                let isVerified = yield bcryptjs_1.default.compare(userData.password, response.password);
+                const isVerified = yield bcryptjs_1.default.compare(userData.password, response.password);
                 if (isVerified) {
                     const userData = {
                         id: response.id.toString(),
@@ -158,7 +162,7 @@ let AuthService = class AuthService {
                         email: response.email,
                         phone: response.phone,
                         role: response.role,
-                        status: response.status
+                        status: response.status,
                     };
                     res = {
                         accessToken,
@@ -226,6 +230,7 @@ let AuthService = class AuthService {
                 }
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });

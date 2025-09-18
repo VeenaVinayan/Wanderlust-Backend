@@ -23,12 +23,11 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
         this._agentModel = Agent_1.default;
         this._categoryModel = Category_1.default;
     }
-    uploadCertificate(id, certificate) {
+    uploadCertificate(userId, certificate) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(" Agent reposiory for upload certificate !!");
-                return yield Agent_1.default.updateOne({ userId: id }, {
-                    $set: { license: certificate, isVerified: 'Uploaded' }
+                return yield Agent_1.default.updateOne({ userId: userId }, {
+                    $set: { license: certificate, isVerified: "Uploaded" },
                 });
             }
             catch (err) {
@@ -43,7 +42,7 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                 return yield this._categoryModel.find({ status: true }, { _id: 1, name: 1 });
             }
             catch (err) {
-                console.log(' Error in Fetch Category !!');
+                console.log(" Error in Fetch Category !!");
                 throw err;
             }
         });
@@ -57,49 +56,49 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                     },
                     {
                         $lookup: {
-                            from: 'packages',
-                            localField: 'userId',
-                            foreignField: 'agent',
-                            as: 'packages',
+                            from: "packages",
+                            localField: "userId",
+                            foreignField: "agent",
+                            as: "packages",
                         },
                     },
-                    { $unwind: { path: '$packages', preserveNullAndEmptyArrays: false } },
+                    { $unwind: { path: "$packages", preserveNullAndEmptyArrays: false } },
                     {
                         $lookup: {
-                            from: 'bookings',
-                            let: { packageId: '$packages._id' },
+                            from: "bookings",
+                            let: { packageId: "$packages._id" },
                             pipeline: [
                                 {
                                     $match: {
                                         $expr: {
                                             $and: [
-                                                { $eq: ['$packageId', '$$packageId'] },
-                                                { $eq: ['$tripStatus', 'Completed'] },
+                                                { $eq: ["$packageId", "$$packageId"] },
+                                                { $eq: ["$tripStatus", "Completed"] },
                                             ],
                                         },
                                     },
                                 },
                             ],
-                            as: 'completedBookings',
+                            as: "completedBookings",
                         },
                     },
                     {
                         $lookup: {
-                            from: 'bookings',
-                            let: { packageId: '$packages._id' },
+                            from: "bookings",
+                            let: { packageId: "$packages._id" },
                             pipeline: [
                                 {
                                     $match: {
                                         $expr: {
                                             $and: [
-                                                { $eq: ['$packageId', '$$packageId'] },
-                                                { $eq: ['$tripStatus', 'Cancelled'] },
+                                                { $eq: ["$packageId", "$$packageId"] },
+                                                { $eq: ["$tripStatus", "Cancelled"] },
                                             ],
                                         },
                                     },
                                 },
                             ],
-                            as: 'cancelledBookings',
+                            as: "cancelledBookings",
                         },
                     },
                     {
@@ -108,41 +107,41 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                                 {
                                     $group: {
                                         _id: null,
-                                        packageIds: { $addToSet: '$packages._id' },
+                                        packageIds: { $addToSet: "$packages._id" },
                                     },
                                 },
                                 {
                                     $project: {
-                                        totalPackages: { $size: '$packageIds' },
+                                        totalPackages: { $size: "$packageIds" },
                                     },
                                 },
                             ],
                             totalClients: [
-                                { $unwind: '$completedBookings' },
+                                { $unwind: "$completedBookings" },
                                 {
                                     $group: {
                                         _id: null,
-                                        clients: { $addToSet: '$completedBookings.userId' },
+                                        clients: { $addToSet: "$completedBookings.userId" },
                                     },
                                 },
                                 {
                                     $project: {
-                                        totalClients: { $size: '$clients' },
+                                        totalClients: { $size: "$clients" },
                                     },
                                 },
                             ],
                             totalBookingStats: [
-                                { $unwind: '$completedBookings' },
+                                { $unwind: "$completedBookings" },
                                 {
                                     $group: {
                                         _id: null,
                                         totalCompletedBookings: { $sum: 1 },
-                                        totalAmount: { $sum: '$completedBookings.totalAmount' },
+                                        totalAmount: { $sum: "$completedBookings.totalAmount" },
                                     },
                                 },
                             ],
                             cancelledBookingStats: [
-                                { $unwind: '$cancelledBookings' },
+                                { $unwind: "$cancelledBookings" },
                                 {
                                     $group: {
                                         _id: null,
@@ -151,28 +150,28 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                                 },
                             ],
                             bookingsPerMonth: [
-                                { $unwind: '$completedBookings' },
+                                { $unwind: "$completedBookings" },
                                 {
                                     $group: {
-                                        _id: { month: { $month: '$completedBookings.bookingDate' } },
+                                        _id: { month: { $month: "$completedBookings.bookingDate" } },
                                         totalBookings: { $sum: 1 },
                                     },
                                 },
                                 {
                                     $project: {
                                         _id: 0,
-                                        month: '$_id.month',
+                                        month: "$_id.month",
                                         totalBookings: 1,
                                     },
                                 },
                                 { $sort: { month: 1 } },
                             ],
                             packageBookingCounts: [
-                                { $unwind: '$completedBookings' },
+                                { $unwind: "$completedBookings" },
                                 {
                                     $group: {
-                                        _id: '$packages._id',
-                                        packageName: { $first: '$packages.name' },
+                                        _id: "$packages._id",
+                                        packageName: { $first: "$packages.name" },
                                         value: { $sum: 1 },
                                     },
                                 },
@@ -188,13 +187,24 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                     },
                     {
                         $project: {
-                            totalPackages: { $arrayElemAt: ['$totalPackages.totalPackages', 0] },
-                            totalClients: { $arrayElemAt: ['$totalClients.totalClients', 0] },
-                            totalBookings: { $arrayElemAt: ['$totalBookingStats.totalCompletedBookings', 0] },
-                            totalAmount: { $arrayElemAt: ['$totalBookingStats.totalAmount', 0] },
+                            totalPackages: {
+                                $arrayElemAt: ["$totalPackages.totalPackages", 0],
+                            },
+                            totalClients: { $arrayElemAt: ["$totalClients.totalClients", 0] },
+                            totalBookings: {
+                                $arrayElemAt: ["$totalBookingStats.totalCompletedBookings", 0],
+                            },
+                            totalAmount: {
+                                $arrayElemAt: ["$totalBookingStats.totalAmount", 0],
+                            },
                             totalCancelledBookings: {
                                 $ifNull: [
-                                    { $arrayElemAt: ['$cancelledBookingStats.totalCancelledBookings', 0] },
+                                    {
+                                        $arrayElemAt: [
+                                            "$cancelledBookingStats.totalCancelledBookings",
+                                            0,
+                                        ],
+                                    },
                                     0,
                                 ],
                             },
@@ -203,7 +213,6 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                         },
                     },
                 ]);
-                console.log('Dashboard Data ::', data[0]);
                 return (data[0] || {
                     totalBookings: 0,
                     totalAmount: 0,
@@ -215,8 +224,8 @@ class AgentRepository extends BaseRepository_1.BaseRepository {
                 });
             }
             catch (err) {
-                console.error('Dashboard Data Error:', err);
-                throw new Error('Failed to fetch dashboard data');
+                console.log(err);
+                throw new Error("Failed to fetch dashboard data");
             }
         });
     }

@@ -37,9 +37,10 @@ let ChatService = class ChatService {
                 const data = yield this._chatRepository.getAllUsers(userId);
                 if (!data)
                     return null;
-                return data.map(user => chatMapper_1.default.chatUserMapper(user));
+                return data.map((user) => chatMapper_1.default.chatUserMapper(user));
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -50,6 +51,7 @@ let ChatService = class ChatService {
                 return yield this._chatRepository.getMessages(sender, receiver);
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -58,6 +60,6 @@ let ChatService = class ChatService {
 exports.ChatService = ChatService;
 exports.ChatService = ChatService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IChatRepository')),
+    __param(0, (0, inversify_1.inject)("IChatRepository")),
     __metadata("design:paramtypes", [Object])
 ], ChatService);

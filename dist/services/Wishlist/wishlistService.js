@@ -48,33 +48,17 @@ let WishlistService = class WishlistService {
     }
     isExistWishlist(user, packageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log('Is exist wishlist check !!');
-                return yield this._wishlistRepository.isExistWishlist(user, packageId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._wishlistRepository.isExistWishlist(user, packageId);
         });
     }
     getWishlist(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._wishlistRepository.getWishlist(userId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._wishlistRepository.getWishlist(userId);
         });
     }
     deleteWishlist(wishlistId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._wishlistRepository.deleteOneById(wishlistId);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._wishlistRepository.deleteOneById(wishlistId);
         });
     }
 };

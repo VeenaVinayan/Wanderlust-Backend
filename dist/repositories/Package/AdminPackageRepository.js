@@ -35,6 +35,7 @@ class AdminPackageRepository extends BaseRepository_1.BaseRepository {
                     return null;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });

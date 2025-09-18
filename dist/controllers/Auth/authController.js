@@ -34,7 +34,7 @@ const googleService_1 = require("../../services/googleService");
 let AuthController = class AuthController {
     constructor(_authService) {
         this._authService = _authService;
-        this.register = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.register = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield this._authService.register(req.body);
                 if (user) {
@@ -51,10 +51,10 @@ let AuthController = class AuthController {
                 }
             }
             catch (error) {
-                throw error;
+                next(error);
             }
         }));
-        this.otpSubmit = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.otpSubmit = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._authService.otpSubmit(req.body);
                 if (response === "success") {
@@ -65,19 +65,21 @@ let AuthController = class AuthController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.resendOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.resendOtp = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._authService.resendOtp(req.body.email);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SENT_MAIL });
+                if (response) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SENT_MAIL });
+                }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.login = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._authService.login(req.body);
                 if (typeof response === "string") {
@@ -86,7 +88,7 @@ let AuthController = class AuthController {
                         return;
                     }
                     else if (response === "Blocked") {
-                        res.status(403).json({ error: true, message: StatusMessage_1.StatusMessage.BLOCKED });
+                        res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ error: true, message: StatusMessage_1.StatusMessage.BLOCKED });
                         return;
                     }
                     else {
@@ -109,10 +111,10 @@ let AuthController = class AuthController {
                 }
             }
             catch (err) {
-                throw err;
+                next(err);
             }
         }));
-        this.getAccessToken = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getAccessToken = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!req.cookies || !req.cookies.token) {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.REFRESH_TOKEN_MISSING });
@@ -128,8 +130,7 @@ let AuthController = class AuthController {
                 }
             }
             catch (error) {
-                console.error("Error in refresh token controller:", error);
-                throw error;
+                next(error);
             }
         }));
         this.logout = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -164,7 +165,7 @@ let AuthController = class AuthController {
                 res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: StatusMessage_1.StatusMessage.TOKEN_EXPIRED });
             }
         }));
-        this.googleAuth = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.googleAuth = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { code } = req.query;
                 const googleService = new googleService_1.GoogleService();
@@ -208,7 +209,7 @@ let AuthController = class AuthController {
                 });
             }
             catch (error) {
-                throw error;
+                next(error);
             }
         }));
     }

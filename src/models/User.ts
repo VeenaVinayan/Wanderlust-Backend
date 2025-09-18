@@ -29,8 +29,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      unique: true,
-    },
+      },
     profilePicture: {
       type: String,
     },

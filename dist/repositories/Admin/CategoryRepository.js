@@ -50,7 +50,7 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
                 return false;
             }
             catch (err) {
-                console.log('Delete Category !! Repository, catch');
+                console.error("Delete Category !! Repository, catch");
                 throw err;
             }
         });
@@ -62,13 +62,14 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
                 const query = {};
                 if (searchParams.search) {
                     query.$or = [
-                        { name: { $regex: searchParams.search, $options: 'i' } },
-                        { description: { $regex: searchParams.search, $options: 'i' } },
+                        { name: { $regex: searchParams.search, $options: "i" } },
+                        { description: { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const sortOptions = {};
                 if (searchParams.sortBy) {
-                    sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
+                    sortOptions[searchParams.sortBy] =
+                        searchParams.sortOrder === "asc" ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([
                     this._categoryModel
@@ -85,6 +86,7 @@ let CategoryRepository = class CategoryRepository extends BaseRepository_1.BaseR
                 return result;
             }
             catch (err) {
+                console.log("Delete Category !! Repository, catch");
                 throw err;
             }
         });

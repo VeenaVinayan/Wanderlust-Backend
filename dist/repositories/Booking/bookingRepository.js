@@ -32,105 +32,98 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 const query = { userId: id };
                 if (searchParams.search) {
                     query.$or = [
-                        { bookingId: { $regex: searchParams.search, $options: 'i' } },
-                        { email: { $regex: searchParams.search, $options: 'i' } },
-                        { tripStatus: { $regex: searchParams.search, $options: 'i' } },
+                        { bookingId: { $regex: searchParams.search, $options: "i" } },
+                        { email: { $regex: searchParams.search, $options: "i" } },
+                        { tripStatus: { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const [data, totalCount] = yield Promise.all([
-                    this._bookingModel.find(query)
-                        .sort({ [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 })
-                        .populate({ path: 'packageId', select: 'name images price description day night itinerary agent' })
+                    this._bookingModel
+                        .find(query)
+                        .sort({
+                        [searchParams.sortBy]: searchParams.sortOrder === "asc" ? 1 : -1,
+                    })
+                        .populate({
+                        path: "packageId",
+                        select: "name images price description day night itinerary agent",
+                    })
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .exec(),
-                    this._bookingModel.countDocuments(query).exec()
+                    this._bookingModel.countDocuments(query).exec(),
                 ]);
                 return { data, totalCount };
             }
             catch (error) {
-                console.error('Error retrieving booking data:', error);
-                throw new Error('Internal server error');
+                console.error("Error retrieving booking data:", error);
+                throw new Error("Internal server error");
             }
         });
     }
     getAgentBookingData(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            try {
-                const { id, page, perPage, searchParams } = filterParams;
-                const searchRegex = searchParams.search
-                    ? { $regex: searchParams.search, $options: 'i' }
-                    : undefined;
-                const matchStage = {
-                    'packageDetails.agent': new mongoose_1.default.Types.ObjectId(id),
+            const { id, page, perPage, searchParams } = filterParams;
+            const matchStage = {
+                "packageDetails.agent": new mongoose_1.default.Types.ObjectId(id),
+            };
+            if (searchParams.search) {
+                matchStage["packageDetails.name"] = {
+                    $regex: searchParams.search,
+                    $options: "i",
                 };
-                if (searchParams.search) {
-                    matchStage['packageDetails.name'] = {
-                        $regex: searchParams.search,
-                        $options: 'i',
-                    };
-                }
-                const data = yield this._bookingModel.aggregate([
-                    {
-                        $lookup: {
-                            from: 'packages',
-                            localField: 'packageId',
-                            foreignField: '_id',
-                            as: 'packageDetails',
-                        },
+            }
+            const data = yield this._bookingModel.aggregate([
+                {
+                    $lookup: {
+                        from: "packages",
+                        localField: "packageId",
+                        foreignField: "_id",
+                        as: "packageDetails",
                     },
-                    { $unwind: '$packageDetails' },
-                    { $match: matchStage },
-                    {
-                        $group: {
-                            _id: '$packageDetails.name',
-                            packageName: { $first: '$packageDetails.name' },
-                            totalBooking: { $sum: 1 },
-                            bookings: {
-                                $push: {
-                                    _id: '$_id',
-                                    packageName: '$packageDetails.name',
-                                    packageImage: { $arrayElemAt: ['$packageDetails.image', 0] },
-                                    packagePrice: '$packageDetails.price',
-                                    bookingId: '$bookingId',
-                                    bookingDate: '$bookingDate',
-                                    userId: '$userId',
-                                    tripDate: '$tripDate',
-                                    packageId: '$packageId',
-                                    email: '$email',
-                                    phone: '$phone',
-                                    tripStatus: '$tripStatus',
-                                    totalGuest: '$totalGuest',
-                                    totalAmount: '$totalAmount',
-                                },
+                },
+                { $unwind: "$packageDetails" },
+                { $match: matchStage },
+                {
+                    $group: {
+                        _id: "$packageDetails.name",
+                        packageName: { $first: "$packageDetails.name" },
+                        totalBooking: { $sum: 1 },
+                        bookings: {
+                            $push: {
+                                _id: "$_id",
+                                packageName: "$packageDetails.name",
+                                packageImage: { $arrayElemAt: ["$packageDetails.image", 0] },
+                                packagePrice: "$packageDetails.price",
+                                bookingId: "$bookingId",
+                                bookingDate: "$bookingDate",
+                                userId: "$userId",
+                                tripDate: "$tripDate",
+                                packageId: "$packageId",
+                                email: "$email",
+                                phone: "$phone",
+                                tripStatus: "$tripStatus",
+                                totalGuest: "$totalGuest",
+                                totalAmount: "$totalAmount",
                             },
                         },
                     },
-                    {
-                        $sort: {
-                            [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1,
-                        },
+                },
+                {
+                    $sort: {
+                        [searchParams.sortBy]: searchParams.sortOrder === "asc" ? 1 : -1,
                     },
-                    {
-                        $facet: {
-                            data: [
-                                { $skip: (page - 1) * perPage },
-                                { $limit: perPage },
-                            ],
-                            totalCount: [
-                                { $count: 'count' },
-                            ],
-                        },
+                },
+                {
+                    $facet: {
+                        data: [{ $skip: (page - 1) * perPage }, { $limit: perPage }],
+                        totalCount: [{ $count: "count" }],
                     },
-                ]);
-                const resultData = data[0].data;
-                const totalCount = ((_a = data[0].totalCount[0]) === null || _a === void 0 ? void 0 : _a.count) || 0;
-                return { data: resultData, totalCount };
-            }
-            catch (err) {
-                throw err;
-            }
+                },
+            ]);
+            const resultData = data[0].data;
+            const totalCount = ((_a = data[0].totalCount[0]) === null || _a === void 0 ? void 0 : _a.count) || 0;
+            return { data: resultData, totalCount };
         });
     }
     getBookingDataToAdmin(filterParams) {
@@ -142,33 +135,31 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 const query = {};
                 if (searchParams.search) {
                     query.$or = [
-                        { bookingId: { $regex: searchParams.search, $options: 'i' } },
-                        { email: { $regex: searchParams.search, $options: 'i' } },
-                        { tripStatus: { $regex: searchParams.search, $options: 'i' } },
+                        { bookingId: { $regex: searchParams.search, $options: "i" } },
+                        { email: { $regex: searchParams.search, $options: "i" } },
+                        { tripStatus: { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const result = yield this._bookingModel.aggregate([
                     {
                         $lookup: {
-                            from: 'packages',
-                            localField: 'packageId',
-                            foreignField: '_id',
-                            as: 'packages',
+                            from: "packages",
+                            localField: "packageId",
+                            foreignField: "_id",
+                            as: "packages",
                         },
                     },
-                    { $unwind: '$packages' },
+                    { $unwind: "$packages" },
                     { $match: query },
-                    { $sort: { [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 } },
+                    {
+                        $sort: {
+                            [searchParams.sortBy]: searchParams.sortOrder === "asc" ? 1 : -1,
+                        },
+                    },
                     {
                         $facet: {
-                            metadata: [
-                                { $count: 'total' },
-                                { $addFields: { page, perPage } },
-                            ],
-                            data: [
-                                { $skip: skip },
-                                { $limit: perPage },
-                            ],
+                            metadata: [{ $count: "total" }, { $addFields: { page, perPage } }],
+                            data: [{ $skip: skip }, { $limit: perPage }],
                         },
                     },
                 ]);
@@ -177,323 +168,289 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 return { data, totalCount };
             }
             catch (error) {
-                throw new Error('Internal server error');
+                console.log(error);
+                throw new Error("Internal server error");
             }
         });
     }
     creditToWallet(walletData) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const wallet = new Wallet_1.default(walletData);
-                const result = yield wallet.save();
-                return result;
-            }
-            catch (err) {
-                throw err;
-            }
+            const wallet = new Wallet_1.default(walletData);
+            const result = yield wallet.save();
+            return result;
         });
     }
     getWallet(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const wallet = yield this._walletModel.findOne({ userId });
-                return wallet;
-            }
-            catch (err) {
-                throw err;
-            }
+            const wallet = yield this._walletModel.findOne({ userId });
+            return wallet;
         });
     }
     updateWallet(userId, amount, bookingId, description) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log("Booking Id", bookingId);
-                const updated = yield this._walletModel.updateOne({ userId }, {
-                    $inc: { amount: amount },
-                    $push: {
-                        transaction: {
-                            amount,
-                            bookingId,
-                            description
-                        }
-                    }
-                }, { new: true });
-                return updated;
-            }
-            catch (err) {
-                throw err;
-            }
+            const updated = yield this._walletModel.updateOne({ userId }, {
+                $inc: { amount: amount },
+                $push: {
+                    transaction: {
+                        amount,
+                        bookingId,
+                        description,
+                    },
+                },
+            }, { new: true });
+            return updated;
         });
     }
     getPackageBookingData(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { id, page, perPage, searchParams } = filterParams;
-                const query = { packageId: id };
-                if (searchParams.search) {
-                    query.$or = [
-                        { bookingId: { $regex: searchParams.search, $options: 'i' } },
-                        { email: { $regex: searchParams.search, $options: 'i' } },
-                        { tripStatus: { $regex: searchParams.search, $options: 'i' } },
-                    ];
-                }
-                const [data, totalCount] = yield Promise.all([
-                    this._bookingModel.find(query)
-                        .populate({ path: 'userId', select: 'name' })
-                        .populate({ path: 'packageId', select: 'name images price' })
-                        .skip((page - 1) * perPage)
-                        .limit(perPage)
-                        .sort({ [searchParams.sortBy]: searchParams.sortOrder === 'asc' ? 1 : -1 })
-                        .exec(),
-                    this._bookingModel.countDocuments(query).exec()
-                ]);
-                return { data, totalCount };
+            const { id, page, perPage, searchParams } = filterParams;
+            const query = { packageId: id };
+            if (searchParams.search) {
+                query.$or = [
+                    { bookingId: { $regex: searchParams.search, $options: "i" } },
+                    { email: { $regex: searchParams.search, $options: "i" } },
+                    { tripStatus: { $regex: searchParams.search, $options: "i" } },
+                ];
             }
-            catch (err) {
-                throw err;
-            }
+            const [data, totalCount] = yield Promise.all([
+                this._bookingModel
+                    .find(query)
+                    .populate({ path: "userId", select: "name" })
+                    .populate({ path: "packageId", select: "name images price" })
+                    .skip((page - 1) * perPage)
+                    .limit(perPage)
+                    .sort({
+                    [searchParams.sortBy]: searchParams.sortOrder === "asc" ? 1 : -1,
+                })
+                    .exec(),
+                this._bookingModel.countDocuments(query).exec(),
+            ]);
+            return { data, totalCount };
         });
     }
     getPackageDetails(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._packageModel.findOne({ _id: packageId });
-                return data;
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = yield this._packageModel.findOne({ _id: packageId });
+            return data;
         });
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._bookingModel.aggregate([
-                    {
-                        $match: { tripStatus: "Completed" }
+            const data = yield this._bookingModel.aggregate([
+                {
+                    $match: { tripStatus: "Completed" },
+                },
+                {
+                    $facet: {
+                        summary: [
+                            {
+                                $group: {
+                                    _id: null,
+                                    total: { $sum: "$totalAmount" },
+                                    totalBooking: { $sum: 1 },
+                                },
+                            },
+                            {
+                                $set: {
+                                    profit: { $multiply: ["$total", 0.1] },
+                                },
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    total: 1,
+                                    totalBooking: 1,
+                                    profit: 1,
+                                },
+                            },
+                        ],
+                        bookingsPerMonth: [
+                            {
+                                $group: {
+                                    _id: {
+                                        year: { $year: "$createdAt" },
+                                        month: { $month: "$createdAt" },
+                                    },
+                                    totalBookings: { $sum: 1 },
+                                },
+                            },
+                            {
+                                $sort: {
+                                    "_id.year": 1,
+                                    "_id.month": 1,
+                                },
+                            },
+                        ],
+                        topPackages: [
+                            {
+                                $group: {
+                                    _id: "$packageId",
+                                    value: { $sum: 1 },
+                                },
+                            },
+                            {
+                                $sort: { value: -1 },
+                            },
+                            {
+                                $limit: 5,
+                            },
+                            {
+                                $lookup: {
+                                    from: "packages",
+                                    localField: "_id",
+                                    foreignField: "_id",
+                                    as: "packageDetails",
+                                },
+                            },
+                            {
+                                $unwind: "$packageDetails",
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    packageName: "$packageDetails.name",
+                                    value: 1,
+                                },
+                            },
+                        ],
                     },
-                    {
-                        $facet: {
-                            summary: [
-                                {
-                                    $group: {
-                                        _id: null,
-                                        total: { $sum: "$totalAmount" },
-                                        totalBooking: { $sum: 1 }
-                                    }
-                                },
-                                {
-                                    $set: {
-                                        profit: { $multiply: ["$total", 0.1] }
-                                    }
-                                },
-                                {
-                                    $project: {
-                                        _id: 0,
-                                        total: 1,
-                                        totalBooking: 1,
-                                        profit: 1
-                                    }
-                                }
-                            ],
-                            bookingsPerMonth: [
-                                {
-                                    $group: {
-                                        _id: {
-                                            year: { $year: "$createdAt" },
-                                            month: { $month: "$createdAt" }
-                                        },
-                                        totalBookings: { $sum: 1 }
-                                    }
-                                },
-                                {
-                                    $sort: {
-                                        "_id.year": 1,
-                                        "_id.month": 1
-                                    }
-                                }
-                            ],
-                            topPackages: [
-                                {
-                                    $group: {
-                                        _id: "$packageId",
-                                        value: { $sum: 1 }
-                                    }
-                                },
-                                {
-                                    $sort: { value: -1 }
-                                },
-                                {
-                                    $limit: 5
-                                },
-                                {
-                                    $lookup: {
-                                        from: "packages",
-                                        localField: "_id",
-                                        foreignField: "_id",
-                                        as: "packageDetails"
-                                    }
-                                },
-                                {
-                                    $unwind: "$packageDetails"
-                                },
-                                {
-                                    $project: {
-                                        _id: 0,
-                                        packageName: "$packageDetails.name",
-                                        value: 1
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]);
-                return data.length > 0 ? data[0] : null;
-            }
-            catch (err) {
-                throw err;
-            }
+                },
+            ]);
+            return data.length > 0 ? data[0] : null;
         });
     }
     getBookingCompleteData(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._bookingModel.aggregate([
-                    { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
-                    {
-                        $lookup: {
-                            from: 'packages',
-                            localField: 'packageId',
-                            foreignField: '_id',
-                            as: 'packageDetails'
-                        }
+            const data = yield this._bookingModel.aggregate([
+                { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
+                {
+                    $lookup: {
+                        from: "packages",
+                        localField: "packageId",
+                        foreignField: "_id",
+                        as: "packageDetails",
                     },
-                    { $unwind: '$packageDetails' },
-                    {
-                        $lookup: {
-                            from: 'users',
-                            let: { agentId: '$packageDetails.agent' },
-                            pipeline: [
-                                { $match: { $expr: { $eq: ['$_id', '$$agentId'] } } }
-                            ],
-                            as: 'agentDetails'
-                        }
+                },
+                { $unwind: "$packageDetails" },
+                {
+                    $lookup: {
+                        from: "users",
+                        let: { agentId: "$packageDetails.agent" },
+                        pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$agentId"] } } }],
+                        as: "agentDetails",
                     },
-                    { $unwind: '$agentDetails' },
-                    {
-                        $lookup: {
-                            from: 'users',
-                            localField: 'userId',
-                            foreignField: '_id',
-                            as: 'userDetails'
-                        }
+                },
+                { $unwind: "$agentDetails" },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userDetails",
                     },
-                    { $unwind: '$userDetails' },
-                    {
-                        $project: {
-                            _id: 0,
-                            bookingId: 1,
-                            bookingDate: 1,
-                            tripDate: 1,
-                            totalGuest: 1,
-                            totalAmount: 1,
-                            email: 1,
-                            phone: 1,
-                            'packageDetails.name': 1,
-                            'agentDetails.name': 1,
-                            'agentDetails.email': 1,
-                            'agentDetails.phone': 1,
-                            'userDetails.name': 1,
-                            tripStatus: 1
-                        }
-                    }
-                ]);
-                return data[0] || {};
-            }
-            catch (err) {
-                throw err;
-            }
+                },
+                { $unwind: "$userDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        bookingId: 1,
+                        bookingDate: 1,
+                        tripDate: 1,
+                        totalGuest: 1,
+                        totalAmount: 1,
+                        email: 1,
+                        phone: 1,
+                        "packageDetails.name": 1,
+                        "agentDetails.name": 1,
+                        "agentDetails.email": 1,
+                        "agentDetails.phone": 1,
+                        "userDetails.name": 1,
+                        tripStatus: 1,
+                    },
+                },
+            ]);
+            return data[0] || {};
         });
     }
     getAgentData(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._bookingModel.aggregate([
-                    { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
-                    {
-                        $lookup: {
-                            from: 'packages',
-                            localField: 'packageId',
-                            foreignField: '_id',
-                            as: 'packageDetails',
-                        }
+            const data = yield this._bookingModel
+                .aggregate([
+                { $match: { _id: new mongoose_1.default.Types.ObjectId(bookingId) } },
+                {
+                    $lookup: {
+                        from: "packages",
+                        localField: "packageId",
+                        foreignField: "_id",
+                        as: "packageDetails",
                     },
-                    { $unwind: '$packageDetails' },
-                    {
-                        $lookup: {
-                            from: 'users',
-                            localField: 'userId',
-                            foreignField: '_id',
-                            as: 'userDetails',
-                        }
+                },
+                { $unwind: "$packageDetails" },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "userDetails",
                     },
-                    { $unwind: '$userDetails' },
-                    {
-                        $project: {
-                            packageName: '$packageDetails.name',
-                            userName: '$userDetails.name',
-                            agentId: '$packageDetails.agent',
-                        }
-                    }
-                ]).exec();
-                return data.length > 0 ? { packageName: data[0].packageName, userName: data[0].userName, agentId: data[0].agentId } : null;
-            }
-            catch (err) {
-                throw err;
-            }
+                },
+                { $unwind: "$userDetails" },
+                {
+                    $project: {
+                        packageName: "$packageDetails.name",
+                        userName: "$userDetails.name",
+                        agentId: "$packageDetails.agent",
+                    },
+                },
+            ])
+                .exec();
+            return data.length > 0
+                ? {
+                    packageName: data[0].packageName,
+                    userName: data[0].userName,
+                    agentId: data[0].agentId,
+                }
+                : null;
         });
     }
     validateBooking(packageId, tripDate) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const startDate = new Date(tripDate);
-                startDate.setDate(startDate.getDate() - 5);
-                const endDate = new Date(tripDate);
-                endDate.setDate(endDate.getDate() + 30);
-                const packageValue = yield this._packageModel.findOne({ _id: packageId }, { totalCapacity: 1 }).lean();
-                const data = yield this._bookingModel.aggregate([
-                    {
-                        $match: {
-                            packageId: packageId,
-                            tripDate: { $gte: startDate, $lt: endDate },
-                            status: { $in: ["Pending", "Confirmed", "In-Progress"] }
-                        }
+            const startDate = new Date(tripDate);
+            startDate.setDate(startDate.getDate() - 5);
+            const endDate = new Date(tripDate);
+            endDate.setDate(endDate.getDate() + 30);
+            const packageValue = yield this._packageModel
+                .findOne({ _id: packageId }, { totalCapacity: 1 })
+                .lean();
+            const data = yield this._bookingModel.aggregate([
+                {
+                    $match: {
+                        packageId: packageId,
+                        tripDate: { $gte: startDate, $lt: endDate },
+                        status: { $in: ["Pending", "Confirmed", "In-Progress"] },
                     },
-                    {
-                        $group: {
-                            _id: "$tripDate",
-                            bookingCount: { $sum: 1 }
-                        }
+                },
+                {
+                    $group: {
+                        _id: "$tripDate",
+                        bookingCount: { $sum: 1 },
                     },
-                    {
-                        $project: {
-                            _id: 0,
-                            date: "$_id",
-                            bookingCount: 1
-                        }
-                    }
-                ]);
-                const targetDateString = new Date(tripDate).toDateString();
-                const matchedDay = data.find((d) => new Date(d.date).toDateString() === targetDateString);
-                const resultData = {
-                    tripDate: matchedDay || { date: tripDate, bookingCount: 0 },
-                    totalCapacity: (packageValue === null || packageValue === void 0 ? void 0 : packageValue.totalCapacity) || 0
-                };
-                return resultData;
-            }
-            catch (err) {
-                throw err;
-            }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        date: "$_id",
+                        bookingCount: 1,
+                    },
+                },
+            ]);
+            const targetDateString = new Date(tripDate).toDateString();
+            const matchedDay = data.find((d) => new Date(d.date).toDateString() === targetDateString);
+            const resultData = {
+                tripDate: matchedDay || { date: tripDate, bookingCount: 0 },
+                totalCapacity: (packageValue === null || packageValue === void 0 ? void 0 : packageValue.totalCapacity) || 0,
+            };
+            return resultData;
         });
     }
     checkBooking(userId) {
@@ -502,23 +459,25 @@ class BookingRepository extends BaseRepository_1.BaseRepository {
                 { $match: { userId: userId } },
                 {
                     $lookup: {
-                        from: 'packages',
-                        localField: 'packageId',
-                        foreignField: '_id',
-                        as: 'packageDetails'
-                    }
+                        from: "packages",
+                        localField: "packageId",
+                        foreignField: "_id",
+                        as: "packageDetails",
+                    },
                 },
-                { $unwind: '$packageDetails' },
-                { $group: {
+                { $unwind: "$packageDetails" },
+                {
+                    $group: {
                         _id: "$packageDetails.agent",
-                        totalCount: { $sum: 1 }
-                    } },
+                        totalCount: { $sum: 1 },
+                    },
+                },
                 {
                     $project: {
                         _id: 1,
-                        totalCount: 1
-                    }
-                }
+                        totalCount: 1,
+                    },
+                },
             ]);
             return data[0];
         });

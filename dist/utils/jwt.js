@@ -23,10 +23,8 @@ const generateRefreshToken = (payload) => {
 exports.generateRefreshToken = generateRefreshToken;
 const verifyToken = (token) => {
     try {
-        console.log("Token before verfication ::");
         const jwtSecret = process.env.JWT_SECRET || "travel123456";
         const decoded = jsonwebtoken_1.default.verify(token, jwtSecret);
-        console.log(`After verify token is :: ${JSON.stringify(decoded)}`);
         if (decoded && typeof decoded === "object" && "id" in decoded) {
             const payload = {
                 id: decoded.id,
@@ -54,20 +52,17 @@ const verifyToken = (token) => {
 exports.verifyToken = verifyToken;
 const verifyRefreshToken = (token) => {
     try {
-        console.log('Verifying Refresh Token:', token);
         const secret = process.env.JWT_REFRESH_SECRET;
         if (!secret) {
             throw new Error('JWT_REFRESH_SECRET is missing in environment variables.');
         }
         const decoded = jsonwebtoken_1.default.verify(token, secret);
         if (decoded && decoded.id && decoded.role) {
-            console.log('Decoded Token:', decoded);
             const payload = {
                 id: decoded.id,
                 role: decoded.role,
             };
             const accessToken = (0, exports.generateAccessToken)(payload);
-            console.log("Access Token ::", accessToken);
             return accessToken;
         }
         else {

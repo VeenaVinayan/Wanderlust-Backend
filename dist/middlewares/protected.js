@@ -25,7 +25,7 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
             return;
         }
         try {
-            let payload = (0, jwt_1.verifyToken)(token);
+            const payload = (0, jwt_1.verifyToken)(token);
             const user = yield User_1.default.findById(payload.id);
             if (!user) {
                 res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ message: StatusMessage_1.StatusMessage.ACCESS_DENIED });

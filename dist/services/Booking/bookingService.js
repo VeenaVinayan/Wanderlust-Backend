@@ -43,15 +43,16 @@ let BookingService = class BookingService {
                 if (result && data) {
                     const notification = {
                         userId: data.agentId.toString(),
-                        title: 'New Booking',
+                        title: "New Booking",
                         message: `${data.userName} is created new booking of package ${data.packageName}`,
                     };
-                    const res = yield this._notificationService.createNewNotification(notification);
+                    yield this._notificationService.createNewNotification(notification);
                 }
                 return result;
             }
             catch (error) {
-                throw new Error('Internal server error');
+                console.log(error);
+                throw new Error("Internal server error");
             }
         });
     }
@@ -61,7 +62,8 @@ let BookingService = class BookingService {
                 return yield this._bookingRepository.getBookingData(filterParams);
             }
             catch (error) {
-                throw new Error('Internal server error');
+                console.log(error);
+                throw new Error("Internal server error");
             }
         });
     }
@@ -78,11 +80,11 @@ let BookingService = class BookingService {
                 }
                 {
                     const { email, body, title } = emailHelper_1.default.generateBookingNotificationToAgent(bookingValue);
-                    console.log('Email to agent ::', email);
                     yield (0, mailSender_1.default)(email, title, body);
                 }
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -94,6 +96,7 @@ let BookingService = class BookingService {
                 return data;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -103,40 +106,39 @@ let BookingService = class BookingService {
             try {
                 const bookingData = yield this._bookingRepository.findOneById(bookingId);
                 if (!bookingData) {
-                    console.log(' No booking data found.');
-                    throw new Error('Booking not found');
+                    console.log(" No booking data found.");
+                    throw new Error("Booking not found");
                 }
                 if (bookingData.tripStatus === status) {
                     throw new Error(`Booking is already marked as ${status}`);
                 }
                 const now = new Date();
                 const tripDate = new Date(bookingData.tripDate);
-                if (status === 'Completed' && tripDate > now) {
-                    throw new Error('Trip has not yet occurred. Cannot mark as Completed.');
+                if (status === "Completed" && tripDate > now) {
+                    throw new Error("Trip has not yet occurred. Cannot mark as Completed.");
                 }
-                if (status === 'Cancelled' && bookingData.tripStatus === 'Completed') {
-                    throw new Error('Completed trips cannot be cancelled.');
+                if (status === "Cancelled" && bookingData.tripStatus === "Completed") {
+                    throw new Error("Completed trips cannot be cancelled.");
                 }
                 const updatedBooking = yield this._bookingRepository.updateOneById(bookingId, {
                     tripStatus: status,
-                    paymentStatus: status === 'Cancelled' ? 'Refunded' : bookingData.paymentStatus,
+                    paymentStatus: status === "Cancelled" ? "Refunded" : bookingData.paymentStatus,
                 });
-                if (updatedBooking && status === 'Cancelled') {
+                if (updatedBooking && status === "Cancelled") {
                     const walletData = {
                         userId: bookingData.userId,
                         amount: bookingData.totalAmount,
                         transaction: {
                             amount: bookingData.totalAmount,
                             bookingId: bookingData.bookingId,
-                            description: 'Booking cancelled by agent — amount refunded',
-                        }
+                            description: "Booking cancelled by agent — amount refunded",
+                        },
                     };
                     const refundResult = yield this.addToWallet(walletData);
                     if (!refundResult) {
-                        console.error('⚠️ Wallet refund failed');
-                        throw new Error('Booking was cancelled, but refund failed');
+                        console.error("⚠️ Wallet refund failed");
+                        throw new Error("Booking was cancelled, but refund failed");
                     }
-                    console.log(' Wallet refund successful');
                     {
                         const bookingData = yield this._bookingRepository.getBookingCompleteData(bookingId);
                         const { email, body, title } = emailHelper_1.default.generateBookingEmailBody(bookingData);
@@ -146,149 +148,130 @@ let BookingService = class BookingService {
                 return updatedBooking;
             }
             catch (error) {
-                console.error('  Error updating booking status:');
+                console.error("  Error updating booking status:");
                 throw error;
             }
         });
     }
     getBookingDataToAdmin(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._bookingRepository.getBookingDataToAdmin(filterParams);
-                return data;
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = yield this._bookingRepository.getBookingDataToAdmin(filterParams);
+            return data;
         });
     }
     cancelBooking(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const bookingData = yield this._bookingRepository.findOneById(id);
-                if (!bookingData) {
-                    return PasswordReset_1.CancellBookingResult.ID_NOT_FOUND;
-                }
-                if (bookingData.tripStatus !== 'Cancelled') {
-                    const today = new Date();
-                    const bookingDate = new Date(bookingData.tripDate);
-                    const day = (0, date_fns_1.differenceInDays)(bookingDate, today);
-                    if (day >= 4) {
-                        const cancellationFee = (bookingData === null || bookingData === void 0 ? void 0 : bookingData.totalAmount) * .2;
-                        const amount = Math.floor(bookingData.totalAmount * .8);
-                        const result = yield this._bookingRepository.updateOneById(id, { tripStatus: "Cancelled", paymentStatus: "Refunded" });
-                        const wallet = yield this._bookingRepository.getWallet(bookingData.userId);
-                        console.log('Value in Cancel Booking ::', result, wallet, amount, cancellationFee);
-                        if (!wallet) {
-                            const walletData = {
-                                userId: bookingData.userId,
-                                amount: amount,
-                                transaction: {
-                                    amount,
-                                    description: 'Cancellation balance payment credited',
-                                    bookingId: bookingData.bookingId,
-                                }
-                            };
-                            console.log("Wallet Data ::", walletData);
-                            const resultWallet = yield this._bookingRepository.creditToWallet(walletData);
-                        }
-                        else {
-                            const updateResult = yield this._bookingRepository.updateWallet(bookingData.userId, amount, bookingData.bookingId, 'Cancellation Balance payment credited !');
-                        }
-                        const data = yield this._bookingRepository.getAgentData(id);
-                        if (data) {
-                            const notification = {
-                                userId: data.agentId.toString(),
-                                title: 'Booking',
-                                message: `The booking of ${data.packageName} is cancelled by ${data.userName}`,
-                            };
-                            const res = yield this._notificationService.createNewNotification(notification);
-                            const userNotification = {
-                                userId: bookingData.userId.toString(),
-                                title: 'Refuned amount',
-                                message: `The amount ${amount} refunded after cancellation of ${data.packageName} !`,
-                            };
-                            const res1 = yield this._notificationService.createNewNotification(userNotification);
-                            console.log("Notification sent successfully ::", res1);
-                        }
-                        return PasswordReset_1.CancellBookingResult.SUCCESS;
+            const bookingData = yield this._bookingRepository.findOneById(id);
+            if (!bookingData) {
+                return PasswordReset_1.CancellBookingResult.ID_NOT_FOUND;
+            }
+            if (bookingData.tripStatus !== "Cancelled") {
+                const today = new Date();
+                const bookingDate = new Date(bookingData.tripDate);
+                const day = (0, date_fns_1.differenceInDays)(bookingDate, today);
+                if (day >= 4) {
+                    const cancellationFee = (bookingData === null || bookingData === void 0 ? void 0 : bookingData.totalAmount) * 0.2;
+                    const amount = Math.floor(bookingData.totalAmount * 0.8);
+                    const result = yield this._bookingRepository.updateOneById(id, {
+                        tripStatus: "Cancelled",
+                        paymentStatus: "Refunded",
+                    });
+                    const wallet = yield this._bookingRepository.getWallet(bookingData.userId);
+                    console.log("Value in Cancel Booking ::", result, wallet, amount, cancellationFee);
+                    if (!wallet) {
+                        const walletData = {
+                            userId: bookingData.userId,
+                            amount: amount,
+                            transaction: {
+                                amount,
+                                description: "Cancellation balance payment credited",
+                                bookingId: bookingData.bookingId,
+                            },
+                        };
+                        yield this._bookingRepository.creditToWallet(walletData);
                     }
                     else {
-                        return PasswordReset_1.CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT;
+                        yield this._bookingRepository.updateWallet(bookingData.userId, amount, bookingData.bookingId, "Cancellation Balance payment credited !");
                     }
+                    const data = yield this._bookingRepository.getAgentData(id);
+                    if (data) {
+                        const notification = {
+                            userId: data.agentId.toString(),
+                            title: "Booking",
+                            message: `The booking of ${data.packageName} is cancelled by ${data.userName}`,
+                        };
+                        yield this._notificationService.createNewNotification(notification);
+                        const userNotification = {
+                            userId: bookingData.userId.toString(),
+                            title: "Refuned amount",
+                            message: `The amount ${amount} refunded after cancellation of ${data.packageName} !`,
+                        };
+                        yield this._notificationService.createNewNotification(userNotification);
+                    }
+                    return PasswordReset_1.CancellBookingResult.SUCCESS;
                 }
                 else {
-                    return PasswordReset_1.CancellBookingResult.ALREADY_CANCELLED;
+                    return PasswordReset_1.CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT;
                 }
             }
-            catch (err) {
-                throw err;
+            else {
+                return PasswordReset_1.CancellBookingResult.ALREADY_CANCELLED;
             }
         });
     }
     getPackageBookingData(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this._bookingRepository.getPackageBookingData(filterParams);
-            }
-            catch (err) {
-                throw err;
-            }
+            return yield this._bookingRepository.getPackageBookingData(filterParams);
         });
     }
     validateBooking(packageId, day) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._bookingRepository.validateBooking(packageId, day);
-                return data;
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = yield this._bookingRepository.validateBooking(packageId, day);
+            return data;
         });
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            try {
-                const data = yield this._bookingRepository.getDashboard();
-                if (!data)
-                    return null;
-                const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-                const chartData = (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.map((item) => ({
-                    totalBookings: item.totalBookings,
-                    month: MONTHS[item._id.month - 1],
-                }));
-                console.log("chart Data ::", chartData);
-                const dashboardData = {
-                    summary: data === null || data === void 0 ? void 0 : data.summary[0],
-                    bookingsPerMonth: chartData,
-                    topPackages: data === null || data === void 0 ? void 0 : data.topPackages,
-                };
-                return dashboardData;
-            }
-            catch (err) {
-                throw err;
-            }
+            const data = (yield this._bookingRepository.getDashboard());
+            if (!data)
+                return null;
+            const MONTHS = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ];
+            const chartData = (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.map((item) => ({
+                totalBookings: item.totalBookings,
+                month: MONTHS[item._id.month - 1],
+            }));
+            const dashboardData = {
+                summary: data === null || data === void 0 ? void 0 : data.summary[0],
+                bookingsPerMonth: chartData,
+                topPackages: data === null || data === void 0 ? void 0 : data.topPackages,
+            };
+            return dashboardData;
         });
     }
     addToWallet(walletData) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const wallet = yield this._bookingRepository.getWallet(walletData.userId);
-                console.log("Wallet found ::", wallet);
-                if (!wallet) {
-                    const result = yield this._bookingRepository.creditToWallet(walletData);
-                    return !!result;
-                }
-                else {
-                    const result = yield this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.bookingId, walletData.transaction.description);
-                    return !!result;
-                }
+            const wallet = yield this._bookingRepository.getWallet(walletData.userId);
+            if (!wallet) {
+                const result = yield this._bookingRepository.creditToWallet(walletData);
+                return !!result;
             }
-            catch (error) {
-                throw new Error('Internal server error');
+            else {
+                const result = yield this._bookingRepository.updateWallet(walletData.userId, walletData.amount, walletData.transaction.bookingId, walletData.transaction.description);
+                return !!result;
             }
         });
     }
@@ -296,17 +279,7 @@ let BookingService = class BookingService {
 exports.BookingService = BookingService;
 exports.BookingService = BookingService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IBookingRepository')),
-    __param(1, (0, inversify_1.inject)('INotificationService')),
+    __param(0, (0, inversify_1.inject)("IBookingRepository")),
+    __param(1, (0, inversify_1.inject)("INotificationService")),
     __metadata("design:paramtypes", [Object, Object])
 ], BookingService);
-function sendConfirmationToAgent(bookingData) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const bookingDetails = emailHelper_1.default.generateBookingNotificationToAgent(bookingData._id);
-        }
-        catch (err) {
-            throw err;
-        }
-    });
-}

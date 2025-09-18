@@ -36,17 +36,19 @@ let AdminService = class AdminService {
                 return yield this._adminRepository.findAllData(user, perPage, page, search, sortBy, sortOrder);
             }
             catch (error) {
+                console.log("Error in create Category |", error);
                 throw new Error("Failed to retrieve users ");
             }
         });
     }
-    blockOrUnblock(id) {
+    blockOrUnblock(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._adminRepository.blockOrUnblock(id);
+                return yield this._adminRepository.blockOrUnblock(userId);
             }
             catch (err) {
-                throw new Error("Failed to Block/ Unblock !");
+                console.log(err);
+                throw err;
             }
         });
     }
@@ -58,7 +60,7 @@ let AdminService = class AdminService {
                 return true;
             }
             catch (err) {
-                console.log('Error in create Category |', err);
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -69,6 +71,7 @@ let AdminService = class AdminService {
                 return yield this._categoryRepository.findAllCategory(filterParams);
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -83,6 +86,7 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -97,6 +101,7 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -111,6 +116,7 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -122,6 +128,7 @@ let AdminService = class AdminService {
                 return data;
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -132,6 +139,7 @@ let AdminService = class AdminService {
                 return yield this._adminRepository.agentApproval(agentId);
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -142,6 +150,7 @@ let AdminService = class AdminService {
                 return yield this._adminRepository.agentApproval(agentId);
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });
@@ -156,6 +165,7 @@ let AdminService = class AdminService {
                     return false;
             }
             catch (err) {
+                console.log("Error in create Category |", err);
                 throw err;
             }
         });

@@ -18,7 +18,6 @@ const chatHandlers = (socket, io, userSocketMap) => {
     socket.on("send-message", (message) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { sender, receiver, content } = message;
-            console.log("Message data is :::", sender, receiver, content);
             if (!sender || !receiver || !content)
                 return;
             const newMessage = yield Message_1.default.create({

@@ -40,7 +40,6 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use(error_1.default);
 const PORT = parseInt(process.env.PORT || '8001', 10);
 morgan_1.default.token("body", (req) => JSON.stringify(req.body) || "No Body");
 app.use((0, morgan_1.default)("Request Body: :body"));
@@ -55,6 +54,7 @@ app.use('/admin', adminRoute_1.default);
 app.use('/auth', authRoute_1.default);
 app.use('/user', userRoute_1.default);
 app.use('/agent', agentRoute_1.default);
+app.use(error_1.default);
 server.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });

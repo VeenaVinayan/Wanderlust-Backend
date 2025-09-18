@@ -7,14 +7,12 @@ import { AdminRepository } from '../repositories/Admin/AdminRepository';
 import { AdminService } from '../services/Admin/adminService';
 import { AdminController } from '../controllers/Admin/adminController';
 import { CategoryRepository } from '../repositories/Admin/CategoryRepository';
-import { Iuser } from '../Types/user.types';
 //User
 import { IUserRepository } from '../Interfaces/User/IUserRepository';
 import { UserRepository } from  '../repositories/User/userRepository';
 import { UserService } from '../services/User/userService';
 import { IUserService } from '../Interfaces/User/IUserService';
 import { UserController } from '../controllers/User/userController';
-import Agent from '../models/Agent';
 //Agent
 import { AgentRepository } from '../repositories/Agent/AgentRepository';
 import { AgentService } from '../services/Agent/agentService';
@@ -61,7 +59,6 @@ import { IAuthService } from '../Interfaces/Auth/IAuthService';
 import { AuthRepository } from '../repositories/Auth/AuthRepository';
 import { AuthService } from '../services/Auth/authService';
 import { AuthController } from '../controllers/Auth/authController';
-import { containeranalysis } from 'googleapis/build/src/apis/containeranalysis';
 
 const container = new Container()
 //admin

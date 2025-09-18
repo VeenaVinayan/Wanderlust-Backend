@@ -8,7 +8,6 @@ export class GoogleService {
 
 async googleAuth(code : string){
   try{
-    console.log('Inside Google service |', code)
     const googleRes = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(googleRes.tokens);
     const userRes = await axios.get(
@@ -36,7 +35,6 @@ async findOrCreateUser(payload : TokenPayload) {
           role: 'User',
         });
       }
-      console.log('User data :',user);
       return user;
     } catch (error) {
         console.error('Error finding or creating user:', error);

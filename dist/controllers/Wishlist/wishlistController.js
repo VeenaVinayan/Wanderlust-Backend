@@ -27,7 +27,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WishlistController = void 0;
 const inversify_1 = require("inversify");
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
-;
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 let WishlistController = class WishlistController {
@@ -40,14 +39,20 @@ let WishlistController = class WishlistController {
                 if (!result) {
                     const data = yield this._wishlistService.addToWishlist(userId, packageId);
                     if (data) {
-                        res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.OK)
+                            .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                     }
                     else {
-                        res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ messgae: StatusMessage_1.StatusMessage.NOT_FOUND });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                            .json({ messgae: StatusMessage_1.StatusMessage.NOT_FOUND });
                     }
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ message: StatusMessage_1.StatusMessage.CONFLICT });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.CONFLICT)
+                        .json({ message: StatusMessage_1.StatusMessage.CONFLICT });
                 }
             }
             catch (err) {
@@ -72,10 +77,14 @@ let WishlistController = class WishlistController {
                 const { wishlistId } = req.query;
                 const result = yield this._wishlistService.deleteWishlist(String(wishlistId));
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.DELETED });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.DELETED });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -87,6 +96,6 @@ let WishlistController = class WishlistController {
 exports.WishlistController = WishlistController;
 exports.WishlistController = WishlistController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IWishlistService')),
+    __param(0, (0, inversify_1.inject)("IWishlistService")),
     __metadata("design:paramtypes", [Object])
 ], WishlistController);

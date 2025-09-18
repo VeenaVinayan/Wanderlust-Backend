@@ -50,10 +50,10 @@ let PackageService = class PackageService {
                     if (adminId) {
                         const notification = {
                             userId: adminId,
-                            title: 'Package',
+                            title: "Package",
                             message: `${data.name} is created !`,
                         };
-                        const res = yield this._notificationService.createNewNotification(notification);
+                        yield this._notificationService.createNewNotification(notification);
                     }
                     return true;
                 }
@@ -61,7 +61,7 @@ let PackageService = class PackageService {
                     return false;
             }
             catch (err) {
-                console.log('Error in Package Service !!');
+                console.log("Error in Package Service !!");
                 throw err;
             }
         });
@@ -77,6 +77,7 @@ let PackageService = class PackageService {
                     return false;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -84,7 +85,6 @@ let PackageService = class PackageService {
     deletePackage(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Package Delete in Service !');
                 if (packageId) {
                     const response = yield this._packageRepository.deletePackage(packageId);
                     if (response)
@@ -96,6 +96,7 @@ let PackageService = class PackageService {
                     return false;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -107,6 +108,7 @@ let PackageService = class PackageService {
                 return response;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -118,6 +120,7 @@ let PackageService = class PackageService {
                 return response;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -129,6 +132,7 @@ let PackageService = class PackageService {
                 return categories;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -139,6 +143,7 @@ let PackageService = class PackageService {
                 return yield this._packageRepository.advanceSearch(query);
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -150,7 +155,7 @@ let PackageService = class PackageService {
                     throw new Error(`Package with ID ${packageId} not found`);
                 }
                 const result = yield this._packageRepository.updateOneById(packageId, {
-                    isVerified: value
+                    isVerified: value,
                 });
                 if (result) {
                     return true;
@@ -158,6 +163,7 @@ let PackageService = class PackageService {
                 return false;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -165,8 +171,8 @@ let PackageService = class PackageService {
 };
 exports.PackageService = PackageService;
 exports.PackageService = PackageService = __decorate([
-    __param(0, (0, inversify_1.inject)('IAdminRepository')),
+    __param(0, (0, inversify_1.inject)("IAdminRepository")),
     __param(1, (0, inversify_1.inject)("IPackageRepository")),
-    __param(2, (0, inversify_1.inject)('INotificationService')),
+    __param(2, (0, inversify_1.inject)("INotificationService")),
     __metadata("design:paramtypes", [Object, Object, Object])
 ], PackageService);

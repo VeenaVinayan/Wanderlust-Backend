@@ -27,79 +27,55 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     isUserExist(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._userModel.findOne({ email: email });
+                const user = yield this._userModel.findOne({
+                    email: email,
+                });
                 return user;
             }
             catch (err) {
-                console.error('Error occurred ::', err);
+                console.error("Error occurred ::", err);
                 throw err;
             }
         });
     }
     getOtp(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const userOtp = yield this._otpModel.findOne({ email: email });
-                if (!userOtp) {
-                    throw new Error("OTP not found for the given email !");
-                }
-                return userOtp;
+            const userOtp = yield this._otpModel.findOne({
+                email: email,
+            });
+            if (!userOtp) {
+                throw new Error("OTP not found for the given email !");
             }
-            catch (err) {
-                throw err;
-            }
+            return userOtp;
         });
     }
     saveOtp(email, otp) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const otpData = new Otp_1.default({
-                    email,
-                    otp
-                });
-                yield otpData.save();
-            }
-            catch (err) {
-                console.log(" Error occured : ", err);
-                throw err;
-            }
+            const otpData = new Otp_1.default({
+                email,
+                otp,
+            });
+            yield otpData.save();
         });
     }
     updateOtp(otpData) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const updatedOtp = yield this._otpModel.findOneAndUpdate({ email: otpData.email }, {
-                    otp: otpData.otp,
-                    createdAt: new Date(),
-                }, { upsert: true, new: true });
-                return updatedOtp;
-            }
-            catch (err) {
-                throw err;
-            }
+            const updatedOtp = yield this._otpModel.findOneAndUpdate({ email: otpData.email }, {
+                otp: otpData.otp,
+                createdAt: new Date(),
+            }, { upsert: true, new: true });
+            return updatedOtp;
         });
     }
     login(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                let user;
-                console.log(email);
-                user = yield this._userModel.findOne({ email: email }, { _id: 1, name: 1, email: 1, password: 1, phone: 1, role: 1, status: 1 });
-                return user;
-            }
-            catch (err) {
-                throw err;
-            }
+            const user = yield this._userModel.findOne({ email: email }, { _id: 1, name: 1, email: 1, password: 1, phone: 1, role: 1, status: 1 });
+            return user;
         });
     }
     resetPassword(id, hashPassword) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = yield User_1.default.findByIdAndUpdate(id, { password: hashPassword }, { new: true });
-            }
-            catch (err) {
-                throw err;
-            }
+            yield User_1.default.findByIdAndUpdate(id, { password: hashPassword }, { new: true });
         });
     }
     registerAgent(agentData) {
@@ -110,7 +86,7 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
                 return true;
             }
             catch (err) {
-                console.log('Error in Register Agent !!');
+                console.log("Error in Register Agent !!");
                 throw err;
             }
         });
@@ -118,10 +94,12 @@ class AuthRepository extends BaseRepository_1.BaseRepository {
     getAgentData(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._agentModel.findOne({ userId: id }, { address: 1, isVerified: 1, _id: 0 }).lean();
+                return yield this._agentModel
+                    .findOne({ userId: id }, { address: 1, isVerified: 1, _id: 0 })
+                    .lean();
             }
             catch (err) {
-                console.error('Error in agent data fetch');
+                console.error("Error in agent data fetch");
                 throw err;
             }
         });

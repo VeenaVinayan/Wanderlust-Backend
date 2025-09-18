@@ -53,10 +53,14 @@ let PackageController = class PackageController {
                 const packageData = req.body;
                 const result = yield this._packageService.editPackage(packageId, packageData);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -68,10 +72,14 @@ let PackageController = class PackageController {
                 const { packageId } = req.params;
                 const response = yield this._packageService.deletePackage(packageId);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -84,10 +92,10 @@ let PackageController = class PackageController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'createdAt',
-                        sortOrder: req.query.sortOrder || 'des',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "createdAt",
+                        sortOrder: req.query.sortOrder || "des",
+                    },
                 };
                 const result = yield this._packageService.findPackages(filterParams);
                 const packages = packageMapper_1.default.userPackageData(result.packages);
@@ -95,7 +103,9 @@ let PackageController = class PackageController {
                     packages: packages,
                     totalCount: result.totalCount,
                 };
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -109,13 +119,15 @@ let PackageController = class PackageController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'name',
-                        sortOrder: req.query.sortOrder || 'asc',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "name",
+                        sortOrder: req.query.sortOrder || "asc",
+                    },
                 };
                 const packages = yield this._packageService.findAgentPackages(filterParams);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data: packages });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, packages });
             }
             catch (err) {
                 next(err);
@@ -132,14 +144,15 @@ let PackageController = class PackageController {
         }));
         this.advanceSearch = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Advance Search ::', req.query);
                 const result = yield this._packageService.advanceSearch(req.query);
                 const packages = packageMapper_1.default.userPackageData(result.packages);
                 const data = {
                     packages: packages,
                     totalPackages: result.totalCount,
                 };
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -151,10 +164,14 @@ let PackageController = class PackageController {
                 const { value } = req.body;
                 const response = yield this._packageService.verifyPackage(packageId, value);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -166,6 +183,6 @@ let PackageController = class PackageController {
 exports.PackageController = PackageController;
 exports.PackageController = PackageController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IPackageService')),
+    __param(0, (0, inversify_1.inject)("IPackageService")),
     __metadata("design:paramtypes", [Object])
 ], PackageController);

@@ -38,11 +38,8 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
                 const chatUsers = yield Message_1.default.aggregate([
                     {
                         $match: {
-                            $or: [
-                                { sender: userObjectId },
-                                { receiver: userObjectId }
-                            ]
-                        }
+                            $or: [{ sender: userObjectId }, { receiver: userObjectId }],
+                        },
                     },
                     {
                         $addFields: {
@@ -50,19 +47,19 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
                                 $cond: [
                                     { $eq: ["$sender", userObjectId] },
                                     "$receiver",
-                                    "$sender"
-                                ]
+                                    "$sender",
+                                ],
                             },
                             isUnread: {
                                 $and: [
                                     { $eq: ["$receiver", userObjectId] },
-                                    { $eq: ["$isRead", false] }
-                                ]
-                            }
-                        }
+                                    { $eq: ["$isRead", false] },
+                                ],
+                            },
+                        },
                     },
                     {
-                        $sort: { createdAt: -1 }
+                        $sort: { createdAt: -1 },
                     },
                     {
                         $group: {
@@ -71,21 +68,21 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
                             lastMessageTime: { $first: "$createdAt" },
                             unreadCount: {
                                 $sum: {
-                                    $cond: [{ $eq: ["$isUnread", true] }, 1, 0]
-                                }
-                            }
-                        }
+                                    $cond: [{ $eq: ["$isUnread", true] }, 1, 0],
+                                },
+                            },
+                        },
                     },
                     {
                         $lookup: {
                             from: "users",
                             localField: "_id",
                             foreignField: "_id",
-                            as: "user"
-                        }
+                            as: "user",
+                        },
                     },
                     {
-                        $unwind: "$user"
+                        $unwind: "$user",
                     },
                     {
                         $project: {
@@ -94,16 +91,17 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
                             profilePic: "$user.profilePic",
                             lastMessage: 1,
                             lastMessageTime: 1,
-                            unreadCount: 1
-                        }
+                            unreadCount: 1,
+                        },
                     },
                     {
-                        $sort: { lastMessageTime: -1 }
-                    }
+                        $sort: { lastMessageTime: -1 },
+                    },
                 ]);
                 return chatUsers;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -111,27 +109,29 @@ let ChatRepository = class ChatRepository extends BaseRepository_1.BaseRepositor
     getMessages(sender, receiver) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._messageModel.updateMany({
+                yield this._messageModel.updateMany({
                     receiver: new mongoose_1.default.Types.ObjectId(receiver),
                 }, {
-                    $set: { isRead: true }
+                    $set: { isRead: true },
                 });
-                const messages = yield this._messageModel.find({
+                const messages = yield this._messageModel
+                    .find({
                     $or: [
                         { sender: sender, receiver: receiver },
-                        { sender: receiver, receiver: sender }
-                    ]
-                }).sort({ createdAt: 1 });
-                return messages.map(msg => ({
+                        { sender: receiver, receiver: sender },
+                    ],
+                })
+                    .sort({ createdAt: 1 });
+                return messages.map((msg) => ({
                     sender: msg.sender.toString(),
                     receiver: msg.receiver.toString(),
                     content: msg.content,
                     createdAt: msg.get("createdAt"),
-                    isRead: msg.isRead
+                    isRead: msg.isRead,
                 }));
             }
             catch (err) {
-                console.error('Error in Get Messages ::', err);
+                console.error("Error in Get Messages ::", err);
                 throw err;
             }
         });

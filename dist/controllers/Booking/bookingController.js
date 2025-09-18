@@ -38,10 +38,18 @@ let BookingController = class BookingController {
                 const result = yield this._bookingService.bookPackage(req.body);
                 if (result) {
                     yield this._bookingService.sendConfirmationEmail(result);
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: 'Booking data retrieved successfully', result });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({
+                        success: true,
+                        message: "Booking data retrieved successfully",
+                        result,
+                    });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: 'No booking data found' });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: "No booking data found" });
                 }
             }
             catch (error) {
@@ -57,17 +65,25 @@ let BookingController = class BookingController {
                     page: Number(page),
                     perPage: Number(perPage),
                     searchParams: {
-                        search: search || '',
-                        sortBy: sortBy || 'bookingDate',
-                        sortOrder: sortOrder || 'dec',
-                    }
+                        search: search || "",
+                        sortBy: sortBy || "bookingDate",
+                        sortOrder: sortOrder || "dec",
+                    },
                 };
                 const data = yield this._bookingService.getBookingData(filterParams);
                 if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: 'Booking data retrieved successfully', data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({
+                        success: true,
+                        message: "Booking data retrieved successfully",
+                        data,
+                    });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: 'No booking data found' });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: "No booking data found" });
                 }
             }
             catch (error) {
@@ -82,17 +98,19 @@ let BookingController = class BookingController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'tripDate',
-                        sortOrder: req.query.sortOrder || 'asc',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "tripDate",
+                        sortOrder: req.query.sortOrder || "asc",
+                    },
                 };
-                const data = yield this._bookingService.getAgentBookingData(filterParams);
-                if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
+                const bookings = yield this._bookingService.getAgentBookingData(filterParams);
+                if (bookings) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, bookings });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -104,15 +122,24 @@ let BookingController = class BookingController {
                 const { bookingId } = req.params;
                 const { status } = req.body;
                 if (!bookingId || !status) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({
+                        success: false,
+                        message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD,
+                    });
                     return;
                 }
                 const response = yield this._bookingService.updateBookingStatusByAgent(bookingId, status);
                 if (response) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: 'Successfully updated status' });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ success: true, message: "Successfully updated status" });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: 'Not successfully updated!' });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: "Not successfully updated!" });
                 }
             }
             catch (err) {
@@ -125,17 +152,19 @@ let BookingController = class BookingController {
                     page: Number(req.query.page),
                     perPage: Number(req.query.perPage),
                     searchParams: {
-                        search: req.query.search || '',
-                        sortBy: req.query.sortBy || 'tripDate',
-                        sortOrder: req.query.sortOrder || 'asc',
-                    }
+                        search: req.query.search || "",
+                        sortBy: req.query.sortBy || "tripDate",
+                        sortOrder: req.query.sortOrder || "asc",
+                    },
                 };
-                const data = yield this._bookingService.getBookingDataToAdmin(filterParams);
-                if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
+                const bookings = yield this._bookingService.getBookingDataToAdmin(filterParams);
+                if (bookings) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, bookings });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: true, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -148,19 +177,38 @@ let BookingController = class BookingController {
                 const result = yield this._bookingService.cancelBooking(String(bookingId));
                 switch (result) {
                     case PasswordReset_1.CancellBookingResult.SUCCESS:
-                        res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.OK)
+                            .json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
                         return;
                     case PasswordReset_1.CancellBookingResult.CONFLICT:
-                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.CONFLICT)
+                            .json({
+                            success: false,
+                            message: StatusMessage_1.StatusMessage.MISSING_REQUIRED_FIELD,
+                        });
                         return;
                     case PasswordReset_1.CancellBookingResult.EXCEEDED_CANCELLATION_LIMIT:
-                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.EXCEEDED_CANCELLATION_LIMIT });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.CONFLICT)
+                            .json({
+                            success: false,
+                            message: StatusMessage_1.StatusMessage.EXCEEDED_CANCELLATION_LIMIT,
+                        });
                         return;
                     case PasswordReset_1.CancellBookingResult.ALREADY_CANCELLED:
-                        res.status(HttpStatusCode_1.HttpStatusCode.CONFLICT).json({ success: false, message: StatusMessage_1.StatusMessage.ALREADY_CANCELLED });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.CONFLICT)
+                            .json({
+                            success: false,
+                            message: StatusMessage_1.StatusMessage.ALREADY_CANCELLED,
+                        });
                         return;
                     default:
-                        res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                            .json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -176,10 +224,10 @@ let BookingController = class BookingController {
                     page: Number(page),
                     perPage: Number(perPage),
                     searchParams: {
-                        search: searchParams || '',
-                        sortBy: 'tripDate',
-                        sortOrder: req.query.sortOrder || 'dec',
-                    }
+                        search: searchParams || "",
+                        sortBy: "tripDate",
+                        sortOrder: req.query.sortOrder || "dec",
+                    },
                 };
                 const data = yield this._bookingService.getPackageBookingData(filterParams);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
@@ -209,8 +257,8 @@ let BookingController = class BookingController {
                     res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false });
                     return;
                 }
-                const data = yield this._bookingService.validateBooking(String(packageId), new Date(String(day)));
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
+                const values = yield this._bookingService.validateBooking(String(packageId), new Date(String(day)));
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, values });
             }
             catch (err) {
                 next(err);
@@ -221,6 +269,6 @@ let BookingController = class BookingController {
 exports.BookingController = BookingController;
 exports.BookingController = BookingController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IBookingService')),
+    __param(0, (0, inversify_1.inject)("IBookingService")),
     __metadata("design:paramtypes", [Object])
 ], BookingController);

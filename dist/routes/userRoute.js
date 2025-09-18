@@ -16,7 +16,6 @@ const packageController = container_1.container.get('PackageController');
 const bookingController = container_1.container.get('BookingController');
 const wishlistController = container_1.container.get('WishlistController');
 const chatController = container_1.container.get('ChatController');
-const agentController = container_1.container.get('AgentController');
 const notificationController = container_1.container.get('NotificationController');
 router.patch('/users/update/:userId', protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, userController.updateProfile);
 router.patch('/users/update-password/:userId', protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, userController.resetPassword);

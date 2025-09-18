@@ -54,7 +54,6 @@ class EmailHelper {
         return { email, title, body };
     }
     static generateBookingNotificationToAgent(bookingData) {
-        console.log('Booking Data  in Email Helper :: ', bookingData);
         const email = bookingData.agentDetails.email;
         const title = "New Booking Notification - Wanderlust Travels";
         const body = `<div style="font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px;">
@@ -82,7 +81,6 @@ class EmailHelper {
         return { email, title, body };
     }
     static generateCancellationNotification(bookingData) {
-        console.log('Booking Data  in Email Helper :: ', bookingData);
         const email = bookingData.email;
         const title = "Cancellation of Booking Notification - Wanderlust Travels";
         const body = `

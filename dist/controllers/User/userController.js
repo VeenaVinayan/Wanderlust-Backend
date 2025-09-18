@@ -39,10 +39,14 @@ let UserController = class UserController {
                 const userId = req.params.userId;
                 const data = yield this._userService.updateUser(userId, name, phone);
                 if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -54,19 +58,38 @@ let UserController = class UserController {
                 const response = yield this._userService.resetPassword(req);
                 switch (response) {
                     case 1:
-                        res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.OLD_PASSWORD_INCORRECT });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                            .json({
+                            error: true,
+                            message: StatusMessage_1.StatusMessage.OLD_PASSWORD_INCORRECT,
+                        });
                         return;
                     case 2:
-                        res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.PASSWORD_RESET_SUCCESS });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.OK)
+                            .json({
+                            success: true,
+                            message: StatusMessage_1.StatusMessage.PASSWORD_RESET_SUCCESS,
+                        });
                         return;
                     case 3:
-                        res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.PASSWORD_MISMATCH });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                            .json({ error: true, message: StatusMessage_1.StatusMessage.PASSWORD_MISMATCH });
                         return;
                     case 4:
-                        res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ error: true, message: StatusMessage_1.StatusMessage.USER_NOT_FOUND });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                            .json({ error: true, message: StatusMessage_1.StatusMessage.USER_NOT_FOUND });
                         return;
                     default:
-                        res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ error: true, message: StatusMessage_1.StatusMessage.PASSWORD_RESET_SUCCESS });
+                        res
+                            .status(HttpStatusCode_1.HttpStatusCode.OK)
+                            .json({
+                            error: true,
+                            message: StatusMessage_1.StatusMessage.PASSWORD_RESET_SUCCESS,
+                        });
                 }
             }
             catch (err) {
@@ -77,10 +100,14 @@ let UserController = class UserController {
             try {
                 const data = yield this._userService.getCategories();
                 if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -89,12 +116,16 @@ let UserController = class UserController {
         }));
         this.getPackages = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._userService.getPackages();
-                if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                const packages = yield this._userService.getPackages();
+                if (packages) {
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS, packages });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {
@@ -104,12 +135,19 @@ let UserController = class UserController {
         this.stripePayment = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { price, packageName } = req.body;
-                const data = yield stripePayment_1.default.createCheckoutSession({ price, packageName });
+                const data = yield stripePayment_1.default.createCheckoutSession({
+                    price,
+                    packageName,
+                });
                 if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ message: StatusMessage_1.StatusMessage.ERROR, data });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT)
+                        .json({ message: StatusMessage_1.StatusMessage.ERROR, data });
                 }
             }
             catch (err) {
@@ -121,10 +159,14 @@ let UserController = class UserController {
                 const { reviewData } = req.body;
                 const result = yield this._userService.addReview(reviewData);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.CREATED)
+                        .json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -150,14 +192,20 @@ let UserController = class UserController {
             try {
                 const { reviewId } = req.query;
                 if (!reviewId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                 }
                 const result = yield this._userService.deleteReview(String(reviewId));
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ success: true, message: StatusMessage_1.StatusMessage.SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.NOT_FOUND });
                 }
             }
             catch (err) {
@@ -168,11 +216,15 @@ let UserController = class UserController {
             try {
                 const { packageId } = req.params;
                 if (!packageId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
                 const data = yield this._userService.getReviews(packageId);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -187,13 +239,15 @@ let UserController = class UserController {
                     page: Number(page),
                     perPage: Number(perPage),
                     searchParams: {
-                        search: search || '',
-                        sortBy: 'createdAt',
-                        sortOrder: sortOrder || '',
-                    }
+                        search: search || "",
+                        sortBy: sortBy || 'createdAt',
+                        sortOrder: sortOrder || "",
+                    },
                 };
                 if (!userId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.UNPROCESSABLE_ENTITY).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.UNPROCESSABLE_ENTITY)
+                        .json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
                 const data = yield this._userService.getWallet(userId, filterParams);
@@ -208,15 +262,21 @@ let UserController = class UserController {
                 const { review, rating } = req.body;
                 const { reviewId } = req.params;
                 if (!reviewId || !review || !rating) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ error: true, message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
                 const result = yield this._userService.editReview({ review, rating }, reviewId);
                 if (result) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, message: StatusMessage_1.StatusMessage.UPDATE_SUCCESS });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.OK)
+                        .json({ success: true, message: StatusMessage_1.StatusMessage.UPDATE_SUCCESS });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ success: false, message: StatusMessage_1.StatusMessage.UPDATE_FAILED });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ success: false, message: StatusMessage_1.StatusMessage.UPDATE_FAILED });
                 }
             }
             catch (err) {
@@ -227,7 +287,9 @@ let UserController = class UserController {
             try {
                 const { userId } = req.params;
                 const data = yield this._userService.userDetails(userId);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
             }
             catch (err) {
                 next(err);
@@ -235,12 +297,12 @@ let UserController = class UserController {
         }));
     }
     userProfile() {
-        console.log('UserProfile !');
+        console.log("UserProfile !");
     }
 };
 exports.UserController = UserController;
 exports.UserController = UserController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IUserService')),
+    __param(0, (0, inversify_1.inject)("IUserService")),
     __metadata("design:paramtypes", [Object])
 ], UserController);

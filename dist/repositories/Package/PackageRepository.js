@@ -56,6 +56,7 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                     return false;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });
@@ -67,29 +68,33 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 const query = {};
                 if (searchParams.search) {
                     query["$or"] = [
-                        { description: { $regex: searchParams.search, $options: 'i' } },
-                        { name: { $regex: searchParams.search, $options: 'i' } },
+                        { description: { $regex: searchParams.search, $options: "i" } },
+                        { name: { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const sortOptions = {};
                 if (searchParams.sortBy) {
-                    sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
+                    sortOptions[searchParams.sortBy] =
+                        searchParams.sortOrder === "asc" ? 1 : -1;
                 }
-                const [data, totalCount] = yield Promise.all([this._packageModel.find(query)
-                        .populate('agent', '_id name email phone')
+                const [data, totalCount] = yield Promise.all([
+                    this._packageModel
+                        .find(query)
+                        .populate("agent", "_id name email phone")
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .sort(sortOptions)
                         .exec(),
-                    this._packageModel.countDocuments(query).exec()
+                    this._packageModel.countDocuments(query).exec(),
                 ]);
                 const packageData = {
                     packages: data,
-                    totalCount
+                    totalCount,
                 };
                 return packageData;
             }
             catch (err) {
+                console.log(err);
                 throw err;
             }
         });
@@ -104,13 +109,14 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 }
                 if (searchParams.search) {
                     query.$or = [
-                        { name: { $regex: searchParams.search, $options: 'i' } },
-                        { description: { $regex: searchParams.search, $options: 'i' } },
+                        { name: { $regex: searchParams.search, $options: "i" } },
+                        { description: { $regex: searchParams.search, $options: "i" } },
                     ];
                 }
                 const sortOptions = {};
                 if (searchParams.sortBy) {
-                    sortOptions[searchParams.sortBy] = searchParams.sortOrder === 'asc' ? 1 : -1;
+                    sortOptions[searchParams.sortBy] =
+                        searchParams.sortOrder === "asc" ? 1 : -1;
                 }
                 const [data, totalCount] = yield Promise.all([
                     this._packageModel
@@ -118,7 +124,7 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                         .sort(sortOptions)
                         .skip((page - 1) * perPage)
                         .limit(perPage),
-                    this._packageModel.countDocuments(query)
+                    this._packageModel.countDocuments(query),
                 ]);
                 const packageData = {
                     packages: data,
@@ -139,7 +145,8 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 return packages;
             }
             catch (err) {
-                throw new Error('Error in Get Category !!');
+                console.log(err);
+                throw new Error("Error in Get Category !!");
             }
         });
     }
@@ -149,20 +156,30 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 const searchQuery = queryString;
                 const page = Number(queryString.page);
                 const perPage = Number(queryString.perPage);
-                let matchStage = {};
-                let sortStage = {};
+                const matchStage = {};
+                const sortStage = {};
                 const categoryArray = searchQuery.category
                     ? searchQuery.category.split(",")
                     : [];
                 if (categoryArray.length > 0) {
                     matchStage.category = {
-                        $in: categoryArray.map((id) => mongoose_1.Types.ObjectId.isValid(id) ? new mongoose_1.Types.ObjectId(id) : null).filter((id) => id !== null)
+                        $in: categoryArray
+                            .map((id) => mongoose_1.Types.ObjectId.isValid(id) ? new mongoose_1.Types.ObjectId(id) : null)
+                            .filter((id) => id !== null),
                     };
                 }
                 if (searchQuery.keyword) {
                     matchStage.$or = [
-                        { name: { $regex: searchQuery.keyword, $options: "i", $exists: true } },
-                        { description: { $regex: searchQuery.keyword, $options: "i", $exists: true } }
+                        {
+                            name: { $regex: searchQuery.keyword, $options: "i", $exists: true },
+                        },
+                        {
+                            description: {
+                                $regex: searchQuery.keyword,
+                                $options: "i",
+                                $exists: true,
+                            },
+                        },
                     ];
                 }
                 if (searchQuery.price) {
@@ -170,7 +187,9 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                         matchStage.price = { $gte: 50000 };
                     }
                     else {
-                        const [minPrice, maxPrice] = searchQuery.price.split("-").map(Number);
+                        const [minPrice, maxPrice] = searchQuery.price
+                            .split("-")
+                            .map(Number);
                         matchStage.price = { $gte: minPrice, $lte: maxPrice };
                     }
                 }
@@ -188,13 +207,14 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                     sortStage.price = 1;
                 }
                 const [data, totalCount] = yield Promise.all([
-                    this._packageModel.find(matchStage)
-                        .populate('agent', '_id name email phone')
+                    this._packageModel
+                        .find(matchStage)
+                        .populate("agent", "_id name email phone")
                         .sort(sortStage)
                         .skip((page - 1) * perPage)
                         .limit(perPage)
                         .lean(),
-                    this._packageModel.countDocuments(matchStage)
+                    this._packageModel.countDocuments(matchStage),
                 ]);
                 const formattedResult = {
                     packages: data,
@@ -203,6 +223,7 @@ let PackageRepository = class PackageRepository extends BaseRepository_1.BaseRep
                 return formattedResult;
             }
             catch (err) {
+                console.error(err);
                 throw err;
             }
         });

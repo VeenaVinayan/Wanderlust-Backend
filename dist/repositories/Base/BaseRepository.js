@@ -16,31 +16,26 @@ class BaseRepository {
     }
     createNewData(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Base Repository created !');
             return yield this._model.create(data);
         });
     }
     findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Base Repository ');
             return yield this._model.findById(id).exec();
         });
     }
     findAllData() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Find All data");
             return yield this._model.find().exec();
         });
     }
     updateOneById(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Update One by Id !", id);
             return yield this._model.findByIdAndUpdate(id, { $set: data }, { new: true });
         });
     }
     deleteOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(" Delete one by Id");
             const result = yield this._model.findByIdAndDelete(id).exec();
             return result !== null;
         });

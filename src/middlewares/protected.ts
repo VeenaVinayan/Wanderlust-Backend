@@ -8,6 +8,7 @@ import { HttpStatusCode } from '../enums/HttpStatusCode';
 interface AuthenticatedRequest extends Request {
      user?: {
           _id:string;
+          role:string;
      }; 
 }
 const auth = async (req: AuthenticatedRequest, res:Response, next: NextFunction) =>{
@@ -18,7 +19,7 @@ const auth = async (req: AuthenticatedRequest, res:Response, next: NextFunction)
              return;
         }
         try{
-             let payload = verifyToken(token) as TokenPayload;
+             const payload = verifyToken(token) as TokenPayload;
              const user = await User.findById(payload.id);
              if(!user){ 
                 res.status(HttpStatusCode.FORBIDDEN).json({message:StatusMessage.ACCESS_DENIED});

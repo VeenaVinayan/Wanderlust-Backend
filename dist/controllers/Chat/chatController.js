@@ -36,7 +36,9 @@ let ChatController = class ChatController {
             try {
                 const { userId } = req.params;
                 if (!userId) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
                 const users = yield this._chatService.getAllUsers(userId);
@@ -50,7 +52,9 @@ let ChatController = class ChatController {
             try {
                 const { sender, receiver } = req.query;
                 if (!sender || !receiver) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                        .json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
                 const messages = yield this._chatService.getMessages(String(sender), String(receiver));
@@ -65,6 +69,6 @@ let ChatController = class ChatController {
 exports.ChatController = ChatController;
 exports.ChatController = ChatController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)('IChatService')),
+    __param(0, (0, inversify_1.inject)("IChatService")),
     __metadata("design:paramtypes", [Object])
 ], ChatController);

@@ -18,7 +18,7 @@ const chatController = container.get<ChatController>('ChatController');
 const notificationController = container.get<NotificationController>('NotificationController');
 
 router.post("/getPresignedUrl",protect,roleAuth.checkRole(['Agent']),agentController.getPresignedUrl);
-router.patch('/upload-certificate/:id',protect,roleAuth.checkRole(['Agent']),agentController.uploadCertificate);
+router.patch('/upload-certificate/:userId',protect,roleAuth.checkRole(['Agent']),agentController.uploadCertificate);
 router.post('/packages',protect,roleAuth.checkRole(['Agent']),packageController.addPackage);
 router.get('/categories',protect,roleAuth.checkRole(['Agent']),agentController.getCategories);
 router.post('/getPresignedUrls',protect,roleAuth.checkRole(['Agent']),agentController.getSignedUrls)

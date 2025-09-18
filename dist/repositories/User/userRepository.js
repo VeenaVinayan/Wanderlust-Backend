@@ -43,10 +43,10 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     getCategories() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Inside Repository !!');
                 return yield this._categoryModel.find({ status: true }, { _id: 1, name: 1, image: 1 });
             }
             catch (err) {
+                console.log("Error in user repository !");
                 throw err;
             }
         });
@@ -54,13 +54,15 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     getPackages() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this._packageModel.find({ status: true })
-                    .populate({ path: 'agent', select: '_id name email phone' })
+                return (yield this._packageModel
+                    .find({ status: true })
+                    .populate({ path: "agent", select: "_id name email phone" })
                     .sort({ price: -1 })
                     .limit(6)
-                    .lean();
+                    .lean());
             }
             catch (err) {
+                console.log("Error in user repository !");
                 throw err;
             }
         });
@@ -76,6 +78,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     return false;
             }
             catch (err) {
+                console.log("Error in user repository !");
                 throw err;
             }
         });
@@ -87,6 +90,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                 return review;
             }
             catch (err) {
+                console.log("Error in user repository !");
                 throw err;
             }
         });
@@ -102,6 +106,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     return false;
             }
             catch (err) {
+                console.error("Error in user repository !");
                 throw err;
             }
         });
@@ -109,11 +114,14 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     getReviews(packageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('in repository get Reviews ::', packageId);
-                const data = yield this._reviewModel.find({ packageId }).populate('userId', 'name createdAt').lean();
+                const data = yield this._reviewModel
+                    .find({ packageId })
+                    .populate("userId", "name createdAt")
+                    .lean();
                 return data;
             }
             catch (err) {
+                console.error("Error in user repository !");
                 throw err;
             }
         });
@@ -131,8 +139,18 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                 const query = {};
                 if (search) {
                     query.$or = [
-                        { 'transaction.description': { $regex: searchParams.search, $options: 'i' } },
-                        { 'transaction.bookingId': { $regex: searchParams.search, $options: 'i' } },
+                        {
+                            "transaction.description": {
+                                $regex: searchParams.search,
+                                $options: "i",
+                            },
+                        },
+                        {
+                            "transaction.bookingId": {
+                                $regex: searchParams.search,
+                                $options: "i",
+                            },
+                        },
                     ];
                 }
                 const result = yield this._walletModel.aggregate([
@@ -140,38 +158,36 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     {
                         $project: {
                             amount: 1,
-                            transaction: 1
-                        }
+                            transaction: 1,
+                        },
                     },
-                    { $unwind: '$transaction' },
+                    { $unwind: "$transaction" },
                     { $match: query },
                     {
                         $facet: {
                             paginatedTransactions: [
-                                { $sort: { 'transaction.transactionDate': -1 } },
+                                { $sort: { "transaction.transactionDate": -1 } },
                                 { $skip: (page - 1) * perPage },
                                 { $limit: perPage },
                                 {
                                     $project: {
-                                        _id: '$transaction._id',
-                                        amount: '$transaction.amount',
-                                        description: '$transaction.description',
-                                        transactionDate: '$transaction.transactionDate',
-                                        bookingId: '$transaction.bookingId',
+                                        _id: "$transaction._id",
+                                        amount: "$transaction.amount",
+                                        description: "$transaction.description",
+                                        transactionDate: "$transaction.transactionDate",
+                                        bookingId: "$transaction.bookingId",
                                     },
                                 },
                             ],
-                            totalCount: [
-                                { $count: 'count' },
-                            ],
+                            totalCount: [{ $count: "count" }],
                             walletAmount: [
                                 {
                                     $group: {
                                         _id: null,
-                                        amount: { $first: '$amount' }
-                                    }
-                                }
-                            ]
+                                        amount: { $first: "$amount" },
+                                    },
+                                },
+                            ],
                         },
                     },
                 ]);
@@ -180,10 +196,10 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     amount: (_c = result[0].walletAmount[0]) === null || _c === void 0 ? void 0 : _c.amount,
                     totalCount: (_d = result[0].totalCount[0]) === null || _d === void 0 ? void 0 : _d.count,
                 };
-                console.log("Result Value is :: ", resultValue);
                 return resultValue;
             }
             catch (err) {
+                console.error("Error in user repository !");
                 throw err;
             }
         });
@@ -198,6 +214,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
                     return false;
             }
             catch (err) {
+                console.error("Error in user repository !");
                 throw err;
             }
         });

@@ -9,7 +9,6 @@ import { BookingController } from '../controllers/Booking/bookingController';
 import { WishlistController } from '../controllers/Wishlist/wishlistController';
 import { validation } from '../middlewares/validation';
 import { ChatController } from '../controllers/Chat/chatController';
-import { AgentController } from '../controllers/Agent/agentController';
 import { NotificationController } from '../controllers/Notification/notificationController';
 
 const router: Router = express.Router();
@@ -20,7 +19,6 @@ const packageController = container.get<PackageController>('PackageController');
 const bookingController = container.get<BookingController>('BookingController');
 const wishlistController = container.get<WishlistController>('WishlistController');
 const chatController = container.get<ChatController>('ChatController');
-const agentController = container.get<AgentController>('AgentController');
 const notificationController = container.get<NotificationController>('NotificationController');
 
 router.patch('/users/update/:userId',auth,roleAuth.checkRole(['User']),isBlocked,userController.updateProfile);

@@ -30,7 +30,6 @@ const corsOptions = {
   credentials:true,
 };
 
-console.log('CORS Options:', corsOptions);
 
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
@@ -45,7 +44,7 @@ app.use(express.json());
 
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
-app.use(ErrorHandler);
+
 const PORT: number = parseInt(process.env.PORT || '8001', 10);
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body) || "No Body");
@@ -60,13 +59,13 @@ const accessLogStream = fs.createWriteStream(
   path.join(logDirectory, 'access.log'),
   { flags: 'a' } 
 );
-
 app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use('/admin',adminRoute);
 app.use('/auth',authRoute);
 app.use('/user',userRoute);
 app.use('/agent',agentRoute);
+app.use(ErrorHandler);
 
 server.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

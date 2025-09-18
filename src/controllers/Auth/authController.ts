@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { inject, injectable} from 'inversify';
 import asyncHandler from 'express-async-handler';
 import { HttpStatusCode } from '../../enums/HttpStatusCode';
@@ -15,7 +15,7 @@ export class AuthController{
       @inject('IAuthService') private readonly _authService : IAuthService
    ){}
 
-   register = asyncHandler(async (req: Request, res: Response) => {
+   register = asyncHandler(async (req: Request, res: Response,next: NextFunction) => {
     try {
       const  user  = await this._authService.register(req.body);
       if (user) {
@@ -30,10 +30,10 @@ export class AuthController{
         });
       }
     } catch (error) {
-      throw error;
+      next(error);
     }
 });
-otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+otpSubmit = asyncHandler(async (req: Request, res: Response,next:NextFunction): Promise<void> => {
     try {
         const response = await this._authService.otpSubmit(req.body);
         if(response === "success"){
@@ -43,18 +43,20 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
           res.status(HttpStatusCode.BAD_REQUEST).json({success:false,message:StatusMessage.INVALID_OTP})
        }
     }catch(err){
-       throw err;
+       next(err);
     }
   });
- resendOtp = asyncHandler(async(req:Request, res: Response): Promise <void> =>{
+ resendOtp = asyncHandler(async(req:Request, res: Response,next:NextFunction): Promise <void> =>{
      try{
         const response = await this._authService.resendOtp(req.body.email);
-        res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SENT_MAIL});
+        if(response){
+          res.status(HttpStatusCode.OK).json({success:true,message:StatusMessage.SENT_MAIL});
+        }  
      }catch(err){
-         throw err;
+         next(err);
      }
   });
-  login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  login = asyncHandler(async (req: Request, res: Response,next : NextFunction): Promise<void> => {
     try {
         const response: LoginResponse | string = await this._authService.login(req.body);
         if (typeof response === "string") {
@@ -62,7 +64,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
             res.status(HttpStatusCode.FORBIDDEN).json({ error: true, message: StatusMessage.NOT_FOUND });
             return;
           }else if(response === "Blocked"){
-            res.status(403).json({ error: true, message: StatusMessage.BLOCKED });
+            res.status(HttpStatusCode.FORBIDDEN).json({ error: true, message: StatusMessage.BLOCKED });
             return;
          }else{
             res.status(HttpStatusCode.FORBIDDEN).json({success:false,message:StatusMessage.INVALID_CREDENTIALS})
@@ -83,10 +85,10 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
             return;
         }
     } catch (err) {
-        throw err;
+        next(err);
     }
  });
- getAccessToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+ getAccessToken = asyncHandler(async (req: Request, res: Response,next: NextFunction): Promise<void> => {
     try {
        if (!req.cookies || !req.cookies.token) {
             res.status(HttpStatusCode.BAD_REQUEST).json({ message: StatusMessage.REFRESH_TOKEN_MISSING});
@@ -100,8 +102,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
             res.status(HttpStatusCode.UNAUTHORIZED).json({ error: true, message:StatusMessage.REFRESH_TOKEN_EXPIRY });
         }
     } catch (error) {
-        console.error("Error in refresh token controller:", error);
-        throw error;
+       next(error);
     }
   })
   logout = asyncHandler(async (req:Request, res: Response) :Promise<void> =>{
@@ -125,6 +126,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
       res.status(HttpStatusCode.BAD_REQUEST).json({success:false,message:StatusMessage.INVALID_CREDENTIALS});
     }
   })
+
   resetPassword = asyncHandler(async(req:Request, res: Response) :Promise<void> =>{
      const {password,token } = req.body;
      const response = await this._authService.resetPassword(token,password)
@@ -134,7 +136,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({success:false,message:StatusMessage.TOKEN_EXPIRED});
      }
   });
-  googleAuth = asyncHandler(async( req:Request, res: Response) : Promise<void> => {
+  googleAuth = asyncHandler(async( req:Request, res: Response,next:NextFunction) : Promise<void> => {
         try{
            const  {  code  } = req.query;
            const googleService = new GoogleService();
@@ -176,7 +178,7 @@ otpSubmit = asyncHandler(async (req: Request, res: Response): Promise<void> => {
               user
          }});
         }catch(error){
-           throw error;
+           next(error);
         }
      })
 }

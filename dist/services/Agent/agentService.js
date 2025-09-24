@@ -47,8 +47,8 @@ let AgentService = class AgentService {
     getCategories() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._agentRepository.getCategories();
-                const category = data.map((category) => ({
+                const categories = yield this._agentRepository.getCategories();
+                const category = categories.map((category) => ({
                     _id: category._id.toString(),
                     name: category.name,
                 }));
@@ -63,9 +63,9 @@ let AgentService = class AgentService {
     getDashboardData(agentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._agentRepository.getDashboardData(agentId);
-                if (data) {
-                    return data;
+                const dashboard = yield this._agentRepository.getDashboardData(agentId);
+                if (dashboard) {
+                    return dashboard;
                 }
                 else {
                     return {};

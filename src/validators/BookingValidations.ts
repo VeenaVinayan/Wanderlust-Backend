@@ -1,5 +1,5 @@
 import validator from 'validator';
-import { BookingInput } from '../Types/Validations.Types';
+import { BookingInput, ISanitizedBooking } from '../Types/Validations.Types';
 
 export const bookingValidation = (bookingData: BookingInput): string[] => {
   const { tripDate, travellers, totalAmount, email, phone } = bookingData;
@@ -35,19 +35,18 @@ export const bookingValidation = (bookingData: BookingInput): string[] => {
   return errors;
 };
 
-export const sanitizeBooking = (bookingData: BookingInput): any => {
+export const sanitizeBooking = (bookingData: BookingInput): ISanitizedBooking => {
   return {
-    
-    ...bookingData,
-    email: validator.normalizeEmail(bookingData.email || ''),
+    email: validator.normalizeEmail(bookingData.email) || '',
     totalAmount: parseFloat(bookingData.totalAmount.toString()),
     phone: validator.trim(bookingData.phone || ''),
-    tripDate: validator.toDate(bookingData.tripDate || ''),
+    tripDate: validator.toDate(bookingData.tripDate?.toString() || '') || null,
     travellers: {
-      adult: parseInt(bookingData.travellers?.adult.toString()) || 0,
-      children: parseInt(bookingData.travellers?.children.toString()) || 0,
-      infant: parseInt(bookingData.travellers?.infant.toString()) || 0,
+      adult: parseInt(bookingData.travellers?.adult?.toString() || '0'),
+      children: parseInt(bookingData.travellers?.children?.toString() || '0'),
+      infant: parseInt(bookingData.travellers?.infant?.toString() || '0'),
     }
   };
 };
+
 

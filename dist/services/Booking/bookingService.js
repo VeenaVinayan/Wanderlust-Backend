@@ -39,12 +39,12 @@ let BookingService = class BookingService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._bookingRepository.createNewData(bookingData);
-                const data = yield this._bookingRepository.getAgentData(result._id);
-                if (result && data) {
+                const booking = yield this._bookingRepository.getAgentData(result._id);
+                if (result && booking) {
                     const notification = {
-                        userId: data.agentId.toString(),
+                        userId: booking.agentId.toString(),
                         title: "New Booking",
-                        message: `${data.userName} is created new booking of package ${data.packageName}`,
+                        message: `${booking.userName} is created new booking of package ${booking.packageName}`,
                     };
                     yield this._notificationService.createNewNotification(notification);
                 }
@@ -92,8 +92,8 @@ let BookingService = class BookingService {
     getAgentBookingData(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._bookingRepository.getAgentBookingData(filterParams);
-                return data;
+                const booking = yield this._bookingRepository.getAgentBookingData(filterParams);
+                return booking;
             }
             catch (err) {
                 console.log(err);
@@ -155,8 +155,8 @@ let BookingService = class BookingService {
     }
     getBookingDataToAdmin(filterParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this._bookingRepository.getBookingDataToAdmin(filterParams);
-            return data;
+            const booking = yield this._bookingRepository.getBookingDataToAdmin(filterParams);
+            return booking;
         });
     }
     cancelBooking(id) {
@@ -226,15 +226,15 @@ let BookingService = class BookingService {
     }
     validateBooking(packageId, day) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this._bookingRepository.validateBooking(packageId, day);
-            return data;
+            const booking = yield this._bookingRepository.validateBooking(packageId, day);
+            return booking;
         });
     }
     getDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const data = (yield this._bookingRepository.getDashboard());
-            if (!data)
+            const booking = (yield this._bookingRepository.getDashboard());
+            if (!booking)
                 return null;
             const MONTHS = [
                 "January",
@@ -250,14 +250,14 @@ let BookingService = class BookingService {
                 "November",
                 "December",
             ];
-            const chartData = (_a = data.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.map((item) => ({
+            const chartData = (_a = booking.bookingsPerMonth) === null || _a === void 0 ? void 0 : _a.map((item) => ({
                 totalBookings: item.totalBookings,
                 month: MONTHS[item._id.month - 1],
             }));
             const dashboardData = {
-                summary: data === null || data === void 0 ? void 0 : data.summary[0],
+                summary: booking === null || booking === void 0 ? void 0 : booking.summary[0],
                 bookingsPerMonth: chartData,
-                topPackages: data === null || data === void 0 ? void 0 : data.topPackages,
+                topPackages: booking === null || booking === void 0 ? void 0 : booking.topPackages,
             };
             return dashboardData;
         });

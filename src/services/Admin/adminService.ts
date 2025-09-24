@@ -48,10 +48,10 @@ export class AdminService implements IAdminService {
       throw err;
     }
   }
-  async addCategory(data: ICategory): Promise<boolean> {
+  async addCategory(category: ICategory): Promise<boolean> {
     try {
-      data.name = data.name.toUpperCase();
-      await this._categoryRepository.createNewData(data);
+      category.name = category.name.toUpperCase();
+      await this._categoryRepository.createNewData(category);
       return true;
     } catch (err) {
       console.log("Error in create Category |", err);
@@ -93,11 +93,11 @@ export class AdminService implements IAdminService {
     category: ICategory
   ): Promise<boolean> {
     try {
-      const res = await this._categoryRepository.updateOneById(
+      const updatedResult = await this._categoryRepository.updateOneById(
         categoryId,
         category
       );
-      if (res) return true;
+      if (updatedResult) return true;
       else return false;
     } catch (err) {
       console.log("Error in create Category |", err);
@@ -108,8 +108,8 @@ export class AdminService implements IAdminService {
     params: FilterParams
   ): Promise<IPendingAgentResponse> {
     try {
-      const data = await this._adminRepository.findPendingAgent(params);
-      return data;
+      const pendingAgents = await this._adminRepository.findPendingAgent(params);
+      return pendingAgents;
     } catch (err) {
       console.log("Error in create Category |", err);
       throw err;

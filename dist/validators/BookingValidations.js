@@ -35,11 +35,17 @@ const bookingValidation = (bookingData) => {
 };
 exports.bookingValidation = bookingValidation;
 const sanitizeBooking = (bookingData) => {
-    var _a, _b, _c;
-    return Object.assign(Object.assign({}, bookingData), { email: validator_1.default.normalizeEmail(bookingData.email || ''), totalAmount: parseFloat(bookingData.totalAmount.toString()), phone: validator_1.default.trim(bookingData.phone || ''), tripDate: validator_1.default.toDate(bookingData.tripDate || ''), travellers: {
-            adult: parseInt((_a = bookingData.travellers) === null || _a === void 0 ? void 0 : _a.adult.toString()) || 0,
-            children: parseInt((_b = bookingData.travellers) === null || _b === void 0 ? void 0 : _b.children.toString()) || 0,
-            infant: parseInt((_c = bookingData.travellers) === null || _c === void 0 ? void 0 : _c.infant.toString()) || 0,
-        } });
+    var _a, _b, _c, _d, _e, _f, _g;
+    return {
+        email: validator_1.default.normalizeEmail(bookingData.email) || '',
+        totalAmount: parseFloat(bookingData.totalAmount.toString()),
+        phone: validator_1.default.trim(bookingData.phone || ''),
+        tripDate: validator_1.default.toDate(((_a = bookingData.tripDate) === null || _a === void 0 ? void 0 : _a.toString()) || '') || null,
+        travellers: {
+            adult: parseInt(((_c = (_b = bookingData.travellers) === null || _b === void 0 ? void 0 : _b.adult) === null || _c === void 0 ? void 0 : _c.toString()) || '0'),
+            children: parseInt(((_e = (_d = bookingData.travellers) === null || _d === void 0 ? void 0 : _d.children) === null || _e === void 0 ? void 0 : _e.toString()) || '0'),
+            infant: parseInt(((_g = (_f = bookingData.travellers) === null || _f === void 0 ? void 0 : _f.infant) === null || _g === void 0 ? void 0 : _g.toString()) || '0'),
+        }
+    };
 };
 exports.sanitizeBooking = sanitizeBooking;

@@ -48,9 +48,9 @@ export class WishlistController {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { userId } = req.query;
-        const result = await this._wishlistService.getWishlist(String(userId));
-        if (result)
-          res.status(HttpStatusCode.OK).json({ success: true, data: result });
+        const wishlists = await this._wishlistService.getWishlist(String(userId));
+        if (wishlists)
+          res.status(HttpStatusCode.OK).json({ success: true, wishlists });
         else res.status(HttpStatusCode.NO_CONTENT).json({ success: false });
       } catch (err) {
         next(err);

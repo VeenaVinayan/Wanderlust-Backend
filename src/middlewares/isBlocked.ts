@@ -6,7 +6,7 @@ import { StatusMessage } from "../enums/StatusMessage";
 interface AuthenticatedRequest extends Request {
   user?: {
     _id: string;
-  };
+    };
 }
 
 export const isBlocked = async (

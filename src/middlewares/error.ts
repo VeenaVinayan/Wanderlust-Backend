@@ -16,17 +16,16 @@ function isCastError(error: unknown): error is { name: string; kind: string } {
     );
 }
 
-const  ErrorHandler= (err : unknown, req: Request, res: Response, next: NextFunction): void => {
+const  ErrorHandler= (err : unknown, req: Request, res: Response): void => {
        let statusCode = res.statusCode === 200 ? 500 : res.statusCode ;
        if(err instanceof Error){ 
        let message = err.message;
         
        if(isCastError(err)){
-              statusCode = 404;
-              message = "Resource Not Found";
+            statusCode = 404;
+            message = "Resource Not Found";
          }
-
-         res.status(statusCode).json({
+        res.status(statusCode).json({
              message,
              stack:process.env.NODE_ENV === 'production' ? null : err.stack
          })

@@ -178,7 +178,7 @@ let UserController = class UserController {
                 const { userId, packageId } = req.query;
                 const review = yield this._userService.getReview(String(userId), String(packageId));
                 if (review) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ succes: true, data: review });
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ succes: true, review });
                 }
                 else {
                     res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ success: true });
@@ -250,8 +250,8 @@ let UserController = class UserController {
                         .json({ message: StatusMessage_1.StatusMessage.BAD_REQUEST });
                     return;
                 }
-                const data = yield this._userService.getWallet(userId, filterParams);
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data });
+                const wallet = yield this._userService.getWallet(userId, filterParams);
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, wallet });
             }
             catch (err) {
                 next(err);

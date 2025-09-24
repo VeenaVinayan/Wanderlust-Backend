@@ -43,7 +43,7 @@ let AgentController = class AgentController {
             }
             try {
                 const response = yield s3Service_1.s3Service.generateSignedUrl(fileType);
-                res.status(200).json({ response });
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ response });
             }
             catch (error) {
                 next(error);
@@ -67,9 +67,9 @@ let AgentController = class AgentController {
             }
         }));
         this.getCategories = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const data = yield this._agentService.getCategories();
-            if (data) {
-                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, categories: data });
+            const categories = yield this._agentService.getCategories();
+            if (categories) {
+                res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, categories });
             }
             else {
                 res
@@ -108,10 +108,10 @@ let AgentController = class AgentController {
         this.getDashboardData = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { agentId } = req.params;
-                const data = yield this._agentService.getDashboardData(agentId);
+                const dashboardData = yield this._agentService.getDashboardData(agentId);
                 res
                     .status(HttpStatusCode_1.HttpStatusCode.OK)
-                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, dashboardData });
             }
             catch (err) {
                 next(err);

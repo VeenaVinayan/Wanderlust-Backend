@@ -3,7 +3,10 @@ import { StatusMessage } from "../enums/StatusMessage";
 import { HttpStatusCode } from '../enums/HttpStatusCode';
 
 interface AuthRequest extends Request {
-     user?:any;
+     user?:{
+      _id:string;
+      role:string;
+     };
 }
 export class RoleAuth {
   constructor(){
@@ -16,7 +19,7 @@ export class RoleAuth {
                 res.status(HttpStatusCode.FORBIDDEN).json({message:StatusMessage.ACCESS_DENIED});
                 return;
               } 
-              if(!roles.includes(req.user.role)){
+              if(!req.user?.role || !roles.includes(req.user.role)){
                    res.status(HttpStatusCode.FORBIDDEN).json({message:StatusMessage.ACCESS_DENIED});
                    return;
               }

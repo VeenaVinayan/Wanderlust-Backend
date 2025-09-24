@@ -13,7 +13,7 @@ function isCastError(error) {
         error.name === 'CastError' &&
         error.kind === 'ObjectId');
 }
-const ErrorHandler = (err, req, res, next) => {
+const ErrorHandler = (err, req, res) => {
     let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     if (err instanceof Error) {
         let message = err.message;

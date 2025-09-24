@@ -8,14 +8,14 @@ class RoleAuth {
     }
     checkRole(roles) {
         return (req, res, next) => {
-            var _a;
+            var _a, _b;
             try {
                 const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
                 if (!token) {
                     res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ message: StatusMessage_1.StatusMessage.ACCESS_DENIED });
                     return;
                 }
-                if (!roles.includes(req.user.role)) {
+                if (!((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) || !roles.includes(req.user.role)) {
                     res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ message: StatusMessage_1.StatusMessage.ACCESS_DENIED });
                     return;
                 }

@@ -152,7 +152,7 @@ let PackageController = class PackageController {
                 };
                 res
                     .status(HttpStatusCode_1.HttpStatusCode.OK)
-                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, data });
+                    .json({ message: StatusMessage_1.StatusMessage.SUCCESS, packages: data });
             }
             catch (err) {
                 next(err);

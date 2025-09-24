@@ -70,14 +70,14 @@ let BookingController = class BookingController {
                         sortOrder: sortOrder || "dec",
                     },
                 };
-                const data = yield this._bookingService.getBookingData(filterParams);
-                if (data) {
+                const bookings = yield this._bookingService.getBookingData(filterParams);
+                if (bookings) {
                     res
                         .status(HttpStatusCode_1.HttpStatusCode.OK)
                         .json({
                         success: true,
                         message: "Booking data retrieved successfully",
-                        data,
+                        bookings,
                     });
                 }
                 else {
@@ -238,12 +238,12 @@ let BookingController = class BookingController {
         }));
         this.getDashboard = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._bookingService.getDashboard();
-                if (data) {
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ data });
+                const dashboard = yield this._bookingService.getDashboard();
+                if (dashboard) {
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ dashboard });
                 }
                 else {
-                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ data });
+                    res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.ERROR });
                 }
             }
             catch (err) {

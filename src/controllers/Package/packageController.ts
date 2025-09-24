@@ -148,7 +148,7 @@ export class PackageController {
         };
         res
           .status(HttpStatusCode.OK)
-          .json({ message: StatusMessage.SUCCESS, data });
+          .json({ message: StatusMessage.SUCCESS, packages:data });
       } catch (err) {
         next(err);
       }

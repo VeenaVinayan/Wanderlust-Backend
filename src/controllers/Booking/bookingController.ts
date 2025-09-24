@@ -51,14 +51,14 @@ export class BookingController {
             sortOrder: (sortOrder as string) || "dec",
           },
         };
-        const data = await this._bookingService.getBookingData(filterParams);
-        if (data) {
+        const bookings = await this._bookingService.getBookingData(filterParams);
+        if (bookings) {
           res
             .status(HttpStatusCode.OK)
             .json({
               success: true,
               message: "Booking data retrieved successfully",
-              data,
+              bookings,
             });
         } else {
           res
@@ -231,14 +231,14 @@ export class BookingController {
   getDashboard = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const data: IDashBoardData | null =
+        const dashboard: IDashBoardData | null =
           await this._bookingService.getDashboard();
-        if (data) {
-          res.status(HttpStatusCode.OK).json({ data });
+        if(dashboard) {
+          res.status(HttpStatusCode.OK).json({ dashboard });
         } else {
-          res.status(HttpStatusCode.NOT_FOUND).json({ data });
+          res.status(HttpStatusCode.NOT_FOUND).json({ message: StatusMessage.ERROR });
         }
-      } catch (err) {
+      }catch (err) {
         next(err);
       }
     }

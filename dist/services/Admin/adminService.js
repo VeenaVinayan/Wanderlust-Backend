@@ -52,11 +52,11 @@ let AdminService = class AdminService {
             }
         });
     }
-    addCategory(data) {
+    addCategory(category) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                data.name = data.name.toUpperCase();
-                yield this._categoryRepository.createNewData(data);
+                category.name = category.name.toUpperCase();
+                yield this._categoryRepository.createNewData(category);
                 return true;
             }
             catch (err) {
@@ -109,8 +109,8 @@ let AdminService = class AdminService {
     editCategory(categoryId, category) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const res = yield this._categoryRepository.updateOneById(categoryId, category);
-                if (res)
+                const updatedResult = yield this._categoryRepository.updateOneById(categoryId, category);
+                if (updatedResult)
                     return true;
                 else
                     return false;
@@ -124,8 +124,8 @@ let AdminService = class AdminService {
     getPendingAgentData(params) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this._adminRepository.findPendingAgent(params);
-                return data;
+                const pendingAgents = yield this._adminRepository.findPendingAgent(params);
+                return pendingAgents;
             }
             catch (err) {
                 console.log("Error in create Category |", err);

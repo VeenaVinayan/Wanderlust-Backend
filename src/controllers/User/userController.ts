@@ -167,7 +167,7 @@ export class UserController {
           String(packageId)
         );
         if (review) {
-          res.status(HttpStatusCode.OK).json({ succes: true, data: review });
+          res.status(HttpStatusCode.OK).json({ succes: true,  review });
         } else {
           res.status(HttpStatusCode.NO_CONTENT).json({ success: true });
         }
@@ -240,8 +240,8 @@ export class UserController {
             .json({ message: StatusMessage.BAD_REQUEST });
           return;
         }
-        const data = await this._userService.getWallet(userId, filterParams);
-        res.status(HttpStatusCode.OK).json({ success: true, data });
+        const wallet = await this._userService.getWallet(userId, filterParams);
+        res.status(HttpStatusCode.OK).json({ success: true, wallet });
       } catch (err) {
         next(err);
       }

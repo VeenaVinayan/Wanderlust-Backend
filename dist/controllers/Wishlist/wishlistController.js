@@ -62,9 +62,9 @@ let WishlistController = class WishlistController {
         this.getWishlist = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.query;
-                const result = yield this._wishlistService.getWishlist(String(userId));
-                if (result)
-                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, data: result });
+                const wishlists = yield this._wishlistService.getWishlist(String(userId));
+                if (wishlists)
+                    res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true, wishlists });
                 else
                     res.status(HttpStatusCode_1.HttpStatusCode.NO_CONTENT).json({ success: false });
             }

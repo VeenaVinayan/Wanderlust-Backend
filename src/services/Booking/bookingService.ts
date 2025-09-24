@@ -25,13 +25,13 @@ export class BookingService implements IBookingService {
   async bookPackage(bookingData: IBookingData): Promise<IBooking> {
     try {
       const result = await this._bookingRepository.createNewData(bookingData);
-      const data: IBookingValue | null =
+      const booking: IBookingValue | null =
         await this._bookingRepository.getAgentData(result._id);
-      if (result && data) {
+      if (result && booking) {
         const notification: TNotification = {
-          userId: data.agentId.toString(),
+          userId: booking.agentId.toString(),
           title: "New Booking",
-          message: `${data.userName} is created new booking of package ${data.packageName}`,
+          message: `${booking.userName} is created new booking of package ${booking.packageName}`,
         };
         await this._notificationService.createNewNotification(notification);
       }
@@ -73,10 +73,10 @@ export class BookingService implements IBookingService {
   }
   async getAgentBookingData(filterParams: FilterParams): Promise<object> {
     try {
-      const data = await this._bookingRepository.getAgentBookingData(
+      const booking = await this._bookingRepository.getAgentBookingData(
         filterParams
       );
-      return data;
+      return booking;
     } catch (err) {
       console.log(err);
       throw err;
@@ -143,10 +143,10 @@ export class BookingService implements IBookingService {
     }
   }
   async getBookingDataToAdmin(filterParams: FilterParams): Promise<object> {
-    const data = await this._bookingRepository.getBookingDataToAdmin(
+    const booking = await this._bookingRepository.getBookingDataToAdmin(
       filterParams
     );
-    return data;
+    return booking;
   }
   async cancelBooking(id: string): Promise<CancellBookingResult> {
     const bookingData: IBooking | null =
@@ -227,12 +227,12 @@ export class BookingService implements IBookingService {
     packageId: string,
     day: Date
   ): Promise<IBookingValidationResult | null> {
-    const data: IBookingValidationResult | null =
+    const booking: IBookingValidationResult | null =
       await this._bookingRepository.validateBooking(packageId, day);
-    return data;
+    return booking;
   }
   async getDashboard(): Promise<IDashBoardData | null> {
-    const data = (await this._bookingRepository.getDashboard()) as {
+    const booking = (await this._bookingRepository.getDashboard()) as {
       summary: ISummary[];
       bookingsPerMonth: Array<{
         _id: { month: number; year: number };
@@ -241,7 +241,7 @@ export class BookingService implements IBookingService {
       }>;
       topPackages: Array<{ packageName: string; value: 1 }>;
     } | null;
-    if (!data) return null;
+    if (!booking) return null;
     const MONTHS = [
       "January",
       "February",
@@ -256,15 +256,15 @@ export class BookingService implements IBookingService {
       "November",
       "December",
     ];
-    const chartData = data.bookingsPerMonth?.map((item) => ({
+    const chartData = booking.bookingsPerMonth?.map((item) => ({
       totalBookings: item.totalBookings,
       month: MONTHS[item._id.month - 1],
     }));
 
     const dashboardData: IDashBoardData = {
-      summary: data?.summary[0],
+      summary: booking?.summary[0],
       bookingsPerMonth: chartData,
-      topPackages: data?.topPackages,
+      topPackages: booking?.topPackages,
     };
     return dashboardData;
   }

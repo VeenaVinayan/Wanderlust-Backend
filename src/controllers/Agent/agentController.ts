@@ -22,7 +22,7 @@ export class AgentController {
       }
       try {
         const response = await s3Service.generateSignedUrl(fileType);
-        res.status(200).json({ response });
+        res.status(HttpStatusCode.OK).json({ response });
       } catch (error) {
         next(error);
       }
@@ -49,9 +49,9 @@ export class AgentController {
     }
   });
   getCategories = asyncHandler(async (req: Request, res: Response) => {
-    const data = await this._agentService.getCategories();
-    if (data) {
-      res.status(HttpStatusCode.OK).json({ success: true, categories: data });
+    const categories = await this._agentService.getCategories();
+    if (categories) {
+      res.status(HttpStatusCode.OK).json({ success: true, categories});
     } else {
       res
         .status(HttpStatusCode.NO_CONTENT)
@@ -92,10 +92,10 @@ export class AgentController {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { agentId } = req.params;
-        const data = await this._agentService.getDashboardData(agentId);
+        const dashboardData = await this._agentService.getDashboardData(agentId);
         res
           .status(HttpStatusCode.OK)
-          .json({ message: StatusMessage.SUCCESS, data });
+          .json({ message: StatusMessage.SUCCESS, dashboardData });
       } catch (err) {
         next(err);
       }

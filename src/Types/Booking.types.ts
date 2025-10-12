@@ -90,6 +90,10 @@ export type TBookingInput = {
   phone?: string;
   tripDate?: string | Date;
   totalAmount: number | string;
+  bookingDAte:string | Date;
+  packageId:string;
+  userId:string;
+  totalGuest:number;
   travellers?: {
     adult?: number | string;
     children?: number | string;
@@ -100,6 +104,9 @@ export type TBookingInput = {
 export type TSanitizedBooking = {
   email: string ; 
   phone: string;
+  bookingDate:Date | null;
+  userId:string;
+  packageId:string;
   tripDate: Date | null;
   totalAmount: number;
   travellers: {

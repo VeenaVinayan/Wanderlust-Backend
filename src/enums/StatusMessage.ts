@@ -32,4 +32,5 @@ export enum StatusMessage{
     ALREADY_CANCELLED="Booking already cancelled !",
     ACCESS_DENIED="Access denied !",
     INVALID_TOKEN="Invalid Token",
+    BOOKING_SUCCESS="Booking Successfully Completed !"
 }

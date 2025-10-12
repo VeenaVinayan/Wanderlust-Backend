@@ -35,14 +35,16 @@ let BookingController = class BookingController {
         this._bookingService = _bookingService;
         this.bookPackage = (0, express_async_handler_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("Booking DAta ::", req.body);
                 const result = yield this._bookingService.bookPackage(req.body);
+                console.log("After Booking ::", result);
                 if (result) {
                     yield this._bookingService.sendConfirmationEmail(result);
                     res
                         .status(HttpStatusCode_1.HttpStatusCode.OK)
                         .json({
                         success: true,
-                        message: "Booking data retrieved successfully",
+                        message: StatusMessage_1.StatusMessage.BOOKING_SUCCESS,
                         result,
                     });
                 }
@@ -53,6 +55,7 @@ let BookingController = class BookingController {
                 }
             }
             catch (error) {
+                console.log('Error in Book package ::', error);
                 next(error);
             }
         }));

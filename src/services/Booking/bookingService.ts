@@ -25,6 +25,7 @@ export class BookingService implements IBookingService {
   async bookPackage(bookingData: IBookingData): Promise<IBooking> {
     try {
       const result = await this._bookingRepository.createNewData(bookingData);
+      console.log("Result ::",result);
       const booking: IBookingValue | null =
         await this._bookingRepository.getAgentData(result._id);
       if (result && booking) {

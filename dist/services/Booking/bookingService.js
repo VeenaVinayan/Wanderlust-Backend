@@ -39,6 +39,7 @@ let BookingService = class BookingService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._bookingRepository.createNewData(bookingData);
+                console.log("Result ::", result);
                 const booking = yield this._bookingRepository.getAgentData(result._id);
                 if (result && booking) {
                     const notification = {

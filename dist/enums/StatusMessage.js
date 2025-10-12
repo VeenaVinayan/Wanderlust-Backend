@@ -36,4 +36,5 @@ var StatusMessage;
     StatusMessage["ALREADY_CANCELLED"] = "Booking already cancelled !";
     StatusMessage["ACCESS_DENIED"] = "Access denied !";
     StatusMessage["INVALID_TOKEN"] = "Invalid Token";
+    StatusMessage["BOOKING_SUCCESS"] = "Booking Successfully Completed !";
 })(StatusMessage || (exports.StatusMessage = StatusMessage = {}));

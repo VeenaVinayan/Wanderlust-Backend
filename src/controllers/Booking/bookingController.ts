@@ -16,14 +16,16 @@ export class BookingController {
   bookPackage = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
+        console.log("Booking DAta ::",req.body);
         const result = await this._bookingService.bookPackage(req.body);
+        console.log("After Booking ::",result);
         if (result) {
           await this._bookingService.sendConfirmationEmail(result);
           res
             .status(HttpStatusCode.OK)
             .json({
               success: true,
-              message: "Booking data retrieved successfully",
+              message: StatusMessage.BOOKING_SUCCESS,
               result,
             });
         } else {
@@ -32,6 +34,7 @@ export class BookingController {
             .json({ success: false, message: "No booking data found" });
         }
       } catch (error) {
+        console.log('Error in Book package ::',error);
         next(error);
       }
     }

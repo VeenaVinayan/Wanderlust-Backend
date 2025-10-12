@@ -29,7 +29,7 @@ router.get('/packages-category',packageController.getCategoryPackages);
 router.get('/advance-search',packageController.advanceSearch);
 router.post('/stripe-payment',auth,roleAuth.checkRole(['User']),isBlocked,userController.stripePayment);
 router.route('/booking')
-      .post(auth,roleAuth.checkRole(['User']),isBlocked,validation,bookingController.bookPackage);
+      .post(auth,roleAuth.checkRole(['User']),isBlocked,bookingController.bookPackage);
 router.get('/booking/:id',auth,roleAuth.checkRole(['User']),isBlocked,bookingController.getBookingData);
 router.route('/wishlist')
       .post(auth,roleAuth.checkRole(['User']),isBlocked,wishlistController.addToWishlist)

@@ -8,7 +8,6 @@ const protected_1 = __importDefault(require("../middlewares/protected"));
 const roleAuth_1 = require("../middlewares/roleAuth");
 const container_1 = require("../config/container");
 const isBlocked_1 = require("../middlewares/isBlocked");
-const validation_1 = require("../middlewares/validation");
 const router = express_1.default.Router();
 const roleAuth = new roleAuth_1.RoleAuth();
 const userController = container_1.container.get('UserController');
@@ -25,7 +24,7 @@ router.get('/packages-category', packageController.getCategoryPackages);
 router.get('/advance-search', packageController.advanceSearch);
 router.post('/stripe-payment', protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, userController.stripePayment);
 router.route('/booking')
-    .post(protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, validation_1.validation, bookingController.bookPackage);
+    .post(protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, bookingController.bookPackage);
 router.get('/booking/:id', protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, bookingController.getBookingData);
 router.route('/wishlist')
     .post(protected_1.default, roleAuth.checkRole(['User']), isBlocked_1.isBlocked, wishlistController.addToWishlist)

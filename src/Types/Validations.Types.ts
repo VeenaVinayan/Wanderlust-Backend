@@ -12,6 +12,9 @@ export type  BookingInput = {
   bookingDate: string;
   totalAmount: number ;
   travellers: Travellers;
+  userId: string;
+  packageId:string;
+  totalGuest:number;
 }
 
 interface ISanitizedTravellers {
@@ -26,4 +29,8 @@ export interface ISanitizedBooking {
   totalAmount: number;
   tripDate: Date | null;
   travellers: ISanitizedTravellers;
+  bookingDate:Date | null;
+  packageId: string;
+  userId:string;
+  totalGuest:number;
 }

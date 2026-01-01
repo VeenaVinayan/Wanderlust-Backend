@@ -45,7 +45,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 
-const PORT: number = parseInt(process.env.PORT || '8001', 10);
+const PORT: number = parseInt(process.env.PORT || '8080', 10);
 
 morgan.token("body", (req: Request) => JSON.stringify(req.body) || "No Body");
 app.use(morgan("Request Body: :body"));

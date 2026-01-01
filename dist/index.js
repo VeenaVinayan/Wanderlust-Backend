@@ -40,7 +40,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.urlencoded({ extended: true }));
-const PORT = parseInt(process.env.PORT || '8001', 10);
+const PORT = parseInt(process.env.PORT || '8080', 10);
 morgan_1.default.token("body", (req) => JSON.stringify(req.body) || "No Body");
 app.use((0, morgan_1.default)("Request Body: :body"));
 const logDirectory = path_1.default.join(process.cwd(), 'src', 'logs');

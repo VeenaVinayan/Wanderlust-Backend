@@ -8,7 +8,7 @@ class EmailHelper{
         <p>Hi,</p>
         <p>Please click on the link mentioned below for reset password it will expires after 15 minutus:</p>
         <div style="text-align: center; margin: 20px 0;">
-        <a href="http://localhost:3000/resetPassword/${token}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Resend Email</a>
+        <a href="https://wanderlusttours.vercel.app/resetPassword/${token}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Resend Email</a>
         </div>
         <p>If you didn’t request this, please ignore this email or contact our support Team !! </p>
         <p>Thanks,<br>The Wanderlust Team</p>
